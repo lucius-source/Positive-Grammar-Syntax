@@ -1,0 +1,61 @@
+version: 0.1.0
+status: accepted
+system: Positive Grammar Syntax
+accepted: 2026-09-15
+
+purpose: >-
+  Separate provenance, hypotheses, supported principles and normative PGS requirements.
+  Presence in a source repository does not by itself make a proposition normative.
+
+statuses:
+  source_provenance:
+    rank: 0
+    normative: false
+    description: Source material or a proposition preserved because it influenced PGS. No validation is implied.
+  research:
+    rank: 1
+    normative: false
+    description: A sufficiently defined proposition for investigation, modelling, experimentation or validation.
+  supported:
+    rank: 2
+    normative: false
+    description: A proposition with relevant linguistic, computational, empirical or other evidence, but not yet adopted as a mandatory PGS rule.
+  normative:
+    rank: 3
+    normative: true
+    description: An accepted PGS requirement that conforming implementations must follow.
+
+claim_dimensions:
+  linguistic_computational:
+    description: Claims about grammar, morphology, semantics, parsing, communication or machine implementation.
+  psychological:
+    description: Claims about cognition, attention, emotion, behaviour or psychological effect.
+  spiritual_energetic:
+    description: Claims about spiritual, metaphysical or energetic effect; preserve as a distinct interpretive dimension unless separately validated.
+  legal_effect:
+    description: Claims that wording, typography or syntax changes legal rights, duties, jurisdiction, validity, standing or authority.
+    rule: Do not promote to normative legal-effect status without authoritative legal support applicable to the relevant jurisdiction.
+
+promotion_requirements:
+  to_research:
+    - proposition_is_defined
+    - source_or_rationale_recorded
+    - testable_or_assessable_question_identified
+  to_supported:
+    - relevant_evidence_recorded
+    - counterexamples_considered
+    - scope_and_limitations_defined
+  to_normative:
+    - user_or_governance_approval
+    - semantic_fidelity_review
+    - test_cases_added
+    - exceptions_defined
+    - interaction_with_existing_rules_checked
+    - implementation_consequence_documented
+
+source_policy:
+  quantum_grammar_parse_syntax:
+    default_status: source_provenance
+    note: >-
+      Structural and lexical propositions may be promoted through the evidence process.
+      Legal, psychological, spiritual or energetic consequences remain separately classified.
