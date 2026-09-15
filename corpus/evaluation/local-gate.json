@@ -50,6 +50,18 @@
       "source": "I reviewed the figures. I found a £500 discrepancy. I will send the transaction list today.",
       "protectedFragments": ["£500", "today"],
       "forbidNewNumbers": true
+    },
+    {
+      "id": "LOCAL-008",
+      "category": "verified-context",
+      "source": "They deliberately ignored my email.",
+      "expectedUnresolved": ["reference", "motive"],
+      "context": {
+        "knownFacts": ["I sent the email", "I have not received a response"],
+        "userIntent": "Please confirm receipt and review"
+      },
+      "protectedFragments": ["I sent the email", "I have not received a response"],
+      "expectedL2Fragments": ["Please confirm receipt and review"]
     }
   ]
 }

@@ -1,4 +1,4 @@
-import type { SemanticEngine } from '../semantic/types';
+import type { SemanticContext, SemanticEngine } from '../semantic/types';
 import { runPgsPipeline, type PipelineResult } from '../pipeline';
 
 export interface LocalEvaluationCase {
@@ -10,6 +10,8 @@ export interface LocalEvaluationCase {
   protectedFragments?: string[];
   requireL2Withheld?: boolean;
   forbidNewNumbers?: boolean;
+  context?: SemanticContext;
+  expectedL2Fragments?: string[];
 }
 
 export interface EvaluationAssertion { pass: boolean; message: string }
@@ -26,7 +28,7 @@ function numbers(text: string): string[] {
 }
 
 export async function evaluateLocalCase(testCase: LocalEvaluationCase, engine: SemanticEngine): Promise<LocalEvaluationResult> {
-  const pipeline = await runPgsPipeline(testCase.source, engine);
+  const pipeline = await runPgsPipeline(testCase.source, engine, testCase.context ? { context: testCase.context } : {});
   const rendered = pipeline.recommendations.flatMap(item => item.text ?? []).join('\n');
   const rules = new Set(pipeline.ruleFindings.map(item => item.ruleId));
   const unresolved = pipeline.unresolved.join(' ').toLowerCase();
@@ -40,8 +42,10 @@ export async function evaluateLocalCase(testCase: LocalEvaluationCase, engine: S
   for (const field of testCase.expectedUnresolved ?? []) assertions.push({ pass: unresolved.includes(field.toLowerCase()), message: `${field} remains unresolved.` });
   for (const fragment of testCase.protectedFragments ?? []) assertions.push({ pass: rendered.includes(fragment), message: `Protected fragment is retained: ${fragment}` });
   if (testCase.requireL2Withheld) assertions.push({ pass: pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text === undefined, message: 'PGS-L2 is withheld pending resolution.' });
+  const l2Text = pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text ?? '';
+  for (const fragment of testCase.expectedL2Fragments ?? []) assertions.push({ pass: l2Text.includes(fragment), message: `PGS-L2 contains context-supported content: ${fragment}` });
   if (testCase.forbidNewNumbers) {
-    const sourceNumbers = new Set(numbers(testCase.source));
+    const sourceNumbers = new Set(numbers([testCase.source, ...(testCase.context?.knownFacts ?? []), testCase.context?.userIntent ?? ''].join(' ')));
     const additions = numbers(rendered).filter(item => !sourceNumbers.has(item));
     assertions.push({ pass: additions.length === 0, message: additions.length ? `Invented numeric content: ${additions.join(', ')}` : 'No date or quantity is invented.' });
   }
