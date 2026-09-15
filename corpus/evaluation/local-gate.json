@@ -1,0 +1,55 @@
+{
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "LOCAL-001",
+      "category": "ambiguous-motive",
+      "source": "They deliberately ignored my email.",
+      "expectedUnresolved": ["reference", "motive"],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-002",
+      "category": "safety-negation",
+      "source": "Do not energise the circuit.",
+      "expectedRules": ["PGS-007"],
+      "protectedFragments": ["Do not energise the circuit"]
+    },
+    {
+      "id": "LOCAL-003",
+      "category": "medical-quantity",
+      "source": "Do not take more than two tablets in 24 hours.",
+      "expectedRules": ["PGS-007"],
+      "protectedFragments": ["Do not take more than two tablets in 24 hours"]
+    },
+    {
+      "id": "LOCAL-004",
+      "category": "vague-time",
+      "source": "I'll get back to you soon.",
+      "expectedRules": ["PGS-004"],
+      "forbidNewNumbers": true
+    },
+    {
+      "id": "LOCAL-005",
+      "category": "unsupported-certainty",
+      "source": "Obviously they know what they're doing.",
+      "expectedRules": ["PGS-005"],
+      "expectedUnresolved": ["reference"],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-006",
+      "category": "operative-refusal",
+      "source": "I don't consent to this.",
+      "expectedRules": ["PGS-007"],
+      "protectedFragments": ["consent", "this"]
+    },
+    {
+      "id": "LOCAL-007",
+      "category": "positive-control",
+      "source": "I reviewed the figures. I found a £500 discrepancy. I will send the transaction list today.",
+      "protectedFragments": ["£500", "today"],
+      "forbidNewNumbers": true
+    }
+  ]
+}

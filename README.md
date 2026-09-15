@@ -63,3 +63,11 @@ npm run pgs -- "They deliberately ignored my email."
 ```
 
 The CLI performs deterministic PGS-PIR analysis first, requests semantic determination only when review is required, validates the model's JSON response, and applies an initial fidelity gate before displaying recommendations. The semantic adapter accepts local engines only; it has no cloud fallback. Configure another local Ollama model or endpoint with `PGS_OLLAMA_MODEL` and `PGS_OLLAMA_URL`.
+
+Run the executable local fidelity corpus with:
+
+```bash
+npm run eval:local
+```
+
+This gate exercises ambiguity, motive attribution, safety and medical negation, vague timing, unsupported certainty, operative refusal, quantities, and a positive control against the configured local Ollama model.

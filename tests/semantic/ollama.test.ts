@@ -16,6 +16,7 @@ describe('Ollama semantic adapter', () => {
     expect(sent.format).toBe('json');
     expect(sent.think).toBe(false);
     expect(sent.options.temperature).toBe(0);
+    expect(sent.prompt).toContain('never create a new enum label');
     expect(result.providerMetadata?.local).toBe(true);
   });
 
