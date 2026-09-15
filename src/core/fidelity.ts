@@ -34,15 +34,31 @@ function pirFields(text: string): { actions: Set<string>; actors: Set<string> } 
   };
 }
 
+function verifiedConditionalReframe(source: string, candidate: string): boolean {
+  const sourceAnalysis = analyseDocument(source);
+  const candidateAnalysis = analyseDocument(candidate);
+  const sourceRelation = sourceAnalysis.relations.find(item => item.type === 'condition');
+  const candidateRelation = candidateAnalysis.relations.find(item => item.type === 'condition');
+  if (!sourceRelation || !candidateRelation || !/^if$/i.test(sourceRelation.marker ?? '') || !/^only if$/i.test(candidateRelation.marker ?? '')) return false;
+  if (sourceAnalysis.document.propositions.length !== 2 || candidateAnalysis.document.propositions.length !== 2) return false;
+  if (!sourceAnalysis.document.propositions.every(item => item.negation?.present) || candidateAnalysis.document.propositions.some(item => item.negation?.present)) return false;
+  const sourceActions = pirFields(source).actions;
+  const candidateActions = pirFields(candidate).actions;
+  return missing(sourceActions, candidateActions).length === 0 && missing(candidateActions, sourceActions).length === 0
+    && missing(terms(source, TEMPORAL), terms(candidate, TEMPORAL)).length === 0;
+}
+
 export function compareFidelity(source: string, candidate: string, context?: SemanticContext): FidelityComparison {
   const authorised = [source, ...(context?.knownFacts ?? []), context?.userIntent ?? '', ...(context?.referenceBindings ?? []).map(item => item.entity), ...(context?.evidence ?? []).filter(item => evidenceIsSufficient(item.field, item)).map(item => item.statement)].join(' ');
   const issues: FidelityIssue[] = [];
   const add = (issue: FidelityIssue) => issues.push(issue);
+  const conditionalReframe = verifiedConditionalReframe(source, candidate);
 
   const sourceNegation = terms(source, NEGATION);
-  if (sourceNegation.size && terms(candidate, NEGATION).size === 0) {
+  if (sourceNegation.size && terms(candidate, NEGATION).size === 0 && !conditionalReframe) {
     add({ code: 'FIDELITY_NEGATION_REMOVED', severity: 'blocked', message: 'Candidate removes source negation; logical equivalence is not established.', evidence: [...sourceNegation].join(', ') });
   }
+  if (conditionalReframe) add({ code: 'FIDELITY_CONDITION_EQUIVALENT', severity: 'review_required', message: 'Candidate uses a structurally verified only-if contraposition; final semantic review remains required.' });
 
   const sourceConditions = terms(source, CONDITION);
   if (sourceConditions.size && terms(candidate, CONDITION).size === 0) {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderRecommendations } from '../../src/render/recommendations';
 import { extractPropositionSeed } from '../../src/parser/proposition';
+import { analyseDocument } from '../../src/analyser/document';
 
 const renderFromPir = (source: string) => renderRecommendations(source, extractPropositionSeed(source).proposition.unresolved ?? [], undefined, [extractPropositionSeed(source).proposition]);
 
@@ -34,6 +35,15 @@ describe('conservative natural recommendations', () => {
     const [l1] = renderFromPir(source as string);
     expect(l1?.text).toBe(expected);
     expect(l1?.ruleIds).toEqual(rules);
+  });
+
+  it('renders a verified double-negative condition as only-if', () => {
+    const source = "If payment isn't received by Friday, delivery won't proceed.";
+    const analysis = analyseDocument(source);
+    const [l1] = renderRecommendations(source, [], undefined, analysis.document.propositions);
+    expect(l1?.text).toBe('Delivery proceeds only if payment is received by Friday.');
+    expect(l1?.ruleIds).toEqual(['PGS-004', 'PGS-007']);
+    expect(l1?.supportingFields).toContain('relation.condition');
   });
 
   it.each([

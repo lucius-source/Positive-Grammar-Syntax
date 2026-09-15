@@ -30,4 +30,10 @@ describe('evidence-grounded resolution ledger', () => {
     const ledger = buildResolutionLedger(analysis, semantic);
     expect(ledger.find(item => item.field === 'reference')?.status).toBe('unresolved');
   });
+
+  it('deduplicates model unresolved labels that name an existing ledger field', () => {
+    const passive = analyseDocument('Errors were committed.');
+    const ledger = buildResolutionLedger(passive);
+    expect(unresolvedFromLedger(ledger, { propositions: passive.document.propositions, relations: passive.relations, determinations: [], unresolved: ['P1.actor'] })).toEqual(['P1: actor']);
+  });
 });

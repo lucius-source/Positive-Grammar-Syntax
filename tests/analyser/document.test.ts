@@ -52,4 +52,10 @@ describe('multi-proposition document analyser', () => {
     const result = analyseDocument("Unless payment is received, delivery won't proceed.");
     expect(result.relations[0]).toMatchObject({ type: 'condition', marker: 'Unless' });
   });
+
+  it('normalizes only-if order into antecedent then consequent PIR', () => {
+    const result = analyseDocument('Delivery proceeds only if payment is received by Friday.');
+    expect(result.document.propositions.map(item => item.actionOrRelation)).toEqual(['receive', 'proceed']);
+    expect(result.relations[0]).toEqual({ from: 'P1', to: 'P2', type: 'condition', marker: 'Only if', confidence: 'deterministic' });
+  });
 });

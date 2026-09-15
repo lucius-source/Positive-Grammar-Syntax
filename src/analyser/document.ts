@@ -56,11 +56,15 @@ export function analyseDocument(text: string): DocumentAnalysis {
 
   for (const sentence of sentences) {
     const conditional = sentence.match(/^\s*(If|Unless)\s+(.+?),\s+(.+)$/i);
+    const onlyIf = sentence.match(/^\s*(.+?)\s+only if\s+(.+)$/i);
     const firstId = `P${seeds.length + 1}`;
-    if (conditional?.[1] && conditional[2] && conditional[3]) {
-      const antecedent = extractPropositionSeed(conditional[2], firstId);
+    const marker = conditional?.[1] ?? (onlyIf ? 'Only if' : undefined);
+    const antecedentText = conditional?.[2] ?? onlyIf?.[2];
+    const consequentText = conditional?.[3] ?? onlyIf?.[1];
+    if (marker && antecedentText && consequentText) {
+      const antecedent = extractPropositionSeed(antecedentText.replace(/[.]$/, ''), firstId);
       const consequentId = `P${seeds.length + 2}`;
-      const consequent = extractPropositionSeed(conditional[3], consequentId);
+      const consequent = extractPropositionSeed(consequentText.replace(/[.]$/, ''), consequentId);
       for (const seed of [antecedent, consequent]) {
         if (seed.proposition.negation?.present) {
           seed.proposition.negation = { ...seed.proposition.negation, necessary: true, reason: 'Negation is material to the stated conditional relationship.' };
@@ -68,9 +72,9 @@ export function analyseDocument(text: string): DocumentAnalysis {
           seed.proposition.fidelityStatus = 'protected';
         }
       }
-      consequent.proposition.conditions = [`${antecedent.proposition.id} via ${conditional[1].toLowerCase()}`];
+      consequent.proposition.conditions = [`${antecedent.proposition.id} via ${marker.toLowerCase()}`];
       seeds.push(antecedent, consequent);
-      relations.push({ from: antecedent.proposition.id, to: consequent.proposition.id, type: 'condition', marker: conditional[1], confidence: 'deterministic' });
+      relations.push({ from: antecedent.proposition.id, to: consequent.proposition.id, type: 'condition', marker, confidence: 'deterministic' });
       sentenceRanges.push({ first: antecedent.proposition.id, last: consequent.proposition.id });
     } else {
       const seed = extractPropositionSeed(sentence, firstId);

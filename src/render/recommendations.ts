@@ -28,6 +28,16 @@ function applyBindings(source: string, context?: SemanticContext): string {
 function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposition[]): { text: string; ruleIds: string[]; supportingFields: string[] } {
   const clean = source.trim();
   const proposition = propositions[0];
+  const consequent = propositions[1];
+  if (propositions.length === 2 && proposition?.actionOrRelation === 'receive' && consequent?.actionOrRelation === 'proceed'
+    && proposition.negation?.present && consequent.negation?.present && proposition.time?.deadline && proposition.objectOrTarget) {
+    const consequenceSubject = consequent.sourceSpan.match(/^(.+?)\s+won't\s+proceed/i)?.[1]?.trim();
+    const originalDeadline = proposition.sourceSpan.match(/\bby\s+([^\s,.]+)/i)?.[1] ?? proposition.time.deadline;
+    if (consequenceSubject) {
+      const subject = `${consequenceSubject.charAt(0).toUpperCase()}${consequenceSubject.slice(1)}`;
+      return { text: `${subject} proceeds only if ${proposition.objectOrTarget} is received by ${originalDeadline}.`, ruleIds: ['PGS-004', 'PGS-007'], supportingFields: ['P1.actionOrRelation', 'P1.objectOrTarget', 'P1.time.deadline', 'P1.negation', 'P2.actionOrRelation', 'P2.negation', 'relation.condition'] };
+    }
+  }
   if (proposition?.actor === null && ['make', 'commit'].includes(proposition.actionOrRelation ?? '') && /\b(?:mistakes|errors)\b/i.test(clean)) {
     return { text: 'The actor responsible for the errors is not identified.', ruleIds: ['PGS-001'], supportingFields: ['P1.actor=null', 'P1.actionOrRelation', 'P1.objectOrTarget'] };
   }

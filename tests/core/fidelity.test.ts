@@ -13,6 +13,13 @@ describe('deterministic fidelity comparison', () => {
     expect(result.issues.map(item => item.code)).toContain('FIDELITY_CONDITION_REMOVED');
   });
 
+  it('recognizes a structurally equivalent only-if contraposition without allowing ordinary negation removal', () => {
+    const result = compareFidelity("If payment isn't received by Friday, delivery won't proceed.", 'Delivery proceeds only if payment is received by Friday.');
+    expect(result.issues.map(item => item.code)).toContain('FIDELITY_CONDITION_EQUIVALENT');
+    expect(result.issues.map(item => item.code)).not.toContain('FIDELITY_NEGATION_REMOVED');
+    expect(result.status).toBe('review_required');
+  });
+
   it('blocks an epistemic certainty upgrade', () => {
     const result = compareFidelity('I may send it Friday.', 'I will send it Friday.');
     expect(result.issues.map(item => item.code)).toContain('FIDELITY_CERTAINTY_UPGRADED');

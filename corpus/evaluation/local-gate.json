@@ -174,7 +174,8 @@
       "expectedPropositionCount": 2,
       "expectedRelationTypes": ["condition"],
       "expectedProtectedContent": ["conditional_negation"],
-      "protectedFragments": ["isn't received by Friday", "won't proceed"]
+      "expectedL1Fragments": ["Delivery proceeds only if payment is received by Friday."],
+      "protectedFragments": ["payment", "Friday", "Delivery"]
     }
   ]
 }

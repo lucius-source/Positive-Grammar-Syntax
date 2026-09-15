@@ -35,7 +35,7 @@ const ACTIONS: Array<[RegExp, string]> = [
   [/\b(?:send|sent)\b/i, 'send'], [/\b(?:ignore|ignored)\b/i, 'ignore'],
   [/\b(?:listen|listened)\b/i, 'listen'], [/\bconsent\b/i, 'consent'],
   [/\benergise(?:d)?\b/i, 'energise'], [/\b(?:take|took)\b/i, 'take'],
-  [/\b(?:receive|received)\b/i, 'receive'], [/\bproceed(?:ed)?\b/i, 'proceed'],
+  [/\b(?:receive|received)\b/i, 'receive'], [/\bproceed(?:s|ed)?\b/i, 'proceed'],
   [/\b(?:serve|served)\b/i, 'serve'],
   [/\bfail(?:ed)?\b/i, 'fail'], [/\b(?:make|made)\b/i, 'make'], [/\b(?:commit|committed)\b/i, 'commit'],
   [/\b(?:complete|completed|do|done)\b/i, 'complete'],

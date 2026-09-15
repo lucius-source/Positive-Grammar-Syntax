@@ -65,6 +65,7 @@ export function unresolvedFromLedger(entries: ResolutionEntry[], semantic?: Sema
   const covered = (item: string) => {
     const value = item.toLowerCase();
     if (knownFields.has(value)) return true;
+    if ([...knownFields].some(field => new RegExp(`\\b${field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(value))) return true;
     if (knownFields.has('reference') && /reference|identity|antecedent/.test(value)) return true;
     if (knownFields.has('motive') && /motive|reason|intent/.test(value)) return true;
     return false;
