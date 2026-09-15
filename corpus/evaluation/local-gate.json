@@ -35,6 +35,7 @@
       "source": "Obviously they know what they're doing.",
       "expectedRules": ["PGS-005"],
       "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["I assume they know what they're doing."],
       "requireL2Withheld": true
     },
     {

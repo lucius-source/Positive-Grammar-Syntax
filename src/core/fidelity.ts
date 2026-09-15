@@ -50,6 +50,7 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
 
   const authorisedActors = terms(authorised, ACTOR);
   if (/\b(?:my|me|mine)\b/i.test(source)) authorisedActors.add('i');
+  if (terms(source, HEDGES).size || /\bobviously\b/i.test(source)) authorisedActors.add('i');
   const newActors = missing(terms(candidate, ACTOR), authorisedActors);
   if (newActors.length) add({ code: 'FIDELITY_ACTOR_INVENTED', severity: 'blocked', message: 'Candidate introduces an actor absent from source and verified context.', evidence: newActors.join(', ') });
 

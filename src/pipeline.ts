@@ -3,8 +3,9 @@ import { detectDeterministicRules, type RuleFinding } from './core/rules';
 import { validatePgsDocument, type ValidationResult } from './core';
 import { compareFidelity } from './core/fidelity';
 import type { SemanticContext, SemanticDetermination, SemanticEngine, SemanticResponse } from './semantic/types';
+import { renderRecommendations, type Recommendation } from './render/recommendations';
 
-export interface Recommendation { level: 'PGS-L1' | 'PGS-L2'; text?: string; withheldReason?: string }
+export type { Recommendation } from './render/recommendations';
 export interface FidelityFinding { status: 'pass' | 'review_required' | 'blocked'; message: string }
 export interface PipelineResult {
   source: string;
@@ -31,27 +32,6 @@ function unresolvedLabels(analysis: DocumentAnalysis, semantic?: SemanticRespons
   const namedFields = new Set([...deterministic, ...determinations].map(item => item.replace(/^P\d+:\s*/, '').toLowerCase()));
   const additional = (semantic?.unresolved ?? []).filter(item => !namedFields.has(item.toLowerCase()));
   return unique([...deterministic, ...determinations, ...additional]);
-}
-
-function asSentence(text: string): string {
-  const clean = text.trim();
-  return /[.!?]$/.test(clean) ? clean : `${clean}.`;
-}
-
-function recommendationsFor(source: string, unresolved: string[], context?: SemanticContext): Recommendation[] {
-  const hasMotive = unresolved.some(item => /motive/i.test(item));
-  const hasReference = unresolved.some(item => /reference/i.test(item));
-  const clean = source.trim();
-  const calibratedSource = hasMotive ? `I believe ${clean.charAt(0).toLowerCase()}${clean.slice(1)}` : clean;
-  const verifiedFacts = (context?.knownFacts ?? []).map(asSentence);
-  const l1Text = [...verifiedFacts, calibratedSource].join(' ');
-  const l1: Recommendation = { level: 'PGS-L1', text: l1Text };
-  const l2: Recommendation = context?.userIntent?.trim()
-    ? { level: 'PGS-L2', text: `${l1Text} ${asSentence(context.userIntent)}` }
-    : hasMotive || hasReference
-    ? { level: 'PGS-L2', withheldReason: 'A more directive rewrite could change unresolved actor, motive, evidence, or requested action.' }
-    : { level: 'PGS-L2', text: clean };
-  return [l1, l2];
 }
 
 function verifyFidelity(source: string, recommendations: Recommendation[], unresolved: string[], context?: SemanticContext): FidelityFinding[] {
@@ -84,7 +64,7 @@ export async function runPgsPipeline(source: string, engine: SemanticEngine, opt
     } catch (error) { semanticError = error instanceof Error ? error.message : String(error); }
   }
   const unresolved = unresolvedLabels(deterministic, semantic);
-  const recommendations = recommendationsFor(source, unresolved, options.context);
+  const recommendations = renderRecommendations(source, unresolved, options.context);
   const fidelity = verifyFidelity(source, recommendations, unresolved, options.context);
   return { source, ...(options.context ? { context: options.context } : {}), deterministic, ruleFindings, ...(semantic ? { semantic } : {}), ...(semanticError ? { semanticError } : {}), validation, unresolved, recommendations, fidelity };
 }
@@ -102,7 +82,7 @@ export function formatPgsReport(result: PipelineResult): string {
   const semantic = result.semantic
     ? result.semantic.determinations.map(determinationLine)
     : [result.semanticError ? `Semantic review unavailable: ${result.semanticError}` : 'Not required.'];
-  const recommendations = result.recommendations.flatMap(r => [r.level, r.text ?? `Withheld: ${r.withheldReason ?? 'Fidelity could not be established.'}`]);
+  const recommendations = result.recommendations.flatMap(r => [r.level, r.text ?? `Withheld: ${r.withheldReason ?? 'Fidelity could not be established.'}`, `Rules: ${r.ruleIds.length ? r.ruleIds.join(', ') : 'none (source preserved)'}`]);
   const context = result.context
     ? [...(result.context.knownFacts ?? []).map(fact => `Known fact: ${fact}`), ...(result.context.userIntent ? [`User intent: ${result.context.userIntent}`] : [])]
     : [];

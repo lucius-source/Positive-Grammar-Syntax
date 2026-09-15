@@ -77,6 +77,8 @@ Facts and intent are recorded separately in the report and are the only addition
 
 Each recommendation also passes through a deterministic source-to-candidate comparator. It blocks removed negation or conditions, changed or invented quantities and times, upgraded certainty, and actors or actions absent from the source and verified context.
 
+Conservative PGS-L1 rendering currently covers explicit non-consent, stated uncertainty, unsupported certainty markers, and motive attribution. Every changed recommendation reports the governing PGS rule IDs; unrecognised or unsafe constructions preserve the source instead of forcing a rewrite.
+
 Run the executable local fidelity corpus with:
 
 ```bash

@@ -12,6 +12,7 @@ export interface LocalEvaluationCase {
   forbidNewNumbers?: boolean;
   context?: SemanticContext;
   expectedL2Fragments?: string[];
+  expectedL1Fragments?: string[];
 }
 
 export interface EvaluationAssertion { pass: boolean; message: string }
@@ -43,6 +44,8 @@ export async function evaluateLocalCase(testCase: LocalEvaluationCase, engine: S
   for (const fragment of testCase.protectedFragments ?? []) assertions.push({ pass: rendered.includes(fragment), message: `Protected fragment is retained: ${fragment}` });
   if (testCase.requireL2Withheld) assertions.push({ pass: pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text === undefined, message: 'PGS-L2 is withheld pending resolution.' });
   const l2Text = pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text ?? '';
+  const l1Text = pipeline.recommendations.find(item => item.level === 'PGS-L1')?.text ?? '';
+  for (const fragment of testCase.expectedL1Fragments ?? []) assertions.push({ pass: l1Text.includes(fragment), message: `PGS-L1 contains expected content: ${fragment}` });
   for (const fragment of testCase.expectedL2Fragments ?? []) assertions.push({ pass: l2Text.includes(fragment), message: `PGS-L2 contains context-supported content: ${fragment}` });
   if (testCase.forbidNewNumbers) {
     const sourceNumbers = new Set(numbers([testCase.source, ...(testCase.context?.knownFacts ?? []), testCase.context?.userIntent ?? ''].join(' ')));
