@@ -8,9 +8,10 @@ export interface PropositionSeedResult {
 
 function inferSpeechAct(text: string): PgsProposition['speechAct'] {
   if (/\?\s*$/.test(text)) return 'question';
-  if (/\b(?:do not|don't|must not|mustn't)\b/i.test(text)) return 'command';
+  // Specific operative speech acts take precedence over generic negative-command detection.
   if (/\b(?:i do not consent|i don't consent)\b/i.test(text)) return 'refusal';
   if (/\b(?:i consent|i agree)\b/i.test(text)) return 'consent';
+  if (/\b(?:do not|don't|must not|mustn't)\b/i.test(text)) return 'command';
   if (/\b(?:i promise|i will)\b/i.test(text)) return 'promise';
   if (/\b(?:please|i request|i ask)\b/i.test(text)) return 'request';
   return 'assertion';
@@ -32,22 +33,24 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   const operativeNegation = speechAct === 'refusal' || /\b(?:must not|mustn't|do not|don't)\b/i.test(text);
   const unresolved: string[] = [];
 
-  // Surface parsing deliberately does not guess actor identity from ambiguous pronouns,
-  // motives, evidential basis, desired state, or logical equivalence.
-  if (parsed.pronounTokens.some(p => ['they', 'them', 'their', 'it', 'this', 'that'].includes(p))) unresolved.push('reference');
+  if (parsed.pronounTokens.some((p: string) => ['they', 'them', 'their', 'it', 'this', 'that'].includes(p))) unresolved.push('reference');
   if (/\b(?:deliberately|intentionally|on purpose)\b/i.test(text)) unresolved.push('motive');
 
   const requiresSemanticReview = unresolved.length > 0 || epistemicStatus === 'unknown';
+  const negation: PgsProposition['negation'] = parsed.negationTokens.length
+    ? {
+        present: true,
+        text: parsed.negationTokens.join(', '),
+        necessary: operativeNegation,
+        ...(operativeNegation ? { reason: 'Potentially operative refusal, prohibition, or protected negative construction.' } : {}),
+      }
+    : undefined;
+
   const proposition: PgsProposition = {
     id,
     sourceSpan: text,
     polarity: parsed.polarity,
-    negation: parsed.negationTokens.length ? {
-      present: true,
-      text: parsed.negationTokens.join(', '),
-      necessary: operativeNegation,
-      reason: operativeNegation ? 'Potentially operative refusal, prohibition, or protected negative construction.' : undefined,
-    } : undefined,
+    ...(negation ? { negation } : {}),
     epistemicStatus,
     speechAct,
     modality: parsed.modalTokens.length ? 'possibility' : 'none',
