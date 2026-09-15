@@ -1,0 +1,122 @@
+version: 0.1.0
+status: draft
+system: Positive Grammar Syntax
+abbreviation: PGS
+
+precedence:
+  - semantic_fidelity
+  - factual_accuracy
+  - clarity
+  - agency
+  - precision
+  - constructive_expression
+  - concision
+
+invariants:
+  preserve_source_meaning: true
+  preserve_necessary_negation: true
+  never_invent_actor: true
+  never_invent_fact: true
+  never_invent_time: true
+  never_increase_certainty_without_evidence: true
+  natural_language_required: true
+
+rules:
+  - id: PGS-001
+    name: explicit_agency
+    title: Explicit Agency
+    objective: Identify the actor responsible for an action where agency is material.
+    detect:
+      - passive_or_agentless_action
+      - abstract_responsibility
+    transform:
+      - make_known_material_actor_explicit
+    constraints:
+      - do_not_invent_unknown_actor
+      - preserve_legitimate_agentless_construction
+
+  - id: PGS-002
+    name: observation_before_interpretation
+    title: Observation Before Interpretation
+    objective: Distinguish observable or reported information from inference, judgement and conclusion.
+    detect:
+      - interpretation_presented_as_observation
+      - unsupported_generalisation
+    transform:
+      - separate_observation_from_interpretation
+      - label_inference_when_material
+    constraints:
+      - preserve_attributed_reports
+      - preserve_explicit_opinion_when_relevant
+
+  - id: PGS-003
+    name: affirmative_outcome
+    title: Affirmative Outcome
+    objective: Express the desired state where doing so preserves the proposition.
+    detect:
+      - avoidant_goal_without_desired_state
+      - unnecessary_negative_request
+    transform:
+      - state_desired_outcome
+    constraints:
+      - preserve_semantic_negation
+      - preserve_prohibition_and_boundary
+
+  - id: PGS-004
+    name: temporal_specificity
+    title: Temporal Specificity
+    objective: Replace avoidable temporal ambiguity with appropriate explicit timing.
+    detect:
+      - vague_time_reference_where_time_is_material
+    transform:
+      - request_or_use_known_specific_time
+    constraints:
+      - never_invent_date_or_deadline
+      - allow_intentional_flexibility
+
+  - id: PGS-005
+    name: epistemic_precision
+    title: Epistemic Precision
+    objective: Distinguish observation, inference, belief, assumption, allegation and established knowledge.
+    detect:
+      - certainty_exceeds_evidence
+      - epistemic_status_unclear_where_material
+    transform:
+      - calibrate_certainty
+      - identify_information_status
+    constraints:
+      - never_upgrade_certainty_without_evidence
+      - preserve_quoted_or_attributed_claims
+
+  - id: PGS-006
+    name: action_orientation
+    title: Action Orientation
+    objective: Connect a problem requiring change to a request, remedy, decision or proposed action.
+    detect:
+      - unresolved_complaint_where_action_is_sought
+      - unclear_next_step
+    transform:
+      - state_request_or_proposed_action
+      - identify_decision_required
+    constraints:
+      - do_not_invent_user_intention
+      - descriptive_communication_may_require_no_action
+
+  - id: PGS-007
+    name: constructive_negation
+    title: Constructive Negation
+    objective: Replace unnecessary negative construction with affirmative intent while preserving necessary negation.
+    detect:
+      - unnecessary_negation
+      - double_negative
+      - negative_instruction_with_clear_affirmative_equivalent
+    transform:
+      - express_affirmative_equivalent
+      - simplify_double_negative
+    constraints:
+      - preserve_legal_negation
+      - preserve_factual_negation
+      - preserve_logical_negation
+      - preserve_safety_critical_negation
+      - preserve_explicit_boundary
+      - preserve_denial_and_rebuttal
