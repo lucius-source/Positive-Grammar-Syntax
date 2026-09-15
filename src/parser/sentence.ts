@@ -9,7 +9,7 @@ export interface ParsedSentence {
   pronounTokens: string[];
 }
 
-const NEGATION = new Set(['not', "don't", 'dont', "doesn't", 'doesnt', "didn't", 'didnt', "won't", 'wont', "can't", 'cant', 'cannot', "shouldn't", 'shouldnt', "mustn't", 'mustnt', 'no', 'never', 'nothing', 'nobody']);
+const NEGATION = new Set(['not', "don't", 'dont', "doesn't", 'doesnt', "didn't", 'didnt', "isn't", 'isnt', "aren't", 'arent', "wasn't", 'wasnt', "weren't", 'werent', "won't", 'wont', "wouldn't", 'wouldnt', "can't", 'cant', 'cannot', "shouldn't", 'shouldnt', "mustn't", 'mustnt', 'no', 'never', 'nothing', 'nobody']);
 const MODALS = new Set(['can', 'could', 'may', 'might', 'must', 'shall', 'should', 'will', 'would', "can't", "won't", "shouldn't", "mustn't"]);
 const PRONOUNS = new Set(['i', 'me', 'my', 'mine', 'you', 'your', 'yours', 'he', 'him', 'his', 'she', 'her', 'hers', 'it', 'its', 'we', 'us', 'our', 'ours', 'they', 'them', 'their', 'theirs', 'this', 'that', 'these', 'those']);
 const TEMPORAL = new Set(['today', 'tomorrow', 'yesterday', 'now', 'soon', 'later', 'asap', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);

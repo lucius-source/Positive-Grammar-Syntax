@@ -37,4 +37,19 @@ describe('multi-proposition document analyser', () => {
   it('does not split ordinary sentence-internal punctuation as separate propositions', () => {
     expect(splitSentences('I reviewed the figures, found the discrepancy, and sent the list.')).toHaveLength(1);
   });
+
+  it('models an intra-sentence conditional as two protected propositions', () => {
+    const result = analyseDocument("If payment isn't received by Friday, delivery won't proceed.");
+    expect(result.document.propositions).toHaveLength(2);
+    expect(result.relations).toContainEqual({ from: 'P1', to: 'P2', type: 'condition', marker: 'If', confidence: 'deterministic' });
+    expect(result.document.propositions[0]?.negation).toMatchObject({ necessary: true });
+    expect(result.document.propositions[0]).toMatchObject({ actor: null, actionOrRelation: 'receive', objectOrTarget: 'payment' });
+    expect(result.document.propositions[1]?.conditions).toEqual(['P1 via if']);
+    expect(result.document.propositions.every(item => item.protectedContent?.includes('conditional_negation'))).toBe(true);
+  });
+
+  it('preserves unless as the conditional marker', () => {
+    const result = analyseDocument("Unless payment is received, delivery won't proceed.");
+    expect(result.relations[0]).toMatchObject({ type: 'condition', marker: 'Unless' });
+  });
 });

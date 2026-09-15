@@ -50,14 +50,42 @@ function relationBetween(previous: string, current: string, from: string, to: st
 
 export function analyseDocument(text: string): DocumentAnalysis {
   const sentences = splitSentences(text);
-  const seeds = sentences.map((sentence, index) => extractPropositionSeed(sentence, `P${index + 1}`));
+  const seeds: ReturnType<typeof extractPropositionSeed>[] = [];
   const relations: PropositionRelation[] = [];
+  const sentenceRanges: Array<{ first: string; last: string }> = [];
+
+  for (const sentence of sentences) {
+    const conditional = sentence.match(/^\s*(If|Unless)\s+(.+?),\s+(.+)$/i);
+    const firstId = `P${seeds.length + 1}`;
+    if (conditional?.[1] && conditional[2] && conditional[3]) {
+      const antecedent = extractPropositionSeed(conditional[2], firstId);
+      const consequentId = `P${seeds.length + 2}`;
+      const consequent = extractPropositionSeed(conditional[3], consequentId);
+      for (const seed of [antecedent, consequent]) {
+        if (seed.proposition.negation?.present) {
+          seed.proposition.negation = { ...seed.proposition.negation, necessary: true, reason: 'Negation is material to the stated conditional relationship.' };
+          seed.proposition.protectedContent = [...new Set([...(seed.proposition.protectedContent ?? []), 'conditional_negation'])];
+          seed.proposition.fidelityStatus = 'protected';
+        }
+      }
+      consequent.proposition.conditions = [`${antecedent.proposition.id} via ${conditional[1].toLowerCase()}`];
+      seeds.push(antecedent, consequent);
+      relations.push({ from: antecedent.proposition.id, to: consequent.proposition.id, type: 'condition', marker: conditional[1], confidence: 'deterministic' });
+      sentenceRanges.push({ first: antecedent.proposition.id, last: consequent.proposition.id });
+    } else {
+      const seed = extractPropositionSeed(sentence, firstId);
+      seeds.push(seed);
+      sentenceRanges.push({ first: seed.proposition.id, last: seed.proposition.id });
+    }
+  }
 
   for (let i = 1; i < sentences.length; i++) {
     const previous = sentences[i - 1];
     const current = sentences[i];
-    if (previous === undefined || current === undefined) continue;
-    relations.push(relationBetween(previous, current, `P${i}`, `P${i + 1}`));
+    const previousRange = sentenceRanges[i - 1];
+    const currentRange = sentenceRanges[i];
+    if (previous === undefined || current === undefined || !previousRange || !currentRange) continue;
+    relations.push(relationBetween(previous, current, previousRange.last, currentRange.first));
   }
 
   return {

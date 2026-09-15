@@ -19,6 +19,10 @@ describe('deterministic sentence parser', () => {
     expect(parsed.temporalTokens).toContain('yesterday');
     expect(parsed.polarity).toBe('affirmative');
   });
+
+  it('detects contracted copular negation', () => {
+    expect(parseSentence("Payment isn't received.").negationTokens).toContain("isn't");
+  });
 });
 
 describe('proposition seed extraction', () => {

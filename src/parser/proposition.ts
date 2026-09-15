@@ -49,7 +49,7 @@ function inferActor(text: string): string | null | undefined {
   const role = text.match(/^\s*(?:the\s+)?(claimant|defendant|supplier|buyer|seller|employer|employee|patient)\b/i)?.[1];
   if (role) return role.toLowerCase();
   if (/^\s*(?:They|He|She|It|This|That)\b/i.test(text)) return null;
-  if (/\b(?:was|were|is|are|been|be)\s+(?:\w+(?:ed|en)|made|done|sent|given|taken|known|seen|found|held|built|written|read|said|told|left|lost|paid|put|set)\b/i.test(text)) return null;
+  if (/\b(?:was|were|is|are|been|be|isn't|aren't|wasn't|weren't)\s+(?:\w+(?:ed|en)|made|done|sent|given|taken|known|seen|found|held|built|written|read|said|told|left|lost|paid|put|set)\b/i.test(text)) return null;
   const named = text.match(/^\s*([A-Z][a-z]+)\s+\w+/);
   return named?.[1] && !['The', 'A', 'An', 'For', 'If', 'Unless', 'Please'].includes(named[1]) ? named[1] : undefined;
 }
@@ -58,7 +58,7 @@ function inferAction(text: string): { action?: string; object?: string } {
   for (const [pattern, action] of ACTIONS) {
     const match = pattern.exec(text);
     if (!match || match.index === undefined) continue;
-    const passiveObject = text.match(/^\s*(.+?)\s+(?:was|were|is|are|been|be)\s+/i)?.[1];
+    const passiveObject = text.match(/^\s*(.+?)\s+(?:was|were|is|are|been|be|isn't|aren't|wasn't|weren't)\s+/i)?.[1];
     const tail = text.slice(match.index + match[0].length)
       .replace(/^[\s,]+|[.!?]+$/g, '')
       .replace(/\b(?:today|tomorrow|yesterday|soon|later|asap)\b.*$/i, '')

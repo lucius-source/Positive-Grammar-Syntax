@@ -166,6 +166,15 @@
       "expectedDomain": "legal",
       "expectedProtectedContent": ["high_risk_negation"],
       "protectedFragments": ["did not serve the notice"]
+    },
+    {
+      "id": "LOCAL-020",
+      "category": "conditional-negation",
+      "source": "If payment isn't received by Friday, delivery won't proceed.",
+      "expectedPropositionCount": 2,
+      "expectedRelationTypes": ["condition"],
+      "expectedProtectedContent": ["conditional_negation"],
+      "protectedFragments": ["isn't received by Friday", "won't proceed"]
     }
   ]
 }

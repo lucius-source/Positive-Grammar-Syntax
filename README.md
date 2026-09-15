@@ -86,6 +86,8 @@ The comparator also analyses the candidate as PIR. Omitted source actions or kno
 
 Legal, medical, and safety language receives conservative deterministic domain classification. Material negation in these domains is marked as protected even when it is a factual statement rather than an instruction.
 
+Intra-sentence `if` and `unless` constructions are represented as separate antecedent and consequent propositions joined by a deterministic condition relation. Negation participating in that relation is marked `conditional_negation` and protected.
+
 Conservative PGS-L1 rendering currently covers explicit non-consent, stated uncertainty, unsupported certainty markers, motive attribution, unidentified passive responsibility, absolute relational generalisation, present inability, and unsupported failure prediction. Every changed recommendation reports the governing PGS rule IDs; unrecognised or unsafe constructions preserve the source instead of forcing a rewrite.
 
 The deterministic proposition seed records recoverable PIR fields—including actor, action or relation, object or target, reported observation, intention, requested action, time, conditions, and quantities—while representing unresolved actors as `null`. Selected recommendations render from those fields, allowing equivalent paraphrases to follow the same rule-traced path.
