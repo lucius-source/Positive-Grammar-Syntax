@@ -1,0 +1,31 @@
+version: 0.1.0
+status: gate-3-candidate
+system: Positive Grammar Syntax
+purpose: Preferred PGS language patterns for unresolved analysis and determination.
+
+preference:
+  id: PGS-PREF-001
+  name: determination_over_inability
+  principle: >-
+    Where a matter remains unresolved, prefer language that identifies the determination
+    still to be made rather than framing the communicator or system through inability,
+    provided the preferred construction preserves the actual epistemic state and does not
+    imply that a determination is guaranteed when the matter may be indeterminate.
+  less_preferred_example: "I cannot determine this reliably."
+  preferred_example: "Determination to be made."
+  natural_variants:
+    - "A reliable determination remains to be made."
+    - "Further information is required for a reliable determination."
+    - "The available information does not yet support a reliable determination."
+  use_when:
+    - evidence_is_incomplete
+    - context_is_unresolved
+    - semantic_interpretation_is_pending
+    - a_determination_process_remains_available
+  do_not_use_when:
+    - the_matter_is_intrinsically_indeterminate
+    - determination_is_impossible_on_known_constraints
+    - wording_would_hide_a_material_limitation
+  fidelity_rule: >-
+    Positive framing must not convert genuine impossibility or permanent uncertainty into
+    an implied future certainty. State the limiting fact when it is material.
