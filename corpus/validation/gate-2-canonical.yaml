@@ -1,155 +1,56 @@
-version: 0.1.0
+version: 0.2.0
 status: gate-2-review
 system: Positive Grammar Syntax
 purpose: Canonical cases for specification, training and regression testing.
 
 cases:
-  - id: CAN-001
-    category: instruction
-    source: "Don't be late."
-    triggers: [PGS-003, PGS-004, PGS-007]
-    L1: "Arrive at the agreed time."
-    L2: "Arrive at 09:00."
-    L3_candidate: "For the arrival: 09:00."
-    fidelity: conditional
-    note: 09:00 is valid only when known from context; otherwise the engine must not invent it.
-
-  - id: CAN-002
-    category: responsibility
-    source: "Mistakes were made."
-    triggers: [PGS-001]
-    L1: "The responsible actor made errors."
-    L2: "The responsible actor made errors and will identify the corrective action."
-    L3_candidate: "For the errors, the responsible actor is identifying the corrective action."
-    fidelity: requires_context
-    note: Never fabricate the actor or corrective intention. Where unknown, flag missing agency instead of transforming substantively.
-
-  - id: CAN-003
-    category: relational
-    source: "You never listen to me."
-    triggers: [PGS-002, PGS-005]
-    L1: "I believe my points are not being fully heard."
-    L2: "I want us to hear each other's points fully."
-    L3_candidate: "For our communication, I am seeking clear acknowledgement of each person's points."
-    fidelity: review_required
-    note: A specific observed event is preferable when available. Do not invent interruption counts or events.
-
-  - id: CAN-004
-    category: business
-    source: "We don't want any more delays."
-    triggers: [PGS-003, PGS-006, PGS-007]
-    L1: "We want the work completed within the agreed schedule."
-    L2: "We want completion within the agreed schedule. Please confirm the next action and completion date."
-    L3_candidate: "For the completion within the agreed schedule, please confirm the next action and completion date."
-    fidelity: pass_if_schedule_exists
-
-  - id: CAN-005
-    category: temporal
-    source: "I'll get back to you soon."
-    triggers: [PGS-004]
-    L1: "I will respond when I can confirm the timing."
-    L2: "I intend to respond within the stated timeframe."
-    L3_candidate: "For my response, the confirmed timeframe is required."
-    fidelity: requires_context
-    note: Prefer a real date/time when known. Never invent one merely to improve temporal score.
-
-  - id: CAN-006
-    category: complaint
-    source: "Communication is terrible."
-    triggers: [PGS-002, PGS-006]
-    L1: "The current communication is not providing the information I need."
-    L2: "I want clear, regular information. I propose a weekly update."
-    L3_candidate: "For clear communication, I am proposing a weekly information update."
-    fidelity: review_required
-    note: The weekly update is valid only if it reflects the communicator's actual intention.
-
-  - id: CAN-007
-    category: legal
-    source: "The claimant did not serve the notice."
-    triggers: [PGS-007]
-    exceptions: [EXC-001, EXC-003]
-    L1: "The claimant did not serve the notice."
-    L2: "The claimant did not serve the notice."
-    L3_candidate: "The claimant did not serve the notice."
-    fidelity: protected
-    note: Operative factual/legal negation remains unchanged unless additional verified detail improves precision without changing the denial.
-
-  - id: CAN-008
-    category: safety
-    source: "Do not energise the circuit."
-    triggers: [PGS-007]
-    exceptions: [EXC-002]
-    L1: "Do not energise the circuit."
-    L2: "Keep the circuit de-energised. Do not energise it."
-    L3_candidate: "For circuit safety, keep the circuit de-energised. Do not energise the circuit."
-    fidelity: protected
-    note: Affirmative state may supplement but must not weaken the explicit prohibition.
-
-  - id: CAN-009
-    category: epistemic
-    source: "They deliberately ignored my email."
-    triggers: [PGS-002, PGS-005]
-    L1: "I sent the email and have not received a response. I do not know their reason for not responding."
-    L2: "I sent the email and have not received a response. I want confirmation that it has been received and reviewed."
-    L3_candidate: "For the email communication, I am seeking confirmation of receipt and review."
-    fidelity: requires_known_facts
-
-  - id: CAN-010
-    category: ambiguous_reference
-    source: "He told him that they would deal with it."
-    triggers: [PGS-001]
-    research_patterns: [PAT-101]
-    L1: "[Actor A] told [Actor B] that [responsible party] would deal with [identified matter]."
-    L2: "Clarify the actors, responsible party and matter before transformation."
-    L3_candidate: "Transformation blocked pending referential resolution."
-    fidelity: blocked
-
-  - id: CAN-011
-    category: constructive_boundary
-    source: "I can't agree to that."
-    triggers: [PGS-003, PGS-007]
-    L1: "I do not agree to that."
-    L2: "I decline that proposal. My preferred outcome is [state actual alternative]."
-    L3_candidate: "For my decision, I am declining that proposal and stating my preferred alternative."
-    fidelity: requires_context
-    note: Do not convert inability into choice unless that is what the communicator means.
-
-  - id: CAN-012
-    category: source_syntax
-    source: "The court hereby orders that you shall forthwith pay."
-    triggers: [PGS-001, PGS-004]
-    research_patterns: [PAT-102, PAT-104]
-    L1: "The court orders [identified party] to pay [identified amount] by [identified deadline]."
-    L2: "The court orders [identified party] to pay [identified amount] by [identified deadline]."
-    L3_candidate: "For the court order, [identified party] is paying [identified amount] by [identified deadline]."
-    fidelity: high_risk_legal_review
-    note: The source-system null-construction and tense hypotheses are research items. A PGS rewrite must not alter the legal effect of an actual order.
-
-  - id: CAN-013
-    category: lexical_research
-    source: "insurance"
-    research_patterns: [PAT-105, PAT-106]
-    L1: "insurance"
-    L2: "insurance"
-    L3_candidate: "Lexical research flag: compare conventional meaning, established etymology/morphology and source-system decomposition before recommending substitution."
-    fidelity: no_automatic_transformation
-
-  - id: CAN-014
-    category: creative
-    source: "I never saw a purple sky so alive."
-    exceptions: [EXC-105]
-    L1: "I never saw a purple sky so alive."
-    L2: "I never saw a purple sky so alive."
-    L3_candidate: "I never saw a purple sky so alive."
-    fidelity: protected_creative
-    note: Negative-form words are not automatically defects. Here 'never' contributes meaning and expressive force.
-
-  - id: CAN-015
-    category: empowerment
-    source: "There's nothing I can do."
-    triggers: [PGS-003, PGS-005, PGS-006, PGS-007]
-    L1: "I do not currently see an action available to me."
-    L2: "I want to identify the actions that remain available to me."
-    L3_candidate: "For my available choices, I am identifying the actions I can take now."
-    fidelity: review_required
-    note: PGS may open an agency-oriented frame without falsely asserting that options definitely exist.
+  - {id: CAN-001, category: instruction, source: "Don't be late.", triggers: [PGS-003, PGS-004, PGS-007], L1: "Arrive at the agreed time.", L2: "Arrive at 09:00.", L3_candidate: "For the arrival: 09:00.", fidelity: conditional, note: "09:00 only when known; never invent timing."}
+  - {id: CAN-002, category: responsibility, source: "Mistakes were made.", triggers: [PGS-001], L1: "The actor responsible for the errors is not identified.", L2: "Identify the responsible actor and the corrective action, when known.", L3_candidate: "For the errors: identify the responsible actor and corrective action.", fidelity: requires_context}
+  - {id: CAN-003, category: relational, source: "You never listen to me.", triggers: [PGS-002, PGS-005], L1: "I believe my points are not being fully heard.", L2: "I want us to hear and acknowledge each other's points fully.", L3_candidate: "For our communication, I am seeking clear acknowledgement of each person's points.", fidelity: review_required}
+  - {id: CAN-004, category: business, source: "We don't want any more delays.", triggers: [PGS-003, PGS-006, PGS-007], L1: "We want the work completed within the agreed schedule.", L2: "We want completion within the agreed schedule. Please confirm the next action and completion date.", L3_candidate: "For completion within the agreed schedule, please confirm the next action and completion date.", fidelity: pass_if_schedule_exists}
+  - {id: CAN-005, category: temporal, source: "I'll get back to you soon.", triggers: [PGS-004], L1: "I intend to respond; the timing is currently unspecified.", L2: "I intend to respond within [known timeframe].", L3_candidate: "For my response: [known timeframe].", fidelity: requires_context}
+  - {id: CAN-006, category: complaint, source: "Communication is terrible.", triggers: [PGS-002, PGS-006], L1: "The current communication is not providing the information I need.", L2: "I want clear, regular information. I propose [actual preferred process].", L3_candidate: "For clear communication, I am proposing [actual preferred process].", fidelity: review_required}
+  - {id: CAN-007, category: legal, source: "The claimant did not serve the notice.", triggers: [PGS-007], exceptions: [EXC-001, EXC-003], L1: "The claimant did not serve the notice.", L2: "The claimant did not serve the notice.", L3_candidate: "The claimant did not serve the notice.", fidelity: protected}
+  - {id: CAN-008, category: safety, source: "Do not energise the circuit.", triggers: [PGS-007], exceptions: [EXC-002], L1: "Do not energise the circuit.", L2: "Keep the circuit de-energised. Do not energise it.", L3_candidate: "For circuit safety, keep the circuit de-energised. Do not energise the circuit.", fidelity: protected}
+  - {id: CAN-009, category: epistemic, source: "They deliberately ignored my email.", triggers: [PGS-002, PGS-005], L1: "I sent the email and have not received a response. Their reason is unknown to me.", L2: "I sent the email and have not received a response. I want confirmation of receipt and review.", L3_candidate: "For the email communication, I am seeking confirmation of receipt and review.", fidelity: requires_known_facts}
+  - {id: CAN-010, category: ambiguous_reference, source: "He told him that they would deal with it.", triggers: [PGS-001], research_patterns: [PAT-101], L1: "Clarify each actor, responsible party and matter.", L2: "Clarify each actor, responsible party and intended action.", L3_candidate: "Transformation blocked pending referential resolution.", fidelity: blocked}
+  - {id: CAN-011, category: constructive_boundary, source: "I can't agree to that.", triggers: [PGS-003, PGS-007], L1: "I do not agree to that.", L2: "I decline that proposal. My preferred outcome is [actual alternative].", L3_candidate: "For my decision, I am declining that proposal and stating my preferred alternative.", fidelity: requires_context}
+  - {id: CAN-012, category: source_syntax, source: "The court hereby orders that you shall forthwith pay.", triggers: [PGS-001, PGS-004], research_patterns: [PAT-102, PAT-104], L1: "The court orders [identified party] to pay [identified amount] by [identified deadline].", L2: "The court orders [identified party] to pay [identified amount] by [identified deadline].", L3_candidate: "Formal L3 transformation requires legal-effect verification.", fidelity: high_risk_legal_review}
+  - {id: CAN-013, category: lexical_research, source: "insurance", research_patterns: [PAT-105, PAT-106], L1: "insurance", L2: "insurance", L3_candidate: "Compare conventional meaning, established etymology/morphology and source-system decomposition.", fidelity: no_automatic_transformation}
+  - {id: CAN-014, category: creative, source: "I never saw a purple sky so alive.", exceptions: [EXC-105], L1: "I never saw a purple sky so alive.", L2: "I never saw a purple sky so alive.", L3_candidate: "I never saw a purple sky so alive.", fidelity: protected_creative}
+  - {id: CAN-015, category: empowerment, source: "There's nothing I can do.", triggers: [PGS-003, PGS-005, PGS-006, PGS-007], L1: "I do not currently see an action available to me.", L2: "I want to identify the actions that remain available to me.", L3_candidate: "For my available choices, I am identifying the actions I can take now.", fidelity: review_required}
+  - {id: CAN-016, category: anger, source: "You ruined everything.", triggers: [PGS-002, PGS-005], L1: "I believe your actions contributed materially to this outcome.", L2: "I want to identify what happened, its effects and the remedy I am seeking.", L3_candidate: "For this outcome, I am identifying the actions, effects and remedy sought.", fidelity: requires_evidence}
+  - {id: CAN-017, category: accusation, source: "You're lying.", triggers: [PGS-002, PGS-005], L1: "Your statement conflicts with [identified evidence].", L2: "Your statement conflicts with [identified evidence]. Please explain the discrepancy.", L3_candidate: "For the discrepancy between the statement and evidence, please provide the explanation.", fidelity: requires_evidence}
+  - {id: CAN-018, category: consent, source: "I don't consent to this.", triggers: [PGS-007], exceptions: [EXC-003], L1: "I do not consent to this.", L2: "I do not consent to this. My boundary is [actual boundary].", L3_candidate: "I do not consent to this; the stated boundary remains operative.", fidelity: protected}
+  - {id: CAN-019, category: refusal, source: "No, I won't sign it.", triggers: [PGS-003, PGS-007], exceptions: [EXC-003], L1: "I will not sign it.", L2: "I decline to sign it. [Reason or alternative, if intended].", L3_candidate: "For my decision, I am declining the signature.", fidelity: protected_boundary}
+  - {id: CAN-020, category: contract, source: "The supplier must not disclose confidential information.", triggers: [PGS-007], exceptions: [EXC-003, EXC-104], L1: "The supplier must not disclose confidential information.", L2: "The supplier must keep confidential information confidential and must not disclose it except as permitted by the agreement.", L3_candidate: "Preserve operative contractual prohibition; formal L3 requires legal verification.", fidelity: protected}
+  - {id: CAN-021, category: medical, source: "Do not take more than two tablets in 24 hours.", triggers: [PGS-007], exceptions: [EXC-002, EXC-104], L1: "Do not take more than two tablets in 24 hours.", L2: "Take a maximum of two tablets in 24 hours. Do not exceed that amount.", L3_candidate: "For the 24-hour dosage: maximum two tablets; do not exceed the maximum.", fidelity: protected}
+  - {id: CAN-022, category: conditional, source: "If payment isn't received by Friday, delivery won't proceed.", triggers: [PGS-004, PGS-007], L1: "Delivery proceeds only if payment is received by Friday.", L2: "Receive payment by Friday for delivery to proceed.", L3_candidate: "For delivery: payment received by Friday is the required condition.", fidelity: verify_logical_equivalence}
+  - {id: CAN-023, category: question, source: "Why didn't you do it?", triggers: [PGS-002, PGS-005], L1: "What prevented completion?", L2: "What prevented completion, and what is required to complete it?", L3_candidate: "For completion, identify the constraint and required action.", fidelity: review_required}
+  - {id: CAN-024, category: past_tense, source: "I sent the document yesterday.", research_patterns: [PAT-104], L1: "I sent the document yesterday.", L2: "I sent the document yesterday.", L3_candidate: "Preserve the accurate past event; classify tense without treating it as invalid.", fidelity: protected_fact}
+  - {id: CAN-025, category: future_tense, source: "I will send the document tomorrow.", research_patterns: [PAT-104], L1: "I intend to send the document tomorrow.", L2: "I commit to sending the document tomorrow.", L3_candidate: "For the document delivery, my committed time is tomorrow.", fidelity: distinguish_prediction_intention_commitment}
+  - {id: CAN-026, category: pronoun_clear, source: "Maria opened the file. She reviewed it carefully.", research_patterns: [PAT-101], exceptions: [EXC-101], L1: "Maria opened the file. She reviewed it carefully.", L2: "Maria opened the file. She reviewed it carefully.", L3_candidate: "Maria opened the file and reviewed the file carefully.", fidelity: naturalness_review}
+  - {id: CAN-027, category: irony, source: "Great, another three-hour delay.", exceptions: [EXC-105], L1: "The delay is another three hours; 'great' is ironic.", L2: "The delay is another three hours. I want an updated completion time.", L3_candidate: "For the three-hour delay, I am seeking the updated completion time.", fidelity: mode_dependent}
+  - {id: CAN-028, category: metaphor, source: "This project is drowning in paperwork.", exceptions: [EXC-105], L1: "The project has a burdensome volume of paperwork.", L2: "I want to reduce the paperwork burden on the project.", L3_candidate: "For the project administration, I am seeking a reduction in paperwork burden.", fidelity: mode_dependent}
+  - {id: CAN-029, category: command, source: "Stop talking.", triggers: [PGS-003], L1: "Please remain silent.", L2: "Please remain silent while [actual condition].", L3_candidate: "For [actual condition], please maintain silence.", fidelity: context_required}
+  - {id: CAN-030, category: promise, source: "I promise I won't let you down.", triggers: [PGS-003, PGS-007], L1: "I promise to fulfil my commitment to you.", L2: "I commit to [specific promised action/outcome].", L3_candidate: "For my commitment, I am performing [specific action/outcome].", fidelity: requires_specific_commitment}
+  - {id: CAN-031, category: uncertainty, source: "Maybe it will work.", triggers: [PGS-005], L1: "I am uncertain whether it will work.", L2: "I assess that it may work; [evidence/probability if known].", L3_candidate: "For the expected outcome, my current assessment is [calibrated likelihood].", fidelity: no_invented_probability}
+  - {id: CAN-032, category: assumption, source: "Obviously they know what they're doing.", triggers: [PGS-002, PGS-005], L1: "I assume they know what they are doing.", L2: "I currently assume they have the required competence; I can verify this from [actual evidence].", L3_candidate: "For their competence, my current status is assumption pending verification.", fidelity: pass}
+  - {id: CAN-033, category: generalisation, source: "Nobody ever helps around here.", triggers: [PGS-002, PGS-005], L1: "I am not receiving the help I need with [identified task].", L2: "I want help with [identified task]. I am requesting [actual person/action].", L3_candidate: "For [identified task], I am requesting [identified support].", fidelity: context_required}
+  - {id: CAN-034, category: self_talk, source: "I'm useless at this.", triggers: [PGS-002, PGS-005], L1: "I am having difficulty with this task.", L2: "I am developing my capability with this task and need [actual support/practice].", L3_candidate: "For this capability, I am developing skill through [actual action].", fidelity: avoid_false_claims}
+  - {id: CAN-035, category: capability, source: "I can't do this yet.", triggers: [PGS-003, PGS-005], L1: "I do not currently have the capability to complete this.", L2: "I need [identified capability/resource] before I can complete this.", L3_candidate: "For completion, I am acquiring [identified capability/resource].", fidelity: context_required}
+  - {id: CAN-036, category: deadline, source: "ASAP please.", triggers: [PGS-004], L1: "Please confirm the earliest achievable completion time.", L2: "Please complete this by [actual required time], or confirm the earliest achievable time.", L3_candidate: "For completion, confirm the required or earliest achievable time.", fidelity: no_invented_deadline}
+  - {id: CAN-037, category: apology, source: "Sorry if you were offended.", triggers: [PGS-001, PGS-002], L1: "I recognise that my words affected you negatively.", L2: "I recognise the effect of my words and take responsibility for [actual action].", L3_candidate: "For my communication, I acknowledge [actual action] and its effect.", fidelity: do_not_invent_admission}
+  - {id: CAN-038, category: feedback, source: "This report is bad.", triggers: [PGS-002, PGS-006], L1: "The report does not currently meet [identified requirement].", L2: "Please revise [specific elements] to meet [identified requirement].", L3_candidate: "For the report standard, revise [specific elements] to meet [identified requirement].", fidelity: requires_criteria}
+  - {id: CAN-039, category: negotiation, source: "That price is impossible.", triggers: [PGS-002, PGS-005, PGS-006], L1: "That price is outside my available range.", L2: "My available range is [actual amount]. I propose [actual alternative].", L3_candidate: "For the agreement, my available price is [actual amount] with [actual terms].", fidelity: context_required}
+  - {id: CAN-040, category: risk, source: "This is going to fail.", triggers: [PGS-005], L1: "I assess a risk of failure.", L2: "I assess a risk of failure because [actual evidence]. I propose [actual mitigation].", L3_candidate: "For the identified risk, I am proposing [actual mitigation] based on [actual evidence].", fidelity: no_invented_evidence}
+  - {id: CAN-041, category: spiritual, source: "I feel blocked energy around this decision.", triggers: [PGS-005], L1: "I experience what I describe as blocked energy around this decision.", L2: "I experience what I describe as blocked energy, and I want clarity before deciding.", L3_candidate: "For this decision, I recognise my present energetic experience and seek clarity for intentional action.", fidelity: preserve_experiential_status}
+  - {id: CAN-042, category: spiritual_assertion, source: "This word lowers everyone's vibration.", triggers: [PGS-005], L1: "I believe this word may have an adverse energetic effect.", L2: "I prefer language that I experience as energetically constructive.", L3_candidate: "For energetic language selection, this proposition remains a research claim unless separately evidenced.", fidelity: epistemic_calibration}
+  - {id: CAN-043, category: legal_authority_claim, source: "This grammar removes the court's jurisdiction.", triggers: [PGS-005], L1: "The source claims that this grammar removes the court's jurisdiction.", L2: "Treat the claimed legal effect separately from the linguistic construction and verify it against applicable legal authority.", L3_candidate: "Legal-effect transformation blocked pending authoritative verification.", fidelity: protected_legal_accuracy}
+  - {id: CAN-044, category: formal_syntax, source: "For the claim is with the facts by the claimant.", research_patterns: [PAT-102, PAT-103], L1: "The intended proposition requires clarification.", L2: "Clarify actor, action, object, relationship and intended outcome.", L3_candidate: "Parse against the candidate formal PGS positional grammar without assuming validity from form alone.", fidelity: requires_semantic_parse}
+  - {id: CAN-045, category: null_chain, source: "The party shall immediately and hereby be proceeding.", research_patterns: [PAT-102, PAT-104], L1: "Clarify what the party is required to do.", L2: "State the required action, object and timing explicitly.", L3_candidate: "Flag modifier/auxiliary chain and reconstruct only from verified intended proposition.", fidelity: blocked_until_resolved}
+  - {id: CAN-046, category: lexical_prefix, source: "understand", research_patterns: [PAT-105, PAT-106], L1: "understand", L2: "understand", L3_candidate: "Compare current meaning and established morphology/etymology with source-system decomposition before any substitution.", fidelity: no_automatic_transformation}
+  - {id: CAN-047, category: double_negative, source: "I don't disagree.", triggers: [PGS-005, PGS-007], L1: "I am not expressing disagreement.", L2: "I [agree / partly agree / remain undecided] — select only the meaning actually intended.", L3_candidate: "Resolve the epistemic position before full transformation.", fidelity: ambiguous_block}
+  - {id: CAN-048, category: requirement, source: "You shouldn't forget to submit the form.", triggers: [PGS-003, PGS-004, PGS-007], L1: "Remember to submit the form.", L2: "Submit the form by [known deadline].", L3_candidate: "For the form submission: [known deadline].", fidelity: no_invented_deadline}
+  - {id: CAN-049, category: evidential, source: "I know he stole it.", triggers: [PGS-002, PGS-005], L1: "I [observed / infer / believe / allege] that he stole it, according to the actual evidence status.", L2: "State the evidence and calibrated claim separately.", L3_candidate: "For the allegation or finding, identify the evidence status and proposition explicitly.", fidelity: requires_evidence_classification}
+  - {id: CAN-050, category: complete_action, source: "I reviewed the figures. I found a £500 discrepancy. I want the accounts reconciled by Friday, so I will send the transaction list today.", triggers: [], L1: "I reviewed the figures. I found a £500 discrepancy. I want the accounts reconciled by Friday, so I will send the transaction list today.", L2: "I reviewed the figures and found a £500 discrepancy. I want the accounts reconciled by Friday. I will send the transaction list today.", L3_candidate: "For the £500 discrepancy in the reviewed figures, I am seeking reconciliation by Friday and sending the transaction list today.", fidelity: pass, note: "Positive control: already contains actor, observation, desired outcome, timing and action."}
