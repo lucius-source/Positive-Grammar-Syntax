@@ -1,0 +1,121 @@
+version: 0.1.0
+status: draft
+system: Positive Grammar Syntax
+
+patterns:
+  - id: PAT-001
+    rule: PGS-001
+    inversion: INV-002
+    name: passive_or_agentless_material_action
+    level: L1
+    detection: Identify passive or abstract constructions where knowing the actor materially improves meaning.
+    examples: ["Mistakes were made.", "The application was rejected."]
+    treatment: Make the known actor explicit; otherwise flag missing agency without inventing it.
+
+  - id: PAT-002
+    rule: PGS-002
+    inversion: INV-003
+    name: interpretation_as_observation
+    level: L1
+    detection: Identify judgement, motive attribution or generalisation presented as direct observation.
+    examples: ["You never listen.", "They deliberately ignored the request."]
+    treatment: Separate observable/reported information from interpretation where context permits.
+
+  - id: PAT-003
+    rule: PGS-003
+    inversion: INV-001
+    name: unwanted_state_without_desired_state
+    level: L2
+    detection: Identify a request or goal framed only as an unwanted state when an affirmative desired state can preserve meaning.
+    examples: ["Don't be late.", "I don't want any more delays."]
+    treatment: State the desired outcome, retaining any necessary boundary or prohibition.
+
+  - id: PAT-004
+    rule: PGS-004
+    name: materially_vague_time
+    level: L1
+    detection: Identify vague temporal expressions where timing is material to understanding or action.
+    examples: ["soon", "later", "as soon as possible"]
+    treatment: Use known timing or request clarification; never invent a deadline.
+
+  - id: PAT-005
+    rule: PGS-005
+    inversion: INV-003
+    name: unsupported_certainty
+    level: L1
+    detection: Identify claims whose wording presents inference, allegation or belief as established knowledge.
+    treatment: Calibrate epistemic status to available evidence.
+
+  - id: PAT-006
+    rule: PGS-006
+    name: unresolved_complaint
+    level: L2
+    detection: Identify problem statements seeking change but lacking a request, remedy, decision or next action.
+    treatment: Surface the intended outcome or request clarification; never invent intention.
+
+  - id: PAT-007
+    rule: PGS-007
+    inversion: INV-001
+    name: unnecessary_negative_instruction
+    level: L2
+    detection: Identify negative instructions with a materially equivalent affirmative action.
+    examples: ["Don't forget the document.", "Don't be late."]
+    treatment: Prefer the affirmative action when fidelity and safety permit.
+
+  - id: PAT-101
+    domain: PGS-A
+    inversion: INV-004
+    name: ambiguous_pronoun_reference
+    level: L1
+    evidence_status: research
+    detection: Identify pronouns with multiple plausible antecedents or materially unclear referents.
+    treatment: Replace with explicit reference when known.
+
+  - id: PAT-102
+    domain: PGS-D
+    inversion: INV-005
+    name: modifier_heavy_predicate_chain
+    level: L3
+    evidence_status: research
+    source_concept: adverb_verb_null_chain
+    detection: Identify chains of modifiers, auxiliaries and verbs that may obscure actor, action, object or proposition.
+    treatment: Parse proposition and test whether a clearer explicit construction preserves meaning.
+
+  - id: PAT-103
+    domain: PGS-D
+    inversion: INV-005
+    name: prepositional_grounding_candidate
+    level: L3
+    evidence_status: research
+    source_concept: csscpsgp_prepositional_grounding
+    detection: Evaluate whether formal prepositional framing improves closure and explicit relationships.
+    treatment: Experimental L3 transformation only; not a universal requirement.
+
+  - id: PAT-104
+    domain: PGS-D
+    inversion: INV-005
+    name: gerund_now_time_candidate
+    level: L3
+    evidence_status: research
+    source_concept: csscpsgp_gerund_now_time
+    detection: Classify tense and gerund constructions for comparative analysis.
+    treatment: Experimental L3 transformation; do not infer factual or legal invalidity from tense alone.
+
+  - id: PAT-105
+    domain: PGS-E
+    inversion: INV-006
+    name: lexical_decomposition_candidate
+    level: L3
+    evidence_status: research
+    detection: Identify words selected for prefix/root/suffix or etymological analysis.
+    treatment: Distinguish conventional morphology/etymology from alternative source interpretation.
+
+  - id: PAT-106
+    domain: PGS-E
+    inversion: INV-006
+    name: vcc_negation_candidate
+    level: L3
+    evidence_status: research
+    source_concept: vcc_negation_operator
+    detection: Record candidate vowel/consonant prefix decompositions for corpus testing.
+    treatment: Do not transform solely from this hypothesis until word-level evidence and exceptions are established.
