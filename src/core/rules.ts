@@ -8,7 +8,8 @@ export interface RuleFinding {
 
 const vagueTime = /\b(soon|asap|later|sometime|eventually|in a while)\b/i;
 const absoluteGeneralisation = /\b(always|never|nobody|everybody|everyone|nothing)\b/i;
-const passiveCandidate = /\b(?:was|were|is|are|been|be)\s+\w+(?:ed|en)\b/i;
+// Conservative passive candidate: regular participles plus a small explicit set of common irregular participles.
+const passiveCandidate = /\b(?:was|were|is|are|been|be)\s+(?:\w+(?:ed|en)|made|done|sent|given|taken|known|seen|found|held|built|written|read|said|told|left|lost|paid|put|set)\b/i;
 const negativeInstruction = /\b(?:do not|don't|must not|mustn't|should not|shouldn't)\b/i;
 const unsupportedCertainty = /\b(obviously|definitely|certainly|undoubtedly)\b/i;
 
