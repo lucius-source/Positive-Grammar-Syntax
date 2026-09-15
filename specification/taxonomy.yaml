@@ -1,0 +1,81 @@
+version: 0.1.0
+status: accepted
+system: Positive Grammar Syntax
+specification_gate: 1
+accepted: 2026-09-15
+
+definition:
+  inverted_vernacular: >-
+    Language whose surface construction, lexical composition, grammatical structure
+    or habitual interpretation expresses, obscures or implies a proposition materially
+    different from the communicator's intended direct, affirmative and agency-explicit meaning.
+
+levels:
+  L1:
+    name: Clarity and Truth
+    purpose: Preserve meaning while improving factual, referential and epistemic clarity.
+    domains: [PGS-A, PGS-B]
+  L2:
+    name: Constructive Language
+    purpose: Add affirmative, intentional and action-oriented expression subject to L1 fidelity.
+    domains: [PGS-A, PGS-B, PGS-C]
+  L3:
+    name: Positive Grammar Syntax
+    purpose: Apply comprehensive structural and lexical analysis and transformation subject to L1 and L2 constraints.
+    domains: [PGS-A, PGS-B, PGS-C, PGS-D, PGS-E]
+
+domains:
+  PGS-A:
+    name: Agency and Reference
+    concerns: [actors, responsibility, nouns, pronouns, ownership, reference]
+  PGS-B:
+    name: Meaning and Evidence
+    concerns: [observation, interpretation, inference, certainty, evidence, ambiguity]
+  PGS-C:
+    name: Constructive Expression
+    concerns: [affirmative_construction, intention, requests, desired_outcomes, action]
+  PGS-D:
+    name: Structural Syntax
+    concerns: [sentence_positions, closure, modifiers, tense, dependencies, null_chains]
+  PGS-E:
+    name: Lexical Parse
+    concerns: [morphology, prefix_root_suffix, lexical_negation, word_selection]
+    default_evidence_status: research_hypothesis
+
+inversion_types:
+  - id: INV-001
+    name: negation_inversion
+    description: Desired state is expressed primarily through what is unwanted where an affirmative equivalent preserves meaning.
+  - id: INV-002
+    name: agency_inversion
+    description: Material agency or responsibility is obscured, abstracted or omitted.
+  - id: INV-003
+    name: epistemic_inversion
+    description: Belief, inference, allegation or interpretation is presented at an unsupported level of certainty.
+  - id: INV-004
+    name: referential_inversion
+    description: A material actor, object or relationship is replaced by an ambiguous reference or abstraction.
+  - id: INV-005
+    name: structural_inversion
+    description: Syntax, modifiers, tense or dependencies materially obscure the underlying proposition.
+  - id: INV-006
+    name: lexical_inversion
+    description: A proposed morphological or lexical analysis indicates tension between conventional surface meaning and decomposed meaning.
+    default_evidence_status: research_hypothesis
+
+engine_layers:
+  formal_engine:
+    role: Deterministic analysis of reliable lexical, grammatical, syntactic and scoring conditions.
+  semantic_engine:
+    role: Context-sensitive analysis of meaning, intention, ambiguity and transformation.
+  fidelity_verifier:
+    role: Verify that transformations preserve material propositions, protected negation, evidential status and user intention.
+
+precedence:
+  - semantic_fidelity
+  - factual_accuracy
+  - clarity
+  - agency
+  - precision
+  - constructive_expression
+  - concision
