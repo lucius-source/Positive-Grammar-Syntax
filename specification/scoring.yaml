@@ -1,0 +1,76 @@
+version: 0.1.0
+status: gate-2-draft
+system: Positive Grammar Syntax
+
+scale:
+  minimum: 0
+  maximum: 100
+
+fidelity_gate:
+  required: true
+  checks:
+    - material_propositions_preserved
+    - actor_and_responsibility_preserved
+    - epistemic_status_not_upgraded
+    - operative_negation_preserved
+    - dates_quantities_and_conditions_preserved
+    - request_intention_and_outcome_preserved
+  failure_effect: transformation_rejected
+  note: A high style score cannot compensate for semantic-fidelity failure.
+
+weights:
+  L1:
+    agency_reference: 20
+    observation_evidence: 20
+    epistemic_precision: 20
+    specificity_temporal_clarity: 20
+    semantic_clarity_naturalness: 20
+  L2:
+    l1_foundation: 50
+    affirmative_outcome: 15
+    constructive_negation: 10
+    intention_action_orientation: 15
+    empowerment_constructive_effect: 10
+  L3:
+    l1_l2_foundation: 60
+    structural_explicitness: 10
+    sentence_closure: 10
+    referential_precision: 5
+    lexical_directness: 5
+    formal_pgs_conformance: 10
+
+ratings:
+  0: absent_or_materially_conflicting
+  1: weak
+  2: partial
+  3: adequate
+  4: strong
+  5: exemplary
+
+bands:
+  - {min: 90, max: 100, name: exemplary}
+  - {min: 75, max: 89, name: strong}
+  - {min: 60, max: 74, name: functional}
+  - {min: 40, max: 59, name: substantial_opportunity}
+  - {min: 0, max: 39, name: major_transformation_opportunity}
+
+research_dimensions:
+  psychological_effect:
+    included_in_normative_score: false
+    reason: Requires a defined and validated measurement model before normative weighting.
+  spiritual_effect:
+    included_in_normative_score: false
+    reason: Preserved as a PGS design/research dimension; score separately when a methodology is adopted.
+  energetic_effect:
+    included_in_normative_score: false
+    reason: Preserved as a PGS design/research dimension; score separately when a methodology is adopted.
+
+output_requirements:
+  - overall_score
+  - level
+  - per_dimension_scores
+  - triggered_rule_ids
+  - protected_exception_ids
+  - fidelity_status
+  - explanation
+  - recommended_changes
