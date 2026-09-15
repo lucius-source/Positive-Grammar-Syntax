@@ -1,4 +1,5 @@
 import type { SemanticContext } from '../semantic/types';
+import { analyseDocument } from '../analyser/document';
 
 export type FidelityIssueSeverity = 'review_required' | 'blocked';
 export interface FidelityIssue { code: string; severity: FidelityIssueSeverity; message: string; evidence?: string }
@@ -19,6 +20,17 @@ function terms(text: string, pattern: RegExp): Set<string> {
 
 function missing(required: Set<string>, candidate: Set<string>): string[] {
   return [...required].filter(item => !candidate.has(item));
+}
+
+const ACTION_FAMILY: Record<string, string> = { make: 'error_creation', commit: 'error_creation', listen: 'attention', hear: 'attention', complete: 'completion', do: 'completion' };
+const actionFamily = (action: string) => ACTION_FAMILY[action] ?? action;
+
+function pirFields(text: string): { actions: Set<string>; actors: Set<string> } {
+  const propositions = analyseDocument(text).document.propositions;
+  return {
+    actions: new Set(propositions.flatMap(item => item.actionOrRelation ? [actionFamily(item.actionOrRelation)] : [])),
+    actors: new Set(propositions.flatMap(item => typeof item.actor === 'string' ? [item.actor.toLowerCase()] : [])),
+  };
 }
 
 export function compareFidelity(source: string, candidate: string, context?: SemanticContext): FidelityComparison {
@@ -56,6 +68,13 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
 
   const newActions = missing(terms(candidate, ACTION), terms(authorised, ACTION));
   if (newActions.length) add({ code: 'FIDELITY_ACTION_INVENTED', severity: 'blocked', message: 'Candidate introduces an action absent from source and verified context.', evidence: newActions.join(', ') });
+
+  const sourcePir = pirFields(source);
+  const candidatePir = pirFields(candidate);
+  const omittedActions = missing(sourcePir.actions, candidatePir.actions);
+  if (omittedActions.length) add({ code: 'FIDELITY_PIR_ACTION_OMITTED', severity: 'review_required', message: 'Candidate PIR does not explicitly retain every source action or relation; semantic equivalence requires review.', evidence: omittedActions.join(', ') });
+  const omittedActors = missing(sourcePir.actors, candidatePir.actors);
+  if (omittedActors.length) add({ code: 'FIDELITY_PIR_ACTOR_OMITTED', severity: 'review_required', message: 'Candidate PIR does not explicitly retain every known source actor; semantic equivalence requires review.', evidence: omittedActors.join(', ') });
 
   const status = issues.some(issue => issue.severity === 'blocked') ? 'blocked'
     : issues.some(issue => issue.severity === 'review_required') ? 'review_required' : 'pass';

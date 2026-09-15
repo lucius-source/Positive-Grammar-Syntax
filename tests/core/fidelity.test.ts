@@ -24,14 +24,27 @@ describe('deterministic fidelity comparison', () => {
     expect(result.issues.map(item => item.code)).toContain('FIDELITY_ACTION_INVENTED');
   });
 
-  it('allows content explicitly supplied as verified context', () => {
+  it('allows verified context while reviewing an omitted source action', () => {
     const result = compareFidelity('They ignored my email.', 'I sent the email. Please confirm receipt.', {
       knownFacts: ['I sent the email'], userIntent: 'Please confirm receipt',
     });
-    expect(result.status).toBe('pass');
+    expect(result.status).toBe('review_required');
+    expect(result.issues.every(item => item.severity !== 'blocked')).toBe(true);
   });
 
   it('allows a canonical observation-before-interpretation recast', () => {
-    expect(compareFidelity('You never listen to me.', 'I believe my points are not being fully heard.').status).toBe('pass');
+    expect(compareFidelity('You never listen to me.', 'I believe my points are not being fully heard.').status).toBe('review_required');
+  });
+
+  it('marks an omitted PIR action for review', () => {
+    const result = compareFidelity('I sent the document. I found a discrepancy.', 'I sent the document.');
+    expect(result.status).toBe('review_required');
+    expect(result.issues.map(item => item.code)).toContain('FIDELITY_PIR_ACTION_OMITTED');
+  });
+
+  it('marks an omitted known actor for review', () => {
+    const result = compareFidelity('Maria sent the file.', 'The file was sent.');
+    expect(result.status).toBe('review_required');
+    expect(result.issues.map(item => item.code)).toContain('FIDELITY_PIR_ACTOR_OMITTED');
   });
 });

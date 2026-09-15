@@ -60,4 +60,8 @@ describe('proposition seed extraction', () => {
     expect(proposition.objectOrTarget).toBe('Errors');
     expect(proposition.unresolved).toContain('actor');
   });
+
+  it('does not mistake a capitalized article for a named actor', () => {
+    expect(extractPropositionSeed('The file was sent.').proposition.actor).toBeNull();
+  });
 });
