@@ -117,6 +117,18 @@
       "expectedUnresolved": ["reference"],
       "expectedL1Fragments": ["I assess a risk of failure."],
       "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-016",
+      "category": "grounded-reference-binding",
+      "source": "They deliberately ignored my email.",
+      "context": {
+        "referenceBindings": [{"reference": "they", "entity": "Acme support team"}]
+      },
+      "expectedResolved": ["reference"],
+      "expectedUnresolved": ["motive"],
+      "expectedL1Fragments": ["I believe Acme support team deliberately ignored my email."],
+      "requireL2Withheld": true
     }
   ]
 }

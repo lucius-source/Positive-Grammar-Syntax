@@ -34,7 +34,7 @@ function pirFields(text: string): { actions: Set<string>; actors: Set<string> } 
 }
 
 export function compareFidelity(source: string, candidate: string, context?: SemanticContext): FidelityComparison {
-  const authorised = [source, ...(context?.knownFacts ?? []), context?.userIntent ?? ''].join(' ');
+  const authorised = [source, ...(context?.knownFacts ?? []), context?.userIntent ?? '', ...(context?.referenceBindings ?? []).map(item => item.entity), ...(context?.evidence ?? []).map(item => item.statement)].join(' ');
   const issues: FidelityIssue[] = [];
   const add = (issue: FidelityIssue) => issues.push(issue);
 

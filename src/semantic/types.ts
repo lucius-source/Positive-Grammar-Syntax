@@ -20,6 +20,8 @@ export interface SemanticContext {
   knownFacts?: string[];
   protectedTerms?: string[];
   preferredLanguage?: string[];
+  referenceBindings?: Array<{ reference: string; entity: string }>;
+  evidence?: Array<{ field: string; statement: string; propositionId?: string }>;
 }
 
 export interface SemanticRequest {

@@ -52,4 +52,15 @@ describe('PGS executable pipeline', () => {
     expect(result.fidelity.map(item => item.message).join(' ')).toMatch(/user-supplied intent/);
     expect(formatPgsReport(result)).toContain('VERIFIED CONTEXT');
   });
+
+  it('resolves a bound actor while keeping unsupported motive unresolved', async () => {
+    const result = await runPgsPipeline('They deliberately ignored my email.', localEngine, {
+      context: { referenceBindings: [{ reference: 'they', entity: 'Acme support team' }] },
+    });
+    expect(result.unresolved).toEqual(expect.arrayContaining(['P1: motive']));
+    expect(result.unresolved).not.toContain('P1: reference');
+    expect(result.recommendations[0]?.text).toContain('Acme support team deliberately ignored');
+    expect(result.recommendations[0]?.supportingFields).toContain('context.referenceBindings[0]');
+    expect(formatPgsReport(result)).toContain('provenance=user_context');
+  });
 });

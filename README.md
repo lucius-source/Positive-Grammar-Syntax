@@ -68,12 +68,17 @@ Supply facts and intended action only when they are known:
 
 ```bash
 npm run pgs -- "They deliberately ignored my email." \
+  --bind "they=Acme support team" \
   --fact "I sent the email" \
   --fact "I have not received a response" \
   --intent "Please confirm receipt and review"
 ```
 
 Facts and intent are recorded separately in the report and are the only additional content allowed into context-aware recommendations.
+
+Use `--bind "reference=entity"` for an explicit referential resolution and `--evidence "field=statement"` for field-specific supporting evidence. The resolution ledger records provenance; a model assessment alone cannot resolve deterministic ambiguity.
+
+For example, binding `they=Acme support team` resolves only the reference. Motive remains unresolved unless separate motive evidence is supplied.
 
 Each recommendation also passes through a deterministic source-to-candidate comparator. It blocks removed negation or conditions, changed or invented quantities and times, upgraded certainty, and actors or actions absent from the source and verified context.
 

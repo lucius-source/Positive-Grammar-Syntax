@@ -5,23 +5,35 @@ import { formatPgsReport, runPgsPipeline } from './pipeline';
 const args = process.argv.slice(2);
 const knownFacts: string[] = [];
 let userIntent: string | undefined;
+const referenceBindings: Array<{ reference: string; entity: string }> = [];
+const evidence: Array<{ field: string; statement: string }> = [];
 const sourceParts: string[] = [];
 for (let index = 0; index < args.length; index++) {
   const arg = args[index];
-  if (arg === '--fact' || arg === '--intent') {
+  if (arg === '--fact' || arg === '--intent' || arg === '--bind' || arg === '--evidence') {
     const value = args[++index]?.trim();
     if (!value) throw new Error(`${arg} requires a value.`);
     if (arg === '--fact') knownFacts.push(value);
-    else userIntent = value;
+    else if (arg === '--intent') userIntent = value;
+    else {
+      const separator = value.indexOf('=');
+      if (separator < 1 || !value.slice(separator + 1).trim()) throw new Error(`${arg} requires field=value.`);
+      const key = value.slice(0, separator).trim();
+      const supplied = value.slice(separator + 1).trim();
+      if (arg === '--bind') referenceBindings.push({ reference: key, entity: supplied });
+      else evidence.push({ field: key, statement: supplied });
+    }
   } else if (arg !== undefined) sourceParts.push(arg);
 }
 const source = sourceParts.join(' ').trim();
 if (!source) {
-  console.error('Usage: npm run pgs -- "Your text" [--fact "Verified fact"] [--intent "Requested action"]');
+  console.error('Usage: npm run pgs -- "Your text" [--fact "Verified fact"] [--intent "Requested action"] [--bind "reference=entity"] [--evidence "field=statement"]');
   process.exitCode = 1;
 } else {
   const engine = new OllamaSemanticEngine();
-  const context = knownFacts.length || userIntent ? { knownFacts, ...(userIntent ? { userIntent } : {}) } : undefined;
+  const context = knownFacts.length || userIntent || referenceBindings.length || evidence.length
+    ? { knownFacts, ...(userIntent ? { userIntent } : {}), ...(referenceBindings.length ? { referenceBindings } : {}), ...(evidence.length ? { evidence } : {}) }
+    : undefined;
   const result = await runPgsPipeline(source, engine, context ? { context } : {});
   console.log(formatPgsReport(result));
   if (!result.validation.valid || result.fidelity.some(finding => finding.status === 'blocked')) process.exitCode = 2;

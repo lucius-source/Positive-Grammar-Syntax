@@ -14,6 +14,17 @@ function asSentence(text: string): string {
   return /[.!?]$/.test(clean) ? clean : `${clean}.`;
 }
 
+function applyBindings(source: string, context?: SemanticContext): string {
+  let result = source;
+  for (const binding of context?.referenceBindings ?? []) {
+    const reference = binding.reference.trim();
+    const entity = binding.entity.trim();
+    if (!reference || !entity || !/^(?:they|he|she|it)$/i.test(reference)) continue;
+    result = result.replace(new RegExp(`\\b${reference}\\b`, 'gi'), entity);
+  }
+  return result;
+}
+
 function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposition[]): { text: string; ruleIds: string[]; supportingFields: string[] } {
   const clean = source.trim();
   const proposition = propositions[0];
@@ -41,7 +52,8 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
     return { text: `I assume ${assumption[1].replace(/[.]$/, '')}.`, ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.epistemicStatus', 'P1.sourceSpan'] };
   }
   if (hasMotive) {
-    return { text: `I believe ${clean.charAt(0).toLowerCase()}${clean.slice(1)}`, ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.ambiguity.motive', 'P1.sourceSpan'] };
+    const clause = /^(?:I|we|you|they|he|she|it|this|that)\b/i.test(clean) ? `${clean.charAt(0).toLowerCase()}${clean.slice(1)}` : clean;
+    return { text: `I believe ${clause}`, ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.ambiguity.motive', 'P1.sourceSpan'] };
   }
   return { text: clean, ruleIds: [], supportingFields: ['P1.sourceSpan'] };
 }
@@ -49,15 +61,19 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
 export function renderRecommendations(source: string, unresolved: string[], context?: SemanticContext, propositions: PgsProposition[] = []): Recommendation[] {
   const hasMotive = unresolved.some(item => /motive/i.test(item));
   const hasReference = unresolved.some(item => /reference/i.test(item));
-  const rendered = naturalL1(source, hasMotive, propositions);
+  const rendered = naturalL1(applyBindings(source, context), hasMotive, propositions);
   const verifiedFacts = (context?.knownFacts ?? []).map(asSentence);
   const l1Text = [...verifiedFacts, rendered.text].join(' ');
-  const contextFields = verifiedFacts.map((_, index) => `context.knownFacts[${index}]`);
+  const contextFields = [
+    ...verifiedFacts.map((_, index) => `context.knownFacts[${index}]`),
+    ...(context?.referenceBindings ?? []).map((_, index) => `context.referenceBindings[${index}]`),
+    ...(context?.evidence ?? []).map((_, index) => `context.evidence[${index}]`),
+  ];
   const l1: Recommendation = { level: 'PGS-L1', text: l1Text, ruleIds: rendered.ruleIds, supportingFields: [...contextFields, ...rendered.supportingFields] };
   const l2: Recommendation = context?.userIntent?.trim()
     ? { level: 'PGS-L2', text: `${l1Text} ${asSentence(context.userIntent)}`, ruleIds: [...new Set([...rendered.ruleIds, 'PGS-006'])], supportingFields: [...contextFields, ...rendered.supportingFields, 'context.userIntent'] }
     : hasMotive || hasReference
-      ? { level: 'PGS-L2', withheldReason: 'A more directive rewrite could change unresolved actor, motive, evidence, or requested action.', ruleIds: [], supportingFields: [] }
+      ? { level: 'PGS-L2', withheldReason: 'A more directive rewrite could change unresolved meaning or invent evidence or a requested action.', ruleIds: [], supportingFields: [] }
       : { level: 'PGS-L2', text: l1Text, ruleIds: rendered.ruleIds, supportingFields: [...contextFields, ...rendered.supportingFields] };
   return [l1, l2];
 }
