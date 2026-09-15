@@ -64,7 +64,7 @@ export async function runPgsPipeline(source: string, engine: SemanticEngine, opt
     } catch (error) { semanticError = error instanceof Error ? error.message : String(error); }
   }
   const unresolved = unresolvedLabels(deterministic, semantic);
-  const recommendations = renderRecommendations(source, unresolved, options.context);
+  const recommendations = renderRecommendations(source, unresolved, options.context, deterministic.document.propositions);
   const fidelity = verifyFidelity(source, recommendations, unresolved, options.context);
   return { source, ...(options.context ? { context: options.context } : {}), deterministic, ruleFindings, ...(semantic ? { semantic } : {}), ...(semanticError ? { semanticError } : {}), validation, unresolved, recommendations, fidelity };
 }
@@ -77,12 +77,25 @@ function determinationLine(item: SemanticDetermination): string {
 }
 
 export function formatPgsReport(result: PipelineResult): string {
-  const propositions = result.deterministic.document.propositions.map(p => `${p.id}: epistemic=${p.epistemicStatus}; speech-act=${p.speechAct}; ambiguity=${p.ambiguity?.present ? (p.ambiguity.unresolvedFields ?? []).join(', ') : 'none'}`);
+  const propositions = result.deterministic.document.propositions.map(p => {
+    const fields = [
+      `sourceSpan=${JSON.stringify(p.sourceSpan)}`,
+      `actor=${p.actor === null ? 'unresolved' : (p.actor ?? 'absent')}`,
+      `action=${p.actionOrRelation ?? 'absent'}`,
+      `object=${p.objectOrTarget ?? 'absent'}`,
+      `epistemic=${p.epistemicStatus}`,
+      `speech-act=${p.speechAct}`,
+      ...(p.time ? [`time=${JSON.stringify(p.time)}`] : []),
+      ...(p.quantities?.length ? [`quantities=${p.quantities.join(', ')}`] : []),
+      `ambiguity=${p.ambiguity?.present ? (p.ambiguity.unresolvedFields ?? []).join(', ') : 'none'}`,
+    ];
+    return `${p.id}: ${fields.join('; ')}`;
+  });
   const rules = result.ruleFindings.map(f => `${f.ruleId}: ${f.message}`);
   const semantic = result.semantic
     ? result.semantic.determinations.map(determinationLine)
     : [result.semanticError ? `Semantic review unavailable: ${result.semanticError}` : 'Not required.'];
-  const recommendations = result.recommendations.flatMap(r => [r.level, r.text ?? `Withheld: ${r.withheldReason ?? 'Fidelity could not be established.'}`, `Rules: ${r.ruleIds.length ? r.ruleIds.join(', ') : 'none (source preserved)'}`]);
+  const recommendations = result.recommendations.flatMap(r => [r.level, r.text ?? `Withheld: ${r.withheldReason ?? 'Fidelity could not be established.'}`, `Rules: ${r.ruleIds.length ? r.ruleIds.join(', ') : 'none (source preserved)'}`, `Support: ${r.supportingFields.length ? r.supportingFields.join(', ') : 'none'}`]);
   const context = result.context
     ? [...(result.context.knownFacts ?? []).map(fact => `Known fact: ${fact}`), ...(result.context.userIntent ? [`User intent: ${result.context.userIntent}`] : [])]
     : [];

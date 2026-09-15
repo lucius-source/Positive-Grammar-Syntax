@@ -93,6 +93,30 @@
       "expectedUnresolved": ["reference"],
       "expectedL1Fragments": ["I assess a risk of failure."],
       "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-013",
+      "category": "passive-paraphrase",
+      "source": "Errors were committed.",
+      "expectedRules": ["PGS-001"],
+      "expectedUnresolved": ["actor"],
+      "expectedL1Fragments": ["The actor responsible for the errors is not identified."]
+    },
+    {
+      "id": "LOCAL-014",
+      "category": "inability-paraphrase",
+      "source": "I'm not yet able to complete this.",
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["I do not currently have the capability to complete this."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-015",
+      "category": "prediction-paraphrase",
+      "source": "It seems this could fail.",
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["I assess a risk of failure."],
+      "requireL2Withheld": true
     }
   ]
 }

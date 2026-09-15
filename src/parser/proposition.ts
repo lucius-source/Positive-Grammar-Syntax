@@ -21,9 +21,57 @@ function inferEpistemic(text: string): PgsProposition['epistemicStatus'] {
   if (/\b(?:i believe|i think|in my view)\b/i.test(text)) return 'believed';
   if (/\b(?:i assume|assuming)\b/i.test(text)) return 'assumed';
   if (/\b(?:maybe|perhaps|possibly|uncertain)\b/i.test(text)) return 'uncertain';
+  if (/\b(?:seems?|appears?)\b/i.test(text) || /\bcould\s+fail\b/i.test(text)) return 'uncertain';
   if (/\b(?:i intend|i plan|i will)\b/i.test(text)) return 'intended';
   if (/\b(?:allege|alleged|claims?)\b/i.test(text)) return 'alleged';
+  if (/\b(?:going to|will)\s+fail\b/i.test(text)) return 'predicted';
+  if (/^\s*I\s+(?:reviewed|found|sent|received|observed|saw|heard)\b/i.test(text)) return 'reported';
   return 'unknown';
+}
+
+const ACTIONS: Array<[RegExp, string]> = [
+  [/\b(?:review|reviewed)\b/i, 'review'], [/\b(?:find|found)\b/i, 'find'],
+  [/\b(?:send|sent)\b/i, 'send'], [/\b(?:ignore|ignored)\b/i, 'ignore'],
+  [/\b(?:listen|listened)\b/i, 'listen'], [/\bconsent\b/i, 'consent'],
+  [/\benergise(?:d)?\b/i, 'energise'], [/\b(?:take|took)\b/i, 'take'],
+  [/\b(?:receive|received)\b/i, 'receive'], [/\bproceed(?:ed)?\b/i, 'proceed'],
+  [/\bfail(?:ed)?\b/i, 'fail'], [/\b(?:make|made)\b/i, 'make'], [/\b(?:commit|committed)\b/i, 'commit'],
+  [/\b(?:complete|completed|do|done)\b/i, 'complete'],
+];
+
+function inferActor(text: string): string | null | undefined {
+  if (/^\s*(?:please\s+)?(?:do\s+not|don't|do|stop|start|arrive|send|confirm|provide|remain|submit|take)\b/i.test(text)) return 'addressee';
+  if (/^\s*I(?:\b|['’]m\b)/i.test(text)) return 'speaker';
+  if (/^\s*We\b/i.test(text)) return 'speakers';
+  if (/^\s*You\b/i.test(text)) return 'addressee';
+  if (/^\s*(?:They|He|She|It|This|That)\b/i.test(text)) return null;
+  if (/\b(?:was|were|is|are|been|be)\s+\w+(?:ed|en)\b/i.test(text) || /\bwere made\b/i.test(text)) return null;
+  const named = text.match(/^\s*([A-Z][a-z]+)\s+\w+/);
+  return named?.[1];
+}
+
+function inferAction(text: string): { action?: string; object?: string } {
+  for (const [pattern, action] of ACTIONS) {
+    const match = pattern.exec(text);
+    if (!match || match.index === undefined) continue;
+    const passiveObject = text.match(/^\s*(.+?)\s+(?:was|were|is|are|been|be)\s+/i)?.[1];
+    const tail = text.slice(match.index + match[0].length)
+      .replace(/^[\s,]+|[.!?]+$/g, '')
+      .replace(/\b(?:today|tomorrow|yesterday|soon|later|asap)\b.*$/i, '')
+      .trim();
+    const object = passiveObject ?? tail;
+    return { action, ...(object ? { object } : {}) };
+  }
+  return {};
+}
+
+function inferTime(parsed: ReturnType<typeof parseSentence>, text: string): PgsProposition['time'] {
+  const token = parsed.temporalTokens[0];
+  if (!token) return undefined;
+  const relative = ['soon', 'later', 'asap'].includes(token);
+  return /\bby\s+/i.test(text)
+    ? { deadline: token, temporalStatus: relative ? 'relative' : 'explicit' }
+    : { eventTime: token, temporalStatus: relative ? 'relative' : 'explicit' };
 }
 
 export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeedResult {
@@ -32,8 +80,13 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   const epistemicStatus = inferEpistemic(text);
   const operativeNegation = speechAct === 'refusal' || /\b(?:must not|mustn't|do not|don't)\b/i.test(text);
   const unresolved: string[] = [];
+  const actor = inferActor(text);
+  const extracted = inferAction(text);
+  const time = inferTime(parsed, text);
+  const quantities = text.match(/[£$€]?\d+(?:[.,]\d+)*|\b(?:one|two|three|four|five|six|seven|eight|nine|ten)\b/gi) ?? [];
 
   if (parsed.pronounTokens.some((p: string) => ['they', 'them', 'their', 'it', 'this', 'that'].includes(p))) unresolved.push('reference');
+  if (actor === null && !unresolved.includes('reference')) unresolved.push('actor');
   if (/\b(?:deliberately|intentionally|on purpose)\b/i.test(text)) unresolved.push('motive');
 
   const requiresSemanticReview = unresolved.length > 0 || epistemicStatus === 'unknown';
@@ -49,6 +102,15 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   const proposition: PgsProposition = {
     id,
     sourceSpan: text,
+    ...(actor !== undefined ? { actor } : {}),
+    ...(extracted.action ? { actionOrRelation: extracted.action } : {}),
+    ...(extracted.object ? { objectOrTarget: extracted.object } : {}),
+    ...(epistemicStatus === 'reported' ? { observation: text } : {}),
+    ...(epistemicStatus === 'intended' ? { intention: text } : {}),
+    ...(speechAct === 'request' || speechAct === 'command' ? { requestedAction: text } : {}),
+    ...(time ? { time } : {}),
+    ...(quantities.length ? { quantities } : {}),
+    ...(/^\s*(?:if|unless)\b/i.test(text) ? { conditions: [text] } : {}),
     polarity: parsed.polarity,
     ...(negation ? { negation } : {}),
     epistemicStatus,

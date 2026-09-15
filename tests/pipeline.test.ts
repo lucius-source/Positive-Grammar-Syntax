@@ -48,6 +48,7 @@ describe('PGS executable pipeline', () => {
     });
     expect(result.recommendations[0]?.text).toBe('I sent the email. I have not received a response. I believe they deliberately ignored my email.');
     expect(result.recommendations[1]?.text).toContain('Please confirm receipt and review.');
+    expect(result.recommendations[1]?.supportingFields).toContain('context.userIntent');
     expect(result.fidelity.map(item => item.message).join(' ')).toMatch(/user-supplied intent/);
     expect(formatPgsReport(result)).toContain('VERIFIED CONTEXT');
   });
