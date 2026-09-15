@@ -14,6 +14,7 @@ describe('Ollama semantic adapter', () => {
     const result = await engine.determine(request);
     expect(sent.model).toBe('qwen3.8:latest');
     expect(sent.format).toBe('json');
+    expect(sent.think).toBe(false);
     expect(sent.options.temperature).toBe(0);
     expect(result.providerMetadata?.local).toBe(true);
   });
@@ -28,5 +29,11 @@ describe('Ollama semantic adapter', () => {
     const fakeFetch = async () => new Response(JSON.stringify({ response: JSON.stringify({ propositions: [] }) }), { status: 200 });
     const engine = new OllamaSemanticEngine({ fetchImpl: fakeFetch as typeof fetch });
     await expect(engine.determine(request)).rejects.toThrow(/does not conform/);
+  });
+
+  it('rejects invalid determination records', async () => {
+    const fakeFetch = async () => new Response(JSON.stringify({ response: JSON.stringify({ propositions: [], relations: [], determinations: [{ field: 'motive' }], unresolved: [] }) }), { status: 200 });
+    const engine = new OllamaSemanticEngine({ fetchImpl: fakeFetch as typeof fetch });
+    await expect(engine.determine(request)).rejects.toThrow(/invalid semantic determination/);
   });
 });

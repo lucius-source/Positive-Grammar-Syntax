@@ -5,6 +5,7 @@
   "description": "Positive Grammar Syntax core language analysis and transformation engine",
   "type": "module",
   "scripts": {
+    "pgs": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -12,6 +13,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "tsx": "^4.20.5",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
   }
