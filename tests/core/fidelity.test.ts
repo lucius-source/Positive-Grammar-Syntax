@@ -30,4 +30,8 @@ describe('deterministic fidelity comparison', () => {
     });
     expect(result.status).toBe('pass');
   });
+
+  it('allows a canonical observation-before-interpretation recast', () => {
+    expect(compareFidelity('You never listen to me.', 'I believe my points are not being fully heard.').status).toBe('pass');
+  });
 });

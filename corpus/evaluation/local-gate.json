@@ -63,6 +63,36 @@
       },
       "protectedFragments": ["I sent the email", "I have not received a response"],
       "expectedL2Fragments": ["Please confirm receipt and review"]
+    },
+    {
+      "id": "LOCAL-009",
+      "category": "unknown-passive-actor",
+      "source": "Mistakes were made.",
+      "expectedRules": ["PGS-001"],
+      "expectedL1Fragments": ["The actor responsible for the errors is not identified."]
+    },
+    {
+      "id": "LOCAL-010",
+      "category": "relational-generalisation",
+      "source": "You never listen to me.",
+      "expectedRules": ["PGS-002"],
+      "expectedL1Fragments": ["I believe my points are not being fully heard."]
+    },
+    {
+      "id": "LOCAL-011",
+      "category": "present-inability",
+      "source": "I can't do this yet.",
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["I do not currently have the capability to complete this."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-012",
+      "category": "failure-prediction",
+      "source": "This is going to fail.",
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["I assess a risk of failure."],
+      "requireL2Withheld": true
     }
   ]
 }

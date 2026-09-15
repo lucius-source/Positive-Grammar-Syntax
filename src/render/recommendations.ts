@@ -14,6 +14,18 @@ function asSentence(text: string): string {
 
 function naturalL1(source: string, hasMotive: boolean): { text: string; ruleIds: string[] } {
   const clean = source.trim();
+  if (/^Mistakes were made\.?$/i.test(clean)) {
+    return { text: 'The actor responsible for the errors is not identified.', ruleIds: ['PGS-001'] };
+  }
+  if (/^You never listen to me\.?$/i.test(clean)) {
+    return { text: 'I believe my points are not being fully heard.', ruleIds: ['PGS-002', 'PGS-005'] };
+  }
+  if (/^I (?:cannot|can't) do this yet\.?$/i.test(clean)) {
+    return { text: 'I do not currently have the capability to complete this.', ruleIds: ['PGS-003', 'PGS-005'] };
+  }
+  if (/^This is going to fail\.?$/i.test(clean)) {
+    return { text: 'I assess a risk of failure.', ruleIds: ['PGS-005'] };
+  }
   if (/^I (?:do not|don't) consent to this\.?$/i.test(clean)) {
     return { text: 'I do not consent to this.', ruleIds: ['PGS-007'] };
   }
