@@ -1,0 +1,97 @@
+version: 0.1.0
+status: gate-2-review
+system: Positive Grammar Syntax
+purpose: Compare candidate PGS-L3 Natural and PGS-L3 Formal behaviours before normative adoption.
+
+cases:
+  - id: L3C-001
+    source: "Don't be late."
+    context: "Arrival time is known to be 09:00."
+    natural: "Arrive at 09:00."
+    formal: "For the arrival, the agreed time is 09:00."
+    assessment: "Natural is preferable for ordinary instruction; Formal makes the relationship explicit but adds words."
+
+  - id: L3C-002
+    source: "Mistakes were made."
+    context: "Actor unknown."
+    natural: "The person responsible for the errors is not identified."
+    formal: "For the errors, the responsible actor is unidentified."
+    assessment: "Both preserve unknown agency; neither may invent an actor."
+
+  - id: L3C-003
+    source: "You never listen to me."
+    context: "No specific event supplied."
+    natural: "I believe my points are not being fully heard, and I want clearer acknowledgement when we speak."
+    formal: "For our communication, I am seeking clear acknowledgement of my points."
+    assessment: "Natural preserves subjective status and relational tone; Formal compresses toward intention."
+
+  - id: L3C-004
+    source: "We don't want any more delays."
+    context: "An agreed schedule exists."
+    natural: "We want completion within the agreed schedule. Please confirm the next action and completion date."
+    formal: "For completion within the agreed schedule, please confirm the next action and completion date."
+    assessment: "Both work; Formal uses explicit contextual grounding."
+
+  - id: L3C-005
+    source: "They deliberately ignored my email."
+    context: "Known: email sent; no response. Motive unknown."
+    natural: "I sent the email and have not received a response. I do not know the reason. Please confirm receipt and review."
+    formal: "For the email communication, I have no confirmed response or motive; I am seeking confirmation of receipt and review."
+    assessment: "Both calibrate certainty. Natural is clearer in everyday correspondence."
+
+  - id: L3C-006
+    source: "I don't consent to this."
+    context: "Explicit refusal of consent."
+    natural: "I do not consent to this."
+    formal: "For this matter, my consent is absent."
+    assessment: "Natural wins because the direct operative refusal is clearer and should not be weakened by formalisation."
+
+  - id: L3C-007
+    source: "If payment isn't received by Friday, delivery won't proceed."
+    context: "Payment by Friday is a necessary condition for delivery."
+    natural: "Delivery proceeds only if payment is received by Friday."
+    formal: "For delivery, payment received by Friday is the required condition."
+    assessment: "Formal is useful for explicit condition modelling; both require logical-equivalence verification."
+
+  - id: L3C-008
+    source: "Maybe it will work."
+    context: "No probability or evidence supplied."
+    natural: "I am uncertain whether it will work."
+    formal: "For the expected outcome, my current status is uncertainty."
+    assessment: "Natural is more idiomatic; Formal exposes epistemic status as a structured component."
+
+  - id: L3C-009
+    source: "I sent the document yesterday."
+    context: "Past event asserted as fact."
+    natural: "I sent the document yesterday."
+    formal: "For the document delivery, I sent the document yesterday."
+    assessment: "Natural should remain unchanged. Formal analysis must not treat accurate past tense as defective."
+
+  - id: L3C-010
+    source: "This word lowers everyone's vibration."
+    context: "Spiritual/energetic proposition without supplied empirical evidence."
+    natural: "I believe this word may have an adverse energetic effect."
+    formal: "For the energetic effect of this word, the current proposition is a belief or research claim."
+    assessment: "Both preserve the spiritual dimension while calibrating evidential status."
+
+  - id: L3C-011
+    source: "This grammar removes the court's jurisdiction."
+    context: "Claimed legal effect not supported by supplied authoritative legal material."
+    natural: "The source claims that this grammar removes the court's jurisdiction; the legal effect requires verification against applicable authority."
+    formal: "For the claimed jurisdictional effect, formal grammar conformance is recorded separately from legal authority."
+    assessment: "Both separate linguistic form from legal conclusion."
+
+  - id: L3C-012
+    source: "I reviewed the figures. I found a £500 discrepancy. I want the accounts reconciled by Friday, so I will send the transaction list today."
+    context: "Complete factual/action statement."
+    natural: "I reviewed the figures and found a £500 discrepancy. I want the accounts reconciled by Friday. I will send the transaction list today."
+    formal: "For the £500 discrepancy in the reviewed figures, I am seeking reconciliation by Friday and sending the transaction list today."
+    assessment: "Positive control: Natural needs minimal editing; Formal provides recognisable structured PGS form."
+
+provisional_conclusion:
+  natural: "Recommended default L3 expression mode for human communication."
+  formal: "Recommended optional L3 formalisation/research mode and machine-intermediate representation candidate."
+  key_architectural_hypothesis: >-
+    PGS-L3 Formal may be most valuable as an explicit semantic/syntactic intermediate representation
+    used for analysis, validation and machine processing, while PGS-L3 Natural renders that structure
+    back into fluent human language.
