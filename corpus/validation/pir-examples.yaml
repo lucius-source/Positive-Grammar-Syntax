@@ -1,0 +1,105 @@
+version: 0.1.0
+status: gate-3-review
+system: Positive Grammar Syntax
+schema: specification/proposition-schema.yaml
+
+examples:
+  - id: PIR-001
+    source: "They deliberately ignored my email."
+    propositions:
+      - id: P1
+        source_span: "my email"
+        actor: speaker
+        action_or_relation: sent_email
+        object_or_target: email
+        observation: "The speaker reports sending an email."
+        epistemic_status: reported
+        speech_act: assertion
+        polarity: affirmative
+        fidelity_status: conditional
+      - id: P2
+        source_span: "ignored my email"
+        actor: they
+        action_or_relation: no_response
+        observation: "No response has been received, if confirmed by context."
+        interpretation: "The recipients ignored the email."
+        epistemic_status: inferred
+        speech_act: allegation
+        polarity: negative
+        ambiguity: {present: true, unresolved_fields: [motive], candidate_interpretations: [not_received, not_reviewed, chose_not_to_reply, delayed_reply, other]}
+        triggered_rules: [PGS-002, PGS-005]
+        fidelity_status: review_required
+    L3_natural: "I sent the email and have not received a response. I do not know the reason. Please confirm receipt and review."
+
+  - id: PIR-002
+    source: "If payment isn't received by Friday, delivery won't proceed."
+    propositions:
+      - id: P1
+        source_span: "payment isn't received by Friday"
+        action_or_relation: payment_received
+        time: {deadline: Friday, temporal_status: explicit}
+        polarity: negative
+        negation: {present: true, text: "isn't received", necessary: true, reason: "Forms the antecedent of the stated condition."}
+        epistemic_status: known
+        speech_act: assertion
+        conditions: []
+        fidelity_status: protected
+      - id: P2
+        source_span: "delivery won't proceed"
+        action_or_relation: delivery_proceeds
+        polarity: negative
+        negation: {present: true, text: "won't proceed", necessary: true, reason: "States the consequence of failed condition."}
+        epistemic_status: known
+        speech_act: assertion
+        conditions: ["P1 is false / payment is not received by Friday"]
+        triggered_rules: [PGS-004, PGS-007]
+        fidelity_status: protected
+    L3_natural: "Delivery proceeds only if payment is received by Friday."
+    validation: verify_logical_equivalence
+
+  - id: PIR-003
+    source: "I don't consent to this."
+    propositions:
+      - id: P1
+        source_span: "I don't consent to this"
+        actor: speaker
+        action_or_relation: consent
+        object_or_target: this
+        polarity: negative
+        negation: {present: true, text: "don't consent", necessary: true, reason: "Operative refusal of consent."}
+        epistemic_status: known
+        speech_act: refusal
+        modality: permission
+        protected_content: [explicit_non_consent]
+        exceptions: [EXC-003]
+        fidelity_status: protected
+    L3_natural: "I do not consent to this."
+
+  - id: PIR-004
+    source: "There's nothing I can do."
+    propositions:
+      - id: P1
+        source_span: "nothing I can do"
+        actor: speaker
+        action_or_relation: available_action
+        interpretation: "The speaker perceives no available action."
+        polarity: negative
+        epistemic_status: believed
+        speech_act: expression
+        modality: ability
+        triggered_rules: [PGS-003, PGS-005, PGS-006, PGS-007]
+        fidelity_status: review_required
+    L1: "I do not currently see an action available to me."
+    L2: "I want to identify the actions that remain available to me."
+    L3_natural: "I want to identify the actions available to me now."
+    note: "The constructive rendering must not falsely assert that options certainly exist."
+
+  - id: PIR-005
+    source: "I reviewed the figures. I found a £500 discrepancy. I want the accounts reconciled by Friday, so I will send the transaction list today."
+    propositions:
+      - {id: P1, source_span: "I reviewed the figures", actor: speaker, action_or_relation: reviewed, object_or_target: figures, polarity: affirmative, epistemic_status: observed, speech_act: observation, fidelity_status: pass}
+      - {id: P2, source_span: "I found a £500 discrepancy", actor: speaker, action_or_relation: found, object_or_target: discrepancy, quantities: ["£500"], polarity: affirmative, epistemic_status: observed, speech_act: observation, fidelity_status: pass}
+      - {id: P3, source_span: "I want the accounts reconciled by Friday", actor: speaker, desired_state: "accounts reconciled", time: {deadline: Friday, temporal_status: explicit}, polarity: affirmative, epistemic_status: intended, speech_act: expression, fidelity_status: pass}
+      - {id: P4, source_span: "I will send the transaction list today", actor: speaker, action_or_relation: send, object_or_target: transaction_list, time: {event_time: today, temporal_status: explicit}, polarity: affirmative, epistemic_status: intended, speech_act: promise, modality: commitment, fidelity_status: pass}
+    L3_natural: "I reviewed the figures and found a £500 discrepancy. I want the accounts reconciled by Friday. I will send the transaction list today."
+    L3_formal: "For the £500 discrepancy in the reviewed figures, I am seeking reconciliation by Friday and sending the transaction list today."
