@@ -1,0 +1,31 @@
+version: 0.1.0
+status: executable-expectations
+source_corpus: corpus/validation/gate-2-canonical.yaml
+
+cases:
+  - {id: CAN-001, expect_rules: [PGS-007], note: "PGS-004 depends on knowing that lateness implies a material time; semantic layer handles this."}
+  - {id: CAN-002, expect_rules: [PGS-001]}
+  - {id: CAN-003, expect_rules: [PGS-002]}
+  - {id: CAN-005, expect_rules: [PGS-004]}
+  - {id: CAN-008, expect_rules: [PGS-007], protected_exception: EXC-002}
+  - {id: CAN-018, semantic_only: true, protected_exception: EXC-003}
+  - {id: CAN-020, expect_rules: [PGS-007], protected_exception: EXC-003}
+  - {id: CAN-021, expect_rules: [PGS-007], protected_exception: EXC-002}
+  - {id: CAN-024, expect_rules: [], note: "Accurate past tense is not a deterministic defect."}
+  - {id: CAN-026, expect_rules: [], protected_exception: EXC-101}
+  - {id: CAN-031, semantic_only: true, note: "Maybe requires epistemic interpretation rather than simplistic lexical punishment."}
+  - {id: CAN-032, expect_rules: [PGS-005]}
+  - {id: CAN-036, expect_rules: [PGS-004]}
+  - {id: CAN-042, semantic_only: true}
+  - {id: CAN-043, semantic_only: true}
+  - {id: CAN-047, semantic_only: true}
+  - {id: CAN-048, expect_rules: [PGS-007]}
+  - {id: CAN-049, semantic_only: true}
+  - {id: CAN-050, expect_rules: [], positive_control: true}
+
+policy:
+  false_positive_cost: high
+  principle: >-
+    Deterministic detection should remain conservative. A case marked semantic_only is intentionally
+    deferred rather than guessed from surface tokens. The semantic engine must later satisfy the same
+    canonical corpus through PGS-PIR and fidelity validation.
