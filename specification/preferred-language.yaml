@@ -1,4 +1,4 @@
-version: 0.1.0
+version: 0.2.0
 status: gate-3-candidate
 system: Positive Grammar Syntax
 purpose: Preferred PGS language patterns for unresolved analysis and determination.
@@ -17,15 +17,52 @@ preference:
     - "A reliable determination remains to be made."
     - "Further information is required for a reliable determination."
     - "The available information does not yet support a reliable determination."
-  use_when:
-    - evidence_is_incomplete
-    - context_is_unresolved
-    - semantic_interpretation_is_pending
-    - a_determination_process_remains_available
-  do_not_use_when:
-    - the_matter_is_intrinsically_indeterminate
-    - determination_is_impossible_on_known_constraints
-    - wording_would_hide_a_material_limitation
+  use_when: [evidence_is_incomplete, context_is_unresolved, semantic_interpretation_is_pending, a_determination_process_remains_available]
+  do_not_use_when: [the_matter_is_intrinsically_indeterminate, determination_is_impossible_on_known_constraints, wording_would_hide_a_material_limitation]
   fidelity_rule: >-
     Positive framing must not convert genuine impossibility or permanent uncertainty into
     an implied future certainty. State the limiting fact when it is material.
+
+preferred_examples:
+  - id: PREF-001
+    source: "Do not energise the circuit."
+    preferred_candidate: "Keep the circuit closed."
+    status: conditional
+    rule: PGS-007
+    validation_required:
+      - confirm_closed_is_the_intended_safe_state
+      - confirm_closed_does_not_mean_electrically_energised_in_context
+      - preserve_original_prohibition_if_equivalence_is_not_certain
+    note: >-
+      In electrical terminology a closed circuit can permit current flow. This preferred example
+      is valid only where 'closed' is explicitly defined as the required safe state. PGS never
+      exchanges a safety prohibition for a technically different instruction merely to obtain affirmative wording.
+
+  - id: PREF-002
+    source: "I sent the document yesterday."
+    preferred_candidate: "I sent the document yesterday."
+    status: preferred_unchanged
+    note: Legitimate past-time language is preserved.
+
+  - id: PREF-003
+    source: "I don't consent to this."
+    preferred_candidate: "Absence of consent obtained."
+    status: conditional
+    validation_required:
+      - determine_intended_actor_and_scope
+      - determine_whether_meaning_is_personal_refusal_or_absence_of_obtained_consent
+      - preserve_operative_non_consent
+    note: >-
+      'I do not consent' and 'consent has not been obtained' can describe different propositions.
+      The latter is a preferred PGS candidate only when it accurately expresses the intended fact.
+      For a personal operative refusal, explicit non-consent remains protected.
+
+  - id: PREF-004
+    source: "They deliberately ignored my email."
+    status: semantic_review
+    required_determinations: [reference, motive]
+
+  - id: PREF-005
+    source: "Maybe it will work."
+    status: preserve_uncertainty
+    note: Epistemic uncertainty remains explicit until evidence supports a stronger determination.
