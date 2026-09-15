@@ -1,0 +1,122 @@
+version: 0.1.0
+status: gate-3-candidate
+system: Positive Grammar Syntax
+name: PGS Proposition Intermediate Representation
+abbreviation: PGS-PIR
+
+purpose: >-
+  Provide a model-agnostic structured representation between source-language analysis
+  and PGS rendering. The PIR records what is known, inferred, intended, requested,
+  prohibited, conditional and unresolved before any L3 Natural or L3 Formal output is generated.
+
+principles:
+  - structure_before_rewrite
+  - preserve_source_propositions
+  - distinguish_fact_from_interpretation
+  - distinguish_negation_from_desired_state
+  - represent_unknowns_explicitly
+  - never_fill_unknowns_by_guessing
+  - support_multiple_propositions_per_utterance
+  - support_machine_validation_and_human_explanation
+
+proposition:
+  required_fields:
+    - id
+    - source_span
+    - speech_act
+    - polarity
+    - epistemic_status
+    - fidelity_status
+  fields:
+    id: {type: string, description: Stable proposition identifier.}
+    source_span: {type: string, description: Exact or traceable source segment represented by this proposition.}
+    context: {type: [string, 'null'], description: Material grounding, relationship or domain context.}
+    actor: {type: [string, 'null'], description: Actor/agent when known; null means unresolved rather than inferred.}
+    action_or_relation: {type: [string, 'null'], description: Predicate, action, state or relationship.}
+    object_or_target: {type: [string, 'null'], description: Object, recipient, target or complement when material.}
+    observation: {type: [string, 'null'], description: Directly observed or reported factual content.}
+    interpretation: {type: [string, 'null'], description: Meaning, judgement or inference distinct from observation.}
+    intention: {type: [string, 'null'], description: Communicator intention when stated or safely recoverable.}
+    desired_state: {type: [string, 'null'], description: Affirmative desired outcome where present.}
+    requested_action: {type: [string, 'null'], description: Requested or proposed action.}
+    responsible_party: {type: [string, 'null'], description: Party responsible for requested/required action when known.}
+    time:
+      type: object
+      fields: [event_time, deadline, duration, frequency, temporal_status]
+    conditions:
+      type: array
+      description: Preconditions, exceptions, dependencies or logical conditions.
+    quantities:
+      type: array
+      description: Amounts, counts, percentages, measurements or other material quantities.
+    polarity:
+      enum: [affirmative, negative, mixed]
+    negation:
+      type: object
+      fields: [present, text, necessary, reason]
+    epistemic_status:
+      enum: [observed, reported, known, evidenced, inferred, believed, assumed, alleged, predicted, intended, uncertain, unknown]
+    confidence:
+      type: [number, 'null']
+      range: [0, 1]
+      rule: Use only when supported by the analyser/model; never fabricate precision.
+    speech_act:
+      enum: [assertion, observation, question, request, command, offer, promise, refusal, consent, denial, warning, advice, proposal, allegation, expression, other]
+    modality:
+      enum: [none, ability, permission, obligation, necessity, possibility, probability, intention, commitment]
+    domain:
+      enum: [general, business, relational, legal, medical, safety, technical, scientific, creative, spiritual, other]
+    evidence:
+      type: array
+      description: Evidence references or descriptions supporting the proposition.
+    ambiguity:
+      type: object
+      fields: [present, unresolved_fields, candidate_interpretations]
+    protected_content:
+      type: array
+      description: Source elements that must survive transformation, such as operative negation, legal terms, safety limits or quotations.
+    triggered_rules:
+      type: array
+      description: PGS rule IDs applicable to this proposition.
+    triggered_patterns:
+      type: array
+      description: PGS pattern IDs detected.
+    exceptions:
+      type: array
+      description: Protected exception IDs.
+    research_annotations:
+      type: array
+      description: Non-normative source-system or experimental analyses, kept separate from core proposition meaning.
+    fidelity_status:
+      enum: [pass, conditional, review_required, blocked, protected]
+    unresolved:
+      type: array
+      description: Missing facts that materially prevent safe transformation.
+
+rendering:
+  L1:
+    objective: Render factual, referential and epistemic clarity with minimal semantic intervention.
+  L2:
+    objective: Render constructive intention, affirmative outcome and actionable expression after L1 validation.
+  L3_natural:
+    objective: Render the verified PIR in fluent comprehensive PGS English.
+  L3_formal:
+    objective: Render or expose the verified PIR in explicit formal PGS structure for analysis, research or machine processing.
+
+validation:
+  hard_failures:
+    - invented_actor
+    - invented_fact
+    - invented_time_or_quantity
+    - unsupported_certainty_increase
+    - removed_necessary_negation
+    - changed_logical_condition
+    - changed_consent_or_refusal
+    - changed_legal_or_safety_effect_without_verification
+  warnings:
+    - unresolved_reference
+    - unresolved_intention
+    - unresolved_time
+    - metaphor_or_irony_detected
+    - domain_term_transformation
+    - research_hypothesis_used
