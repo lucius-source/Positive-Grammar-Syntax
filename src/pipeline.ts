@@ -38,7 +38,7 @@ function verifyFidelity(source: string, recommendations: Recommendation[], unres
   if (context?.knownFacts?.length) findings.push({ status: 'pass', message: 'User-supplied known facts are explicitly recorded as context.' });
   if (context?.userIntent) findings.push({ status: 'pass', message: 'PGS-L2 action is grounded in the user-supplied intent.' });
   if (context?.referenceBindings?.length) findings.push({ status: 'pass', message: 'Introduced actor identity is grounded in an explicit user reference binding.' });
-  if (context?.evidence?.length) findings.push({ status: 'pass', message: 'Resolved semantic fields are grounded in user-supplied evidence.' });
+  if (context?.evidence?.length) findings.push({ status: 'pass', message: 'User-supplied evidence was classified before determining whether it could resolve a field.' });
   return findings;
 }
 
@@ -90,7 +90,7 @@ export function formatPgsReport(result: PipelineResult): string {
     : [result.semanticError ? `Semantic review unavailable: ${result.semanticError}` : 'Not required.'];
   const recommendations = result.recommendations.flatMap(r => [r.level, r.text ?? `Withheld: ${r.withheldReason ?? 'Fidelity could not be established.'}`, `Rules: ${r.ruleIds.length ? r.ruleIds.join(', ') : 'none (source preserved)'}`, `Support: ${r.supportingFields.length ? r.supportingFields.join(', ') : 'none'}`]);
   const context = result.context
-    ? [...(result.context.knownFacts ?? []).map(fact => `Known fact: ${fact}`), ...(result.context.userIntent ? [`User intent: ${result.context.userIntent}`] : []), ...(result.context.referenceBindings ?? []).map(binding => `Reference binding: ${binding.reference} → ${binding.entity}`), ...(result.context.evidence ?? []).map(item => `Evidence (${item.field}): ${item.statement}`)]
+    ? [...(result.context.knownFacts ?? []).map(fact => `Known fact: ${fact}`), ...(result.context.userIntent ? [`User intent: ${result.context.userIntent}`] : []), ...(result.context.referenceBindings ?? []).map(binding => `Reference binding: ${binding.reference} → ${binding.entity}`), ...(result.context.evidence ?? []).map(item => `Evidence (${item.field}; ${item.kind}): ${item.statement}`)]
     : [];
   const ledger = result.resolutionLedger.map(item => `${item.propositionId ? `${item.propositionId} ` : ''}${item.field}: ${item.status}; provenance=${item.provenance}${item.value !== undefined ? `; value=${typeof item.value === 'string' ? item.value : JSON.stringify(item.value)}` : ''}; ${item.basis}`);
   return [

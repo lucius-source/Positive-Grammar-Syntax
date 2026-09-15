@@ -17,6 +17,7 @@ describe('Ollama semantic adapter', () => {
     expect(sent.think).toBe(false);
     expect(sent.options.temperature).toBe(0);
     expect(sent.prompt).toContain('never create a new enum label');
+    expect(sent.prompt).toContain('Belief, inference, or unclassified evidence does not resolve a field');
     expect(result.providerMetadata?.local).toBe(true);
   });
 

@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 import { OllamaSemanticEngine } from './semantic/adapters/ollama';
 import { formatPgsReport, runPgsPipeline } from './pipeline';
+import type { EvidenceItem, EvidenceKind } from './semantic/types';
 
 const args = process.argv.slice(2);
 const knownFacts: string[] = [];
 let userIntent: string | undefined;
 const referenceBindings: Array<{ reference: string; entity: string }> = [];
-const evidence: Array<{ field: string; statement: string }> = [];
+const evidence: EvidenceItem[] = [];
+const evidenceKinds = new Set<EvidenceKind>(['direct_observation', 'documented', 'attributed_admission', 'inference', 'belief', 'unclassified']);
 const sourceParts: string[] = [];
 for (let index = 0; index < args.length; index++) {
   const arg = args[index];
@@ -21,13 +23,19 @@ for (let index = 0; index < args.length; index++) {
       const key = value.slice(0, separator).trim();
       const supplied = value.slice(separator + 1).trim();
       if (arg === '--bind') referenceBindings.push({ reference: key, entity: supplied });
-      else evidence.push({ field: key, statement: supplied });
+      else {
+        const [field, requestedKind] = key.split(':');
+        if (!field) throw new Error('--evidence requires field:kind=statement.');
+        const kind = (requestedKind ?? 'unclassified') as EvidenceKind;
+        if (!evidenceKinds.has(kind)) throw new Error(`Unknown evidence kind: ${kind}.`);
+        evidence.push({ field, kind, statement: supplied });
+      }
     }
   } else if (arg !== undefined) sourceParts.push(arg);
 }
 const source = sourceParts.join(' ').trim();
 if (!source) {
-  console.error('Usage: npm run pgs -- "Your text" [--fact "Verified fact"] [--intent "Requested action"] [--bind "reference=entity"] [--evidence "field=statement"]');
+  console.error('Usage: npm run pgs -- "Your text" [--fact "Verified fact"] [--intent "Requested action"] [--bind "reference=entity"] [--evidence "field:kind=statement"]');
   process.exitCode = 1;
 } else {
   const engine = new OllamaSemanticEngine();

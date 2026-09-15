@@ -21,8 +21,11 @@ export interface SemanticContext {
   protectedTerms?: string[];
   preferredLanguage?: string[];
   referenceBindings?: Array<{ reference: string; entity: string }>;
-  evidence?: Array<{ field: string; statement: string; propositionId?: string }>;
+  evidence?: EvidenceItem[];
 }
+
+export type EvidenceKind = 'direct_observation' | 'documented' | 'attributed_admission' | 'inference' | 'belief' | 'unclassified';
+export interface EvidenceItem { field: string; statement: string; kind: EvidenceKind; propositionId?: string }
 
 export interface SemanticRequest {
   source: string;

@@ -23,11 +23,12 @@ function validateSemanticResponse(value: unknown): SemanticResponse {
   if (!value.unresolved.every(item => typeof item === 'string')) {
     throw new Error('Ollama response contains an invalid unresolved item.');
   }
-  for (const determination of value.determinations) {
+  for (const [index, determination] of value.determinations.entries()) {
     if (!isRecord(determination) || typeof determination.field !== 'string'
       || typeof determination.status !== 'string' || typeof determination.basis !== 'string'
       || !['determined', 'unresolved', 'indeterminate', 'protected'].includes(determination.status)) {
-      throw new Error('Ollama response contains an invalid semantic determination.');
+      const status = isRecord(determination) ? String(determination.status) : 'non-object';
+      throw new Error(`Ollama response contains an invalid semantic determination at index ${index} (status=${status}).`);
     }
   }
   return value as unknown as SemanticResponse;
@@ -66,7 +67,7 @@ export class OllamaSemanticEngine implements SemanticEngine {
   }
 
   async determine(request: SemanticRequest): Promise<SemanticResponse> {
-    const prompt = `${PGS_SEMANTIC_PROTOCOL}\n\nINPUT\n${JSON.stringify(request, null, 2)}\n\nReturn JSON only. Do not include thinking, analysis, commentary, or markdown. Copy the supplied propositions and relations without changing them; express all additional analysis in determinations and unresolved. In particular, never create a new enum label. Allowed epistemicStatus values are: observed, reported, known, evidenced, inferred, believed, assumed, alleged, predicted, intended, uncertain, unknown. Allowed fidelityStatus values are: pass, conditional, review_required, blocked, protected. Allowed determination status values are: determined, unresolved, indeterminate, protected. Preserve every supplied proposition id and sourceSpan exactly. Return exactly this envelope: {"propositions": PgsProposition[], "relations": PropositionRelation[], "determinations": [{"field": string, "propositionId"?: string, "value"?: unknown, "status": "determined"|"unresolved"|"indeterminate"|"protected", "basis": string, "confidence"?: number}], "unresolved": string[]}.`;
+    const prompt = `${PGS_SEMANTIC_PROTOCOL}\n\nINPUT\n${JSON.stringify(request, null, 2)}\n\nReturn JSON only. Do not include thinking, analysis, commentary, or markdown. Copy the supplied propositions and relations without changing them; express all additional analysis in determinations and unresolved. In particular, never create a new enum label. Allowed epistemicStatus values are: observed, reported, known, evidenced, inferred, believed, assumed, alleged, predicted, intended, uncertain, unknown. Allowed fidelityStatus values are: pass, conditional, review_required, blocked, protected. Allowed determination status values are ONLY: determined, unresolved, indeterminate, protected. Never use epistemic labels such as believed, assumed, or inferred as a determination status. Belief, inference, or unclassified evidence does not resolve a field: use status unresolved and describe the epistemic character in basis or value. Preserve every supplied proposition id and sourceSpan exactly. Return exactly this envelope: {"propositions": PgsProposition[], "relations": PropositionRelation[], "determinations": [{"field": string, "propositionId"?: string, "value"?: unknown, "status": "determined"|"unresolved"|"indeterminate"|"protected", "basis": string, "confidence"?: number}], "unresolved": string[]}.`;
     const response = await this.fetchImpl(`${this.baseUrl}/api/generate`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

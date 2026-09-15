@@ -1,5 +1,6 @@
 import type { SemanticContext } from '../semantic/types';
 import { analyseDocument } from '../analyser/document';
+import { evidenceIsSufficient } from '../resolution/ledger';
 
 export type FidelityIssueSeverity = 'review_required' | 'blocked';
 export interface FidelityIssue { code: string; severity: FidelityIssueSeverity; message: string; evidence?: string }
@@ -34,7 +35,7 @@ function pirFields(text: string): { actions: Set<string>; actors: Set<string> } 
 }
 
 export function compareFidelity(source: string, candidate: string, context?: SemanticContext): FidelityComparison {
-  const authorised = [source, ...(context?.knownFacts ?? []), context?.userIntent ?? '', ...(context?.referenceBindings ?? []).map(item => item.entity), ...(context?.evidence ?? []).map(item => item.statement)].join(' ');
+  const authorised = [source, ...(context?.knownFacts ?? []), context?.userIntent ?? '', ...(context?.referenceBindings ?? []).map(item => item.entity), ...(context?.evidence ?? []).filter(item => evidenceIsSufficient(item.field, item)).map(item => item.statement)].join(' ');
   const issues: FidelityIssue[] = [];
   const add = (issue: FidelityIssue) => issues.push(issue);
 

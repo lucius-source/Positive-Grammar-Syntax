@@ -1,5 +1,5 @@
 import type { DocumentAnalysis } from '../analyser/document';
-import type { SemanticContext, SemanticResponse } from '../semantic/types';
+import type { EvidenceItem, SemanticContext, SemanticResponse } from '../semantic/types';
 
 export interface ResolutionEntry {
   field: string;
@@ -19,8 +19,14 @@ function matchingBinding(sourceSpan: string, field: string, context?: SemanticCo
   });
 }
 
-function matchingEvidence(field: string, propositionId: string, context?: SemanticContext) {
+function matchingEvidence(field: string, propositionId: string, context?: SemanticContext): EvidenceItem | undefined {
   return context?.evidence?.find(item => item.field.toLowerCase() === field.toLowerCase() && (!item.propositionId || item.propositionId === propositionId));
+}
+
+export function evidenceIsSufficient(field: string, evidence: EvidenceItem): boolean {
+  if (field === 'reference' || field === 'actor') return false;
+  if (field === 'motive' || field === 'intention') return evidence.kind === 'attributed_admission' || evidence.kind === 'documented';
+  return evidence.kind === 'direct_observation' || evidence.kind === 'documented' || evidence.kind === 'attributed_admission';
 }
 
 export function buildResolutionLedger(analysis: DocumentAnalysis, semantic?: SemanticResponse, context?: SemanticContext): ResolutionEntry[] {
@@ -33,8 +39,8 @@ export function buildResolutionLedger(analysis: DocumentAnalysis, semantic?: Sem
       const binding = field === 'reference' || field === 'actor' ? matchingBinding(proposition.sourceSpan, field, context) : undefined;
       const evidence = matchingEvidence(field, proposition.id, context);
       if (binding) entries.push({ field, propositionId: proposition.id, status: 'resolved', value: binding.entity, provenance: 'user_context', basis: `Explicit binding: ${binding.reference} → ${binding.entity}` });
-      else if (evidence) entries.push({ field, propositionId: proposition.id, status: 'resolved', value: evidence.statement, provenance: 'user_context', basis: `User-supplied evidence for ${field}.` });
-      else entries.push({ field, propositionId: proposition.id, status: 'unresolved', provenance: 'source', basis: 'Deterministic PIR identifies this field as unresolved.' });
+      else if (evidence && evidenceIsSufficient(field, evidence)) entries.push({ field, propositionId: proposition.id, status: 'resolved', value: evidence.statement, provenance: 'user_context', basis: `User-supplied ${evidence.kind} evidence for ${field}.` });
+      else entries.push({ field, propositionId: proposition.id, status: 'unresolved', provenance: evidence ? 'user_context' : 'source', basis: evidence ? `${evidence.kind} evidence does not establish ${field}.` : 'Deterministic PIR identifies this field as unresolved.' });
     }
   }
   for (const determination of semantic?.determinations ?? []) {

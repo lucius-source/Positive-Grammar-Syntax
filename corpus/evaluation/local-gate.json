@@ -129,6 +129,30 @@
       "expectedUnresolved": ["motive"],
       "expectedL1Fragments": ["I believe Acme support team deliberately ignored my email."],
       "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-017",
+      "category": "sufficient-motive-evidence",
+      "source": "They deliberately ignored my email.",
+      "context": {
+        "referenceBindings": [{"reference": "they", "entity": "Acme support team"}],
+        "evidence": [{"field": "motive", "kind": "attributed_admission", "statement": "The team confirmed choosing not to reply."}]
+      },
+      "expectedResolved": ["reference", "motive"],
+      "expectedL1Fragments": ["Acme support team deliberately ignored my email."]
+    },
+    {
+      "id": "LOCAL-018",
+      "category": "insufficient-motive-belief",
+      "source": "They deliberately ignored my email.",
+      "context": {
+        "referenceBindings": [{"reference": "they", "entity": "Acme support team"}],
+        "evidence": [{"field": "motive", "kind": "belief", "statement": "I think the team chose not to reply."}]
+      },
+      "expectedResolved": ["reference"],
+      "expectedUnresolved": ["motive"],
+      "expectedL1Fragments": ["I believe Acme support team deliberately ignored my email."],
+      "requireL2Withheld": true
     }
   ]
 }

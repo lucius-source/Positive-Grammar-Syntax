@@ -76,7 +76,7 @@ npm run pgs -- "They deliberately ignored my email." \
 
 Facts and intent are recorded separately in the report and are the only additional content allowed into context-aware recommendations.
 
-Use `--bind "reference=entity"` for an explicit referential resolution and `--evidence "field=statement"` for field-specific supporting evidence. The resolution ledger records provenance; a model assessment alone cannot resolve deterministic ambiguity.
+Use `--bind "reference=entity"` for an explicit referential resolution and `--evidence "field:kind=statement"` for field-specific supporting evidence. Evidence kinds are `direct_observation`, `documented`, `attributed_admission`, `inference`, `belief`, and `unclassified`. Belief, inference, and unclassified evidence remain unresolved. Motive and intention require documented evidence or an attributed admission. The resolution ledger records provenance; a model assessment alone cannot resolve deterministic ambiguity.
 
 For example, binding `they=Acme support team` resolves only the reference. Motive remains unresolved unless separate motive evidence is supplied.
 
