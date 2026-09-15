@@ -1,0 +1,72 @@
+version: 0.1.0
+status: draft
+system: Positive Grammar Syntax
+
+exceptions:
+  - id: EXC-001
+    name: necessary_factual_negation
+    protects: [PGS-003, PGS-007]
+    examples: ["The payment was not received.", "The claimant did not serve the notice."]
+    rule: Preserve negation when removing it would alter the asserted fact.
+
+  - id: EXC-002
+    name: safety_critical_prohibition
+    protects: [PGS-003, PGS-007]
+    examples: ["Do not energise the circuit.", "This medicine must not be combined with X."]
+    rule: Preserve explicit prohibition where it communicates a material safety boundary.
+
+  - id: EXC-003
+    name: legal_denial_or_rebuttal
+    protects: [PGS-003, PGS-007]
+    rule: Preserve denials, non-admissions, reservations, exceptions and operative negatives whose alteration may change legal meaning.
+
+  - id: EXC-004
+    name: unknown_actor
+    protects: [PGS-001]
+    rule: Flag missing material agency but never fabricate an actor.
+
+  - id: EXC-005
+    name: intentional_temporal_flexibility
+    protects: [PGS-004]
+    rule: Preserve flexible timing when flexibility is intentional or exact timing is unavailable; never invent a date or deadline.
+
+  - id: EXC-006
+    name: attributed_or_quoted_claim
+    protects: [PGS-002, PGS-005]
+    rule: Preserve the speaker's proposition when accurately quoting or attributing it; analysis may separately classify its epistemic status.
+
+  - id: EXC-007
+    name: descriptive_non_actionable_communication
+    protects: [PGS-006]
+    rule: Do not force a request or action into communication whose purpose is purely descriptive, expressive, historical or creative.
+
+  - id: EXC-101
+    name: clear_pronoun_reference
+    domain: PGS-A
+    applies_to: PAT-101
+    evidence_status: research
+    rule: Do not replace pronouns mechanically when the antecedent is clear and repetition would reduce naturalness without improving precision.
+
+  - id: EXC-102
+    name: legitimate_past_or_future_reference
+    domain: PGS-D
+    applies_to: PAT-104
+    evidence_status: research
+    rule: Past and future tense may accurately describe time, evidence, obligation, prediction or intention; tense alone must not be treated as semantic, factual or legal invalidity.
+
+  - id: EXC-103
+    name: lexical_false_decomposition
+    domain: PGS-E
+    applies_to: [PAT-105, PAT-106]
+    evidence_status: research
+    rule: Do not infer meaning from visually convenient segmentation where morphology, etymology, usage or context does not support the decomposition.
+
+  - id: EXC-104
+    name: domain_specific_operative_language
+    domains: [PGS-D, PGS-E]
+    rule: In legal, medical, scientific, technical and safety text, preserve terms of art and operative language unless a transformation is verified not to change domain meaning.
+
+  - id: EXC-105
+    name: creative_expression
+    domains: [PGS-A, PGS-B, PGS-C, PGS-D, PGS-E]
+    rule: Metaphor, humour, poetry, dialogue and deliberate ambiguity may be intentional. Analyse according to selected mode before applying comprehensive transformation.
