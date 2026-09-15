@@ -1,0 +1,155 @@
+version: 0.1.0
+status: gate-2-review
+system: Positive Grammar Syntax
+purpose: Canonical cases for specification, training and regression testing.
+
+cases:
+  - id: CAN-001
+    category: instruction
+    source: "Don't be late."
+    triggers: [PGS-003, PGS-004, PGS-007]
+    L1: "Arrive at the agreed time."
+    L2: "Arrive at 09:00."
+    L3_candidate: "For the arrival: 09:00."
+    fidelity: conditional
+    note: 09:00 is valid only when known from context; otherwise the engine must not invent it.
+
+  - id: CAN-002
+    category: responsibility
+    source: "Mistakes were made."
+    triggers: [PGS-001]
+    L1: "The responsible actor made errors."
+    L2: "The responsible actor made errors and will identify the corrective action."
+    L3_candidate: "For the errors, the responsible actor is identifying the corrective action."
+    fidelity: requires_context
+    note: Never fabricate the actor or corrective intention. Where unknown, flag missing agency instead of transforming substantively.
+
+  - id: CAN-003
+    category: relational
+    source: "You never listen to me."
+    triggers: [PGS-002, PGS-005]
+    L1: "I believe my points are not being fully heard."
+    L2: "I want us to hear each other's points fully."
+    L3_candidate: "For our communication, I am seeking clear acknowledgement of each person's points."
+    fidelity: review_required
+    note: A specific observed event is preferable when available. Do not invent interruption counts or events.
+
+  - id: CAN-004
+    category: business
+    source: "We don't want any more delays."
+    triggers: [PGS-003, PGS-006, PGS-007]
+    L1: "We want the work completed within the agreed schedule."
+    L2: "We want completion within the agreed schedule. Please confirm the next action and completion date."
+    L3_candidate: "For the completion within the agreed schedule, please confirm the next action and completion date."
+    fidelity: pass_if_schedule_exists
+
+  - id: CAN-005
+    category: temporal
+    source: "I'll get back to you soon."
+    triggers: [PGS-004]
+    L1: "I will respond when I can confirm the timing."
+    L2: "I intend to respond within the stated timeframe."
+    L3_candidate: "For my response, the confirmed timeframe is required."
+    fidelity: requires_context
+    note: Prefer a real date/time when known. Never invent one merely to improve temporal score.
+
+  - id: CAN-006
+    category: complaint
+    source: "Communication is terrible."
+    triggers: [PGS-002, PGS-006]
+    L1: "The current communication is not providing the information I need."
+    L2: "I want clear, regular information. I propose a weekly update."
+    L3_candidate: "For clear communication, I am proposing a weekly information update."
+    fidelity: review_required
+    note: The weekly update is valid only if it reflects the communicator's actual intention.
+
+  - id: CAN-007
+    category: legal
+    source: "The claimant did not serve the notice."
+    triggers: [PGS-007]
+    exceptions: [EXC-001, EXC-003]
+    L1: "The claimant did not serve the notice."
+    L2: "The claimant did not serve the notice."
+    L3_candidate: "The claimant did not serve the notice."
+    fidelity: protected
+    note: Operative factual/legal negation remains unchanged unless additional verified detail improves precision without changing the denial.
+
+  - id: CAN-008
+    category: safety
+    source: "Do not energise the circuit."
+    triggers: [PGS-007]
+    exceptions: [EXC-002]
+    L1: "Do not energise the circuit."
+    L2: "Keep the circuit de-energised. Do not energise it."
+    L3_candidate: "For circuit safety, keep the circuit de-energised. Do not energise the circuit."
+    fidelity: protected
+    note: Affirmative state may supplement but must not weaken the explicit prohibition.
+
+  - id: CAN-009
+    category: epistemic
+    source: "They deliberately ignored my email."
+    triggers: [PGS-002, PGS-005]
+    L1: "I sent the email and have not received a response. I do not know their reason for not responding."
+    L2: "I sent the email and have not received a response. I want confirmation that it has been received and reviewed."
+    L3_candidate: "For the email communication, I am seeking confirmation of receipt and review."
+    fidelity: requires_known_facts
+
+  - id: CAN-010
+    category: ambiguous_reference
+    source: "He told him that they would deal with it."
+    triggers: [PGS-001]
+    research_patterns: [PAT-101]
+    L1: "[Actor A] told [Actor B] that [responsible party] would deal with [identified matter]."
+    L2: "Clarify the actors, responsible party and matter before transformation."
+    L3_candidate: "Transformation blocked pending referential resolution."
+    fidelity: blocked
+
+  - id: CAN-011
+    category: constructive_boundary
+    source: "I can't agree to that."
+    triggers: [PGS-003, PGS-007]
+    L1: "I do not agree to that."
+    L2: "I decline that proposal. My preferred outcome is [state actual alternative]."
+    L3_candidate: "For my decision, I am declining that proposal and stating my preferred alternative."
+    fidelity: requires_context
+    note: Do not convert inability into choice unless that is what the communicator means.
+
+  - id: CAN-012
+    category: source_syntax
+    source: "The court hereby orders that you shall forthwith pay."
+    triggers: [PGS-001, PGS-004]
+    research_patterns: [PAT-102, PAT-104]
+    L1: "The court orders [identified party] to pay [identified amount] by [identified deadline]."
+    L2: "The court orders [identified party] to pay [identified amount] by [identified deadline]."
+    L3_candidate: "For the court order, [identified party] is paying [identified amount] by [identified deadline]."
+    fidelity: high_risk_legal_review
+    note: The source-system null-construction and tense hypotheses are research items. A PGS rewrite must not alter the legal effect of an actual order.
+
+  - id: CAN-013
+    category: lexical_research
+    source: "insurance"
+    research_patterns: [PAT-105, PAT-106]
+    L1: "insurance"
+    L2: "insurance"
+    L3_candidate: "Lexical research flag: compare conventional meaning, established etymology/morphology and source-system decomposition before recommending substitution."
+    fidelity: no_automatic_transformation
+
+  - id: CAN-014
+    category: creative
+    source: "I never saw a purple sky so alive."
+    exceptions: [EXC-105]
+    L1: "I never saw a purple sky so alive."
+    L2: "I never saw a purple sky so alive."
+    L3_candidate: "I never saw a purple sky so alive."
+    fidelity: protected_creative
+    note: Negative-form words are not automatically defects. Here 'never' contributes meaning and expressive force.
+
+  - id: CAN-015
+    category: empowerment
+    source: "There's nothing I can do."
+    triggers: [PGS-003, PGS-005, PGS-006, PGS-007]
+    L1: "I do not currently see an action available to me."
+    L2: "I want to identify the actions that remain available to me."
+    L3_candidate: "For my available choices, I am identifying the actions I can take now."
+    fidelity: review_required
+    note: PGS may open an agency-oriented frame without falsely asserting that options definitely exist.
