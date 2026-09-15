@@ -1,0 +1,78 @@
+version: 0.1.0
+status: gate-2-candidate
+system: Positive Grammar Syntax
+
+L3:
+  shared_invariants:
+    - preserve_semantic_fidelity
+    - preserve_factual_accuracy
+    - preserve_necessary_negation
+    - preserve_evidential_status
+    - never_invent_actor_fact_time_intention_or_action
+    - prefer_explicit_reference_when_material
+    - produce_explainable_rule_trace
+
+  natural:
+    name: PGS-L3 Natural
+    purpose: Comprehensive PGS transformation in fluent contemporary English.
+    default_for_general_use: true
+    target_order:
+      - context_or_relationship_when_material
+      - actor
+      - observation_or_verified_fact
+      - calibrated_meaning
+      - affirmative_intention_or_desired_state
+      - action_or_request
+      - time_or_condition_when_material
+    requirements:
+      - natural_english
+      - explicit_material_agency
+      - calibrated_epistemic_status
+      - affirmative_outcome_where_fidelity_permits
+      - clear_action_or_request_when_change_is_sought
+      - explicit_time_condition_or_quantity_when_known_and_material
+      - remove_unnecessary_negation
+      - resolve_material_ambiguity_before_transforming
+    non_requirements:
+      - sentence_must_begin_with_preposition
+      - gerund_only_tense
+      - noun_repetition_when_pronoun_is_unambiguous
+      - lexical_decomposition_as_automatic_meaning
+
+  formal:
+    name: PGS-L3 Formal
+    purpose: Research-led formal syntax derived partly from Mathematical Interface / Quantum Grammar source concepts.
+    default_for_general_use: false
+    evidence_status: research
+    candidate_positions:
+      - grounding_or_context
+      - actor_or_fact_reference
+      - relation_or_action
+      - object_or_target
+      - condition_or_modifier
+      - closure_or_time
+    candidate_constraints:
+      - explicit_noun_reference
+      - prepositional_grounding
+      - structural_closure
+      - modifier_chain_analysis
+      - tense_classification
+      - lexical_parse_when_requested
+    research_only_constraints:
+      - universal_six_position_requirement
+      - universal_preposition_first_requirement
+      - gerund_only_now_time_requirement
+      - vcc_negation_operator
+      - case_or_hyphen_quantum_identity
+      - mathematical_720_validity_claim
+    legal_effect_policy: Formal conformance does not itself establish legal validity, jurisdiction, authority or immunity.
+
+selection:
+  general_communication: natural
+  business: natural
+  relational: natural
+  education: natural
+  creative: natural_with_mode_exceptions
+  legal: natural_with_domain_fidelity_and_optional_formal_analysis
+  source_research: formal
+  mathematical_language_research: formal
