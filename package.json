@@ -1,0 +1,18 @@
+{
+  "name": "positive-grammar-syntax",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Positive Grammar Syntax core language analysis and transformation engine",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}
