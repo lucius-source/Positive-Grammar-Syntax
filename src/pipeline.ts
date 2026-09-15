@@ -1,6 +1,7 @@
 import { analyseDocument, type DocumentAnalysis } from './analyser/document';
 import { detectDeterministicRules, type RuleFinding } from './core/rules';
 import { validatePgsDocument, type ValidationResult } from './core';
+import { compareFidelity } from './core/fidelity';
 import type { SemanticContext, SemanticDetermination, SemanticEngine, SemanticResponse } from './semantic/types';
 
 export interface Recommendation { level: 'PGS-L1' | 'PGS-L2'; text?: string; withheldReason?: string }
@@ -55,14 +56,10 @@ function recommendationsFor(source: string, unresolved: string[], context?: Sema
 
 function verifyFidelity(source: string, recommendations: Recommendation[], unresolved: string[], context?: SemanticContext): FidelityFinding[] {
   const findings: FidelityFinding[] = [];
-  const authorisedContent = [source, ...(context?.knownFacts ?? []), context?.userIntent ?? ''].join(' ');
   for (const recommendation of recommendations) {
     if (!recommendation.text) continue;
-    const candidateNumbers = recommendation.text.match(/(?:£|\$|€)?\d+(?:[.,]\d+)?/g) ?? [];
-    const authorisedNumbers = new Set(authorisedContent.match(/(?:£|\$|€)?\d+(?:[.,]\d+)?/g) ?? []);
-    if (candidateNumbers.some(item => !authorisedNumbers.has(item))) {
-      findings.push({ status: 'blocked', message: `${recommendation.level} introduces a date or quantity absent from the source.` });
-    }
+    const comparison = compareFidelity(source, recommendation.text, context);
+    findings.push(...comparison.issues.map(issue => ({ status: issue.severity, message: `${recommendation.level} ${issue.code}: ${issue.message}${issue.evidence ? ` (${issue.evidence})` : ''}` })));
   }
   if (unresolved.some(item => /motive/i.test(item))) findings.push({ status: 'review_required', message: 'Motive remains an interpretation and is not promoted to fact.' });
   if (unresolved.some(item => /reference/i.test(item))) findings.push({ status: 'review_required', message: 'Actor/reference identity remains unresolved and is not invented.' });

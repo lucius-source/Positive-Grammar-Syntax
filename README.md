@@ -75,6 +75,8 @@ npm run pgs -- "They deliberately ignored my email." \
 
 Facts and intent are recorded separately in the report and are the only additional content allowed into context-aware recommendations.
 
+Each recommendation also passes through a deterministic source-to-candidate comparator. It blocks removed negation or conditions, changed or invented quantities and times, upgraded certainty, and actors or actions absent from the source and verified context.
+
 Run the executable local fidelity corpus with:
 
 ```bash
