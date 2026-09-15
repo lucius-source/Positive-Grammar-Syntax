@@ -14,6 +14,8 @@ export interface LocalEvaluationCase {
   expectedL2Fragments?: string[];
   expectedL1Fragments?: string[];
   expectedResolved?: string[];
+  expectedDomain?: string;
+  expectedProtectedContent?: string[];
 }
 
 export interface EvaluationAssertion { pass: boolean; message: string }
@@ -43,6 +45,8 @@ export async function evaluateLocalCase(testCase: LocalEvaluationCase, engine: S
   for (const rule of testCase.expectedRules ?? []) assertions.push({ pass: rules.has(rule), message: `${rule} is detected.` });
   for (const field of testCase.expectedUnresolved ?? []) assertions.push({ pass: unresolved.includes(field.toLowerCase()), message: `${field} remains unresolved.` });
   for (const field of testCase.expectedResolved ?? []) assertions.push({ pass: pipeline.resolutionLedger.some(item => item.field.toLowerCase() === field.toLowerCase() && item.status === 'resolved' && item.provenance !== 'model_assessment'), message: `${field} is resolved from authorized provenance.` });
+  if (testCase.expectedDomain) assertions.push({ pass: pipeline.deterministic.document.propositions.some(item => item.domain === testCase.expectedDomain), message: `${testCase.expectedDomain} domain is classified.` });
+  for (const item of testCase.expectedProtectedContent ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.protectedContent?.includes(item)), message: `Protected content is recorded: ${item}` });
   for (const fragment of testCase.protectedFragments ?? []) assertions.push({ pass: rendered.includes(fragment), message: `Protected fragment is retained: ${fragment}` });
   if (testCase.requireL2Withheld) assertions.push({ pass: pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text === undefined, message: 'PGS-L2 is withheld pending resolution.' });
   const l2Text = pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text ?? '';

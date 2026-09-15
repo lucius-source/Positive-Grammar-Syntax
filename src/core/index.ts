@@ -2,6 +2,7 @@ export * from './types';
 export * from './validator';
 export * from './rules';
 export * from './fidelity';
+export * from './domain';
 
 import { detectDeterministicRules } from './rules';
 

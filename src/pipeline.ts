@@ -78,6 +78,8 @@ export function formatPgsReport(result: PipelineResult): string {
       `object=${p.objectOrTarget ?? 'absent'}`,
       `epistemic=${p.epistemicStatus}`,
       `speech-act=${p.speechAct}`,
+      ...(p.domain ? [`domain=${p.domain}`] : []),
+      ...(p.protectedContent?.length ? [`protected=${p.protectedContent.join(', ')}`] : []),
       ...(p.time ? [`time=${JSON.stringify(p.time)}`] : []),
       ...(p.quantities?.length ? [`quantities=${p.quantities.join(', ')}`] : []),
       `ambiguity=${p.ambiguity?.present ? (p.ambiguity.unresolvedFields ?? []).join(', ') : 'none'}`,

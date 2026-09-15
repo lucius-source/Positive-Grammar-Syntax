@@ -1,3 +1,5 @@
+import { classifyProtectedDomain } from './domain';
+
 export interface RuleFinding {
   ruleId: string;
   patternId?: string;
@@ -28,6 +30,11 @@ export function detectDeterministicRules(text: string): RuleFinding[] {
 
   const negative = text.match(negativeInstruction);
   if (negative) add({ ruleId: 'PGS-007', patternId: 'PAT-007', severity: 'info', message: 'Negative instruction detected. Preserve it when legally, logically or safety necessary; otherwise consider an affirmative desired state.', evidence: negative[0] });
+  else {
+    const protectedDomain = classifyProtectedDomain(text);
+    const materialNegation = text.match(/\b(?:not|no|never|cannot|can't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|mustn't)\b/i);
+    if (protectedDomain && materialNegation) add({ ruleId: 'PGS-007', patternId: 'PAT-007-PROTECTED', severity: 'info', message: `Material ${protectedDomain} negation detected and protected from polarity-changing transformation.`, evidence: materialNegation[0] });
+  }
 
   const certainty = text.match(unsupportedCertainty);
   if (certainty) add({ ruleId: 'PGS-005', patternId: 'PAT-005', severity: 'suggestion', message: 'Strong certainty marker detected; verify that the evidence supports this degree of certainty.', evidence: certainty[0] });

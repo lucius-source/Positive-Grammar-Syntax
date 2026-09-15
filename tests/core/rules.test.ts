@@ -14,6 +14,11 @@ describe('deterministic PGS rule detection', () => {
     expect(findings.find(f => f.ruleId === 'PGS-007')?.message).toMatch(/Preserve/i);
   });
 
+  it('detects and protects factual legal negation', () => {
+    const finding = detectDeterministicRules('The claimant did not serve the notice.').find(item => item.ruleId === 'PGS-007');
+    expect(finding?.patternId).toBe('PAT-007-PROTECTED');
+  });
+
   it('detects absolute generalisation candidates', () => {
     expect(ids('You never listen to me.')).toContain('PGS-002');
   });

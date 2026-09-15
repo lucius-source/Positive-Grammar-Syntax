@@ -64,4 +64,14 @@ describe('proposition seed extraction', () => {
   it('does not mistake a capitalized article for a named actor', () => {
     expect(extractPropositionSeed('The file was sent.').proposition.actor).toBeNull();
   });
+
+  it('protects material legal negation even when it is not a command', () => {
+    const { proposition } = extractPropositionSeed('The claimant did not serve the notice.');
+    expect(proposition.domain).toBe('legal');
+    expect(proposition.actor).toBe('claimant');
+    expect(proposition.actionOrRelation).toBe('serve');
+    expect(proposition.negation).toMatchObject({ present: true, necessary: true });
+    expect(proposition.protectedContent).toContain('high_risk_negation');
+    expect(proposition.fidelityStatus).toBe('protected');
+  });
 });

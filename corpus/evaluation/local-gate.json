@@ -13,6 +13,8 @@
       "category": "safety-negation",
       "source": "Do not energise the circuit.",
       "expectedRules": ["PGS-007"],
+      "expectedDomain": "safety",
+      "expectedProtectedContent": ["operative_negation"],
       "protectedFragments": ["Do not energise the circuit"]
     },
     {
@@ -20,6 +22,8 @@
       "category": "medical-quantity",
       "source": "Do not take more than two tablets in 24 hours.",
       "expectedRules": ["PGS-007"],
+      "expectedDomain": "medical",
+      "expectedProtectedContent": ["operative_negation"],
       "protectedFragments": ["Do not take more than two tablets in 24 hours"]
     },
     {
@@ -153,6 +157,15 @@
       "expectedUnresolved": ["motive"],
       "expectedL1Fragments": ["I believe Acme support team deliberately ignored my email."],
       "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-019",
+      "category": "legal-factual-negation",
+      "source": "The claimant did not serve the notice.",
+      "expectedRules": ["PGS-007"],
+      "expectedDomain": "legal",
+      "expectedProtectedContent": ["high_risk_negation"],
+      "protectedFragments": ["did not serve the notice"]
     }
   ]
 }
