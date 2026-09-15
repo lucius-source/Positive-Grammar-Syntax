@@ -1,5 +1,9 @@
 # Positive Grammar Syntax — Development Roadmap
 
+## Current checkpoint — 2026-09-15
+
+The local CLI foundation now spans parts of Phases 2–4: a 20-case executable local corpus, typed deterministic PGS-PIR, conservative rendering and fidelity comparison, and a validated local Ollama semantic adapter. This is a verified vertical slice rather than completion of those phases. See `docs/11-local-cli-milestone.md`.
+
 ## Phase 0 — Foundation
 
 Define project purpose, terminology, governing hierarchy, seven rules, protected exceptions, architecture and Codex instructions.

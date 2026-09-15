@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-Foundation/specification phase. See `AGENTS.md`, `docs/` and `specification/` before implementing transformation behaviour.
+The local CLI foundation/core-engine slice is implemented and verified. The current checkpoint passes 79 automated tests and 20 live local-model evaluation cases. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, limitations and the next milestone.
 
 ## Local CLI
 
