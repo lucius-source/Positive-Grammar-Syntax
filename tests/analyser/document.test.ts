@@ -11,12 +11,16 @@ describe('multi-proposition document analyser', () => {
 
   it('preserves legitimate past-time sentences', () => {
     const result = analyseDocument('I sent the document yesterday.');
-    expect(result.document.propositions[0].polarity).toBe('affirmative');
+    const proposition = result.document.propositions[0];
+    expect(proposition).toBeDefined();
+    expect(proposition?.polarity).toBe('affirmative');
   });
 
   it('keeps uncertainty explicit', () => {
     const result = analyseDocument('Maybe it will work.');
-    expect(result.document.propositions[0].epistemicStatus).toBe('uncertain');
+    const proposition = result.document.propositions[0];
+    expect(proposition).toBeDefined();
+    expect(proposition?.epistemicStatus).toBe('uncertain');
   });
 
   it('requires semantic review for motive and ambiguous reference', () => {
@@ -25,7 +29,9 @@ describe('multi-proposition document analyser', () => {
 
   it('identifies contrast relations between propositions', () => {
     const result = analyseDocument('I requested the records. However, the records have not arrived.');
-    expect(result.relations[0].type).toBe('contrast');
+    const relation = result.relations[0];
+    expect(relation).toBeDefined();
+    expect(relation?.type).toBe('contrast');
   });
 
   it('does not split ordinary sentence-internal punctuation as separate propositions', () => {
