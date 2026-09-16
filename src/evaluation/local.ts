@@ -24,6 +24,8 @@ export interface LocalEvaluationCase {
   expectedActions?: string[];
   expectedTimeValues?: string[];
   expectedQuantities?: string[];
+  expectedModalities?: string[];
+  expectedConditionFragments?: string[];
 }
 
 export interface EvaluationAssertion { pass: boolean; message: string }
@@ -63,6 +65,8 @@ export async function evaluateLocalCase(testCase: LocalEvaluationCase, engine: S
   for (const action of testCase.expectedActions ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.actionOrRelation === action), message: `${action} action is extracted.` });
   for (const value of testCase.expectedTimeValues ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => Object.values(proposition.time ?? {}).includes(value)), message: `${value} time value is extracted without normalization.` });
   for (const quantity of testCase.expectedQuantities ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.quantities?.includes(quantity)), message: `${quantity} quantity is extracted.` });
+  for (const modality of testCase.expectedModalities ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.modality === modality), message: `${modality} modality is classified.` });
+  for (const fragment of testCase.expectedConditionFragments ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.conditions?.some(condition => condition.includes(fragment))), message: `Condition is preserved: ${fragment}` });
   for (const fragment of testCase.protectedFragments ?? []) assertions.push({ pass: rendered.includes(fragment), message: `Protected fragment is retained: ${fragment}` });
   if (testCase.requireL2Withheld) assertions.push({ pass: pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text === undefined, message: 'PGS-L2 is withheld pending resolution.' });
   const l2Text = pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text ?? '';

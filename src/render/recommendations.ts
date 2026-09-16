@@ -53,6 +53,9 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
   if (/^I (?:do not|don't) consent to this\.?$/i.test(clean)) {
     return { text: 'I do not consent to this.', ruleIds: ['PGS-007'], supportingFields: ['P1.actor', 'P1.actionOrRelation', 'P1.negation', 'P1.speechAct'] };
   }
+  if (/^I['’]m useless at this\.?$/i.test(clean)) {
+    return { text: 'I am having difficulty with this task.', ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.actor', 'P1.sourceSpan', 'P1.ambiguity.reference'] };
+  }
   const uncertainty = clean.match(/^Maybe\s+(.+?)[.]?$/i);
   if (uncertainty?.[1]) {
     return { text: `I am uncertain whether ${uncertainty[1].replace(/[.]$/, '')}.`, ruleIds: ['PGS-005'], supportingFields: ['P1.epistemicStatus', 'P1.sourceSpan'] };

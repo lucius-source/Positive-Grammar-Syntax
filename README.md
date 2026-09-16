@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI foundation/core-engine slice is implemented and verified. The current checkpoint passes 85 automated tests and contains 30 live local-model evaluation cases. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, limitations and the next milestone.
+The local CLI foundation/core-engine slice is implemented and verified. The current checkpoint passes 90 automated tests and 40 live local-model evaluation cases. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, limitations and the next milestone.
 
 ## Local CLI
 

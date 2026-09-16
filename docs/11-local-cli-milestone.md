@@ -36,6 +36,8 @@ This checkpoint establishes a working and tested architectural path. It does not
 - High-risk legal, medical and safety negation protection.
 - Source-to-candidate lexical and PIR fidelity comparison.
 - Conditional PIR for `if`, `unless` and `only if` constructions.
+- Embedded condition preservation for constructions such as conditional apologies.
+- Deterministic distinction between possibility, ability, intention, commitment, obligation and probability modalities.
 - Structurally verified double-negative conditional contraposition.
 - Executable local evaluation corpus with per-case progress and selectable case IDs.
 - Stable, versioned `pgs.output.v1` JSON envelopes for analysis and evaluation commands.
@@ -60,10 +62,10 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 85/85 tests passed across 13 files
-- `npm run eval:local`: 30/30 live cases passed
+- `npm test`: 90/90 tests passed across 13 files
+- `npm run eval:local`: 40/40 live cases passed
 
-The local corpus covers ambiguity, motive attribution, safety and medical instructions, legal factual negation, vague timing, unsupported certainty, consent/refusal, quantities, positive controls, verified context, reference binding, evidence sufficiency, canonical/paraphrase pairs, conditional negation, questions, past/future tense, pronouns, irony, metaphor, bare commands and explicit promises.
+The local corpus covers ambiguity, motive attribution, safety and medical instructions, legal factual negation, vague timing, unsupported certainty, consent/refusal, quantities, positive controls, verified context, reference binding, evidence sufficiency, canonical/paraphrase pairs, conditional negation, questions, past/future tense, pronouns, irony, metaphor, bare commands, explicit promises, uncertainty, generalisation, self-talk, capability, conditional apologies, vague feedback, negotiation and risk.
 
 ## Known limitations
 
@@ -74,14 +76,14 @@ The local corpus covers ambiguity, motive attribution, safety and medical instru
 - Evidence sufficiency records type and provenance but does not authenticate external evidence.
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
-- The executable evaluation subset contains 30 cases; the canonical corpus contains 50 cases.
+- The executable evaluation subset contains 40 cases; the canonical corpus contains 50 cases.
 - There is no published package API, email adapter, document adapter or user interface yet.
 
 ## Recommended next milestone
 
 Expand the executable evaluation gate toward the full canonical corpus before broadening free-form rendering. The next work should prioritize:
 
-1. Onboard canonical cases 31–40 with explicit invariants and counterexamples.
+1. Onboard canonical cases 41–50 with explicit invariants and counterexamples.
 2. More complete deterministic PIR extraction and proposition alignment.
 3. Additional protected exception and counterexample coverage.
 4. Persist repeatable JSON evaluation artifacts in CI or a release workflow.

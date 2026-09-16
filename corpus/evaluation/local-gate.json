@@ -288,6 +288,117 @@
       "expectedProtectedContent": ["operative_negation"],
       "expectedL1Fragments": ["I promise I won't let you down."],
       "protectedFragments": ["won't let you down"]
+    },
+    {
+      "id": "LOCAL-031",
+      "canonicalId": "CAN-031",
+      "category": "uncertainty",
+      "source": "Maybe it will work.",
+      "expectedRules": ["PGS-005"],
+      "expectedUnresolved": ["reference"],
+      "expectedEpistemicStatuses": ["uncertain"],
+      "expectedActions": ["work"],
+      "expectedModalities": ["possibility"],
+      "expectedL1Fragments": ["I am uncertain whether it will work."],
+      "requireL2Withheld": true,
+      "forbidNewNumbers": true
+    },
+    {
+      "id": "LOCAL-032",
+      "canonicalId": "CAN-032",
+      "category": "assumption",
+      "source": "Obviously they know what they're doing.",
+      "expectedRules": ["PGS-002", "PGS-005"],
+      "expectedUnresolved": ["reference"],
+      "expectedActions": ["know"],
+      "expectedL1Fragments": ["I assume they know what they're doing."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-033",
+      "canonicalId": "CAN-033",
+      "category": "generalisation",
+      "source": "Nobody ever helps around here.",
+      "expectedRules": ["PGS-002", "PGS-005"],
+      "expectedActions": ["help"],
+      "expectedL1Fragments": ["Nobody ever helps around here."]
+    },
+    {
+      "id": "LOCAL-034",
+      "canonicalId": "CAN-034",
+      "category": "self-talk",
+      "source": "I'm useless at this.",
+      "expectedRules": ["PGS-002", "PGS-005"],
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["I am having difficulty with this task."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-035",
+      "canonicalId": "CAN-035",
+      "category": "capability",
+      "source": "I can't do this yet.",
+      "expectedRules": ["PGS-003", "PGS-005"],
+      "expectedUnresolved": ["reference"],
+      "expectedActions": ["complete"],
+      "expectedModalities": ["ability"],
+      "expectedL1Fragments": ["I do not currently have the capability to complete this."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-036",
+      "canonicalId": "CAN-036",
+      "category": "deadline",
+      "source": "ASAP please.",
+      "expectedRules": ["PGS-004"],
+      "expectedSpeechActs": ["request"],
+      "expectedTimeValues": ["asap"],
+      "expectedL1Fragments": ["ASAP please."],
+      "forbidNewNumbers": true
+    },
+    {
+      "id": "LOCAL-037",
+      "canonicalId": "CAN-037",
+      "category": "apology",
+      "source": "Sorry if you were offended.",
+      "expectedRules": ["PGS-001", "PGS-002"],
+      "expectedConditionFragments": ["if you were offended"],
+      "expectedL1Fragments": ["Sorry if you were offended."],
+      "protectedFragments": ["if you were offended"]
+    },
+    {
+      "id": "LOCAL-038",
+      "canonicalId": "CAN-038",
+      "category": "feedback",
+      "source": "This report is bad.",
+      "expectedRules": ["PGS-002", "PGS-006"],
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["This report is bad."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-039",
+      "canonicalId": "CAN-039",
+      "category": "negotiation",
+      "source": "That price is impossible.",
+      "expectedRules": ["PGS-002", "PGS-005", "PGS-006"],
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["That price is impossible."],
+      "requireL2Withheld": true,
+      "forbidNewNumbers": true
+    },
+    {
+      "id": "LOCAL-040",
+      "canonicalId": "CAN-040",
+      "category": "risk",
+      "source": "This is going to fail.",
+      "expectedRules": ["PGS-005"],
+      "expectedUnresolved": ["reference"],
+      "expectedEpistemicStatuses": ["predicted"],
+      "expectedActions": ["fail"],
+      "expectedModalities": ["probability"],
+      "expectedL1Fragments": ["I assess a risk of failure."],
+      "requireL2Withheld": true
     }
   ]
 }

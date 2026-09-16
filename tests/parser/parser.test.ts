@@ -98,5 +98,16 @@ describe('proposition seed extraction', () => {
     expect(promise).toMatchObject({ speechAct: 'promise', epistemicStatus: 'intended' });
     expect(promise.negation).toMatchObject({ necessary: true });
     expect(promise.protectedContent).toContain('operative_negation');
+    expect(future.modality).toBe('intention');
+    expect(promise.modality).toBe('commitment');
+  });
+
+  it('distinguishes ability and uncertain possibility modalities', () => {
+    expect(extractPropositionSeed("I can't do this yet.").proposition.modality).toBe('ability');
+    expect(extractPropositionSeed('Maybe it will work.').proposition.modality).toBe('possibility');
+  });
+
+  it('preserves an embedded conditional without inventing an admission', () => {
+    expect(extractPropositionSeed('Sorry if you were offended.').proposition.conditions).toEqual(['if you were offended']);
   });
 });

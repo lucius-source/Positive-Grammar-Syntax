@@ -33,6 +33,7 @@ function inferEpistemic(text: string): PgsProposition['epistemicStatus'] {
 
 const ACTIONS: Array<[RegExp, string]> = [
   [/\b(?:open|opened)\b/i, 'open'], [/\b(?:stop|stopped)\b/i, 'stop'],
+  [/\b(?:work|worked)\b/i, 'work'], [/\b(?:know|knew)\b/i, 'know'], [/\b(?:help|helps|helped)\b/i, 'help'],
   [/\b(?:review|reviewed)\b/i, 'review'], [/\b(?:find|found)\b/i, 'find'],
   [/\b(?:send|sent)\b/i, 'send'], [/\b(?:ignore|ignored)\b/i, 'ignore'],
   [/\b(?:listen|listened)\b/i, 'listen'], [/\bconsent\b/i, 'consent'],
@@ -80,6 +81,16 @@ function inferTime(parsed: ReturnType<typeof parseSentence>, text: string): PgsP
     : { eventTime: token, temporalStatus: relative ? 'relative' : 'explicit' };
 }
 
+function inferModality(text: string, speechAct: PgsProposition['speechAct'], epistemicStatus: PgsProposition['epistemicStatus']): NonNullable<PgsProposition['modality']> {
+  if (speechAct === 'promise') return 'commitment';
+  if (epistemicStatus === 'uncertain' || /\b(?:may|might|could)\b/i.test(text)) return 'possibility';
+  if (/\b(?:can't|cannot|can|unable|not (?:yet )?able)\b/i.test(text)) return 'ability';
+  if (epistemicStatus === 'intended') return 'intention';
+  if (/\b(?:must|should|shall)\b/i.test(text)) return 'obligation';
+  if (epistemicStatus === 'predicted') return 'probability';
+  return 'none';
+}
+
 export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeedResult {
   const parsed = parseSentence(text);
   const speechAct = inferSpeechAct(text);
@@ -92,7 +103,9 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   const actor = inferActor(text);
   const extracted = inferAction(text);
   const time = inferTime(parsed, text);
+  const modality = inferModality(text, speechAct, epistemicStatus);
   const quantities = text.match(/[£$€]?\d+(?:[.,]\d+)*|\b(?:one|two|three|four|five|six|seven|eight|nine|ten)\b/gi) ?? [];
+  const subordinateCondition = text.match(/\bif\s+(.+?)[.!?]?$/i)?.[0]?.replace(/[.!?]+$/, '');
 
   if (parsed.pronounTokens.some((p: string) => ['they', 'them', 'their', 'it', 'this', 'that'].includes(p))) unresolved.push('reference');
   if (actor === null && !unresolved.includes('reference')) unresolved.push('actor');
@@ -119,13 +132,13 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
     ...(speechAct === 'request' || speechAct === 'command' ? { requestedAction: text } : {}),
     ...(time ? { time } : {}),
     ...(quantities.length ? { quantities } : {}),
-    ...(/^\s*(?:if|unless)\b/i.test(text) ? { conditions: [text] } : {}),
+    ...(/^\s*(?:if|unless)\b/i.test(text) ? { conditions: [text] } : subordinateCondition ? { conditions: [subordinateCondition] } : {}),
     polarity: parsed.polarity,
     ...(negation ? { negation } : {}),
     epistemicStatus,
     speechAct,
     ...(domain ? { domain } : {}),
-    modality: parsed.modalTokens.length ? 'possibility' : 'none',
+    modality,
     ambiguity: unresolved.length ? { present: true, unresolvedFields: unresolved } : { present: false },
     protectedContent: protectedNegation ? [operativeNegation ? 'operative_negation' : 'high_risk_negation'] : [],
     fidelityStatus: protectedNegation ? 'protected' : requiresSemanticReview ? 'review_required' : 'conditional',
