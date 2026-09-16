@@ -28,7 +28,7 @@ export function parseSentence(text: string): ParsedSentence {
 
   let sentenceType: ParsedSentence['sentenceType'] = 'statement';
   if (/\?\s*$/.test(text)) sentenceType = 'question';
-  else if (/^\s*(?:please\s+)?(?:do|don't|do not|stop|start|arrive|send|confirm|provide|remain|submit)\b/i.test(text)) sentenceType = 'command';
+  else if (/^\s*(?:please\s+)?(?:do|don't|do not|stop|start|arrive|send|confirm|provide|remain|submit|take)\b/i.test(text)) sentenceType = 'command';
 
   return {
     source: text,

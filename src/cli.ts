@@ -2,6 +2,7 @@
 import { OllamaSemanticEngine } from './semantic/adapters/ollama';
 import { formatPgsReport, runPgsPipeline } from './pipeline';
 import type { EvidenceItem, EvidenceKind } from './semantic/types';
+import { analysisOutput, formatJsonOutput } from './output/json';
 
 const args = process.argv.slice(2);
 const knownFacts: string[] = [];
@@ -10,9 +11,11 @@ const referenceBindings: Array<{ reference: string; entity: string }> = [];
 const evidence: EvidenceItem[] = [];
 const evidenceKinds = new Set<EvidenceKind>(['direct_observation', 'documented', 'attributed_admission', 'inference', 'belief', 'unclassified']);
 const sourceParts: string[] = [];
+let json = false;
 for (let index = 0; index < args.length; index++) {
   const arg = args[index];
-  if (arg === '--fact' || arg === '--intent' || arg === '--bind' || arg === '--evidence') {
+  if (arg === '--json') json = true;
+  else if (arg === '--fact' || arg === '--intent' || arg === '--bind' || arg === '--evidence') {
     const value = args[++index]?.trim();
     if (!value) throw new Error(`${arg} requires a value.`);
     if (arg === '--fact') knownFacts.push(value);
@@ -35,7 +38,7 @@ for (let index = 0; index < args.length; index++) {
 }
 const source = sourceParts.join(' ').trim();
 if (!source) {
-  console.error('Usage: npm run pgs -- "Your text" [--fact "Verified fact"] [--intent "Requested action"] [--bind "reference=entity"] [--evidence "field:kind=statement"]');
+  console.error('Usage: npm run pgs -- "Your text" [--json] [--fact "Verified fact"] [--intent "Requested action"] [--bind "reference=entity"] [--evidence "field:kind=statement"]');
   process.exitCode = 1;
 } else {
   const engine = new OllamaSemanticEngine();
@@ -43,6 +46,6 @@ if (!source) {
     ? { knownFacts, ...(userIntent ? { userIntent } : {}), ...(referenceBindings.length ? { referenceBindings } : {}), ...(evidence.length ? { evidence } : {}) }
     : undefined;
   const result = await runPgsPipeline(source, engine, context ? { context } : {});
-  console.log(formatPgsReport(result));
+  console.log(json ? formatJsonOutput(analysisOutput(result, { id: engine.id, providerKind: engine.providerKind })) : formatPgsReport(result));
   if (!result.validation.valid || result.fidelity.some(finding => finding.status === 'blocked')) process.exitCode = 2;
 }

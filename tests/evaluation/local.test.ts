@@ -28,4 +28,14 @@ describe('local evaluation gate', () => {
     const result = await evaluateLocalCase(testCase, Object.assign(new MockSemanticEngine(), { providerKind: 'local' as const }));
     expect(result.pass).toBe(true);
   });
+
+  it('evaluates canonical deterministic PIR classifications', async () => {
+    const testCase: LocalEvaluationCase = {
+      id: 'TEST-004', canonicalId: 'CAN-025', category: 'future-tense', source: 'I will send the document tomorrow.',
+      expectedSpeechActs: ['assertion'], expectedEpistemicStatuses: ['intended'], expectedActions: ['send'], expectedTimeValues: ['tomorrow'],
+    };
+    const result = await evaluateLocalCase(testCase, Object.assign(new MockSemanticEngine(), { providerKind: 'local' as const }));
+    expect(result.pass).toBe(true);
+    expect(result.canonicalId).toBe('CAN-025');
+  });
 });

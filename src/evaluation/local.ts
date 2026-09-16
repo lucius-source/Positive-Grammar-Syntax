@@ -3,6 +3,7 @@ import { runPgsPipeline, type PipelineResult } from '../pipeline';
 
 export interface LocalEvaluationCase {
   id: string;
+  canonicalId?: string;
   category: string;
   source: string;
   expectedRules?: string[];
@@ -18,11 +19,17 @@ export interface LocalEvaluationCase {
   expectedProtectedContent?: string[];
   expectedPropositionCount?: number;
   expectedRelationTypes?: string[];
+  expectedSpeechActs?: string[];
+  expectedEpistemicStatuses?: string[];
+  expectedActions?: string[];
+  expectedTimeValues?: string[];
+  expectedQuantities?: string[];
 }
 
 export interface EvaluationAssertion { pass: boolean; message: string }
 export interface LocalEvaluationResult {
   id: string;
+  canonicalId?: string;
   category: string;
   pass: boolean;
   assertions: EvaluationAssertion[];
@@ -51,6 +58,11 @@ export async function evaluateLocalCase(testCase: LocalEvaluationCase, engine: S
   for (const item of testCase.expectedProtectedContent ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.protectedContent?.includes(item)), message: `Protected content is recorded: ${item}` });
   if (testCase.expectedPropositionCount !== undefined) assertions.push({ pass: pipeline.deterministic.document.propositions.length === testCase.expectedPropositionCount, message: `${testCase.expectedPropositionCount} propositions are extracted.` });
   for (const type of testCase.expectedRelationTypes ?? []) assertions.push({ pass: pipeline.deterministic.relations.some(relation => relation.type === type), message: `${type} relation is extracted.` });
+  for (const speechAct of testCase.expectedSpeechActs ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.speechAct === speechAct), message: `${speechAct} speech act is classified.` });
+  for (const status of testCase.expectedEpistemicStatuses ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.epistemicStatus === status), message: `${status} epistemic status is classified.` });
+  for (const action of testCase.expectedActions ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.actionOrRelation === action), message: `${action} action is extracted.` });
+  for (const value of testCase.expectedTimeValues ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => Object.values(proposition.time ?? {}).includes(value)), message: `${value} time value is extracted without normalization.` });
+  for (const quantity of testCase.expectedQuantities ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.quantities?.includes(quantity)), message: `${quantity} quantity is extracted.` });
   for (const fragment of testCase.protectedFragments ?? []) assertions.push({ pass: rendered.includes(fragment), message: `Protected fragment is retained: ${fragment}` });
   if (testCase.requireL2Withheld) assertions.push({ pass: pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text === undefined, message: 'PGS-L2 is withheld pending resolution.' });
   const l2Text = pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text ?? '';
@@ -62,7 +74,7 @@ export async function evaluateLocalCase(testCase: LocalEvaluationCase, engine: S
     const additions = numbers(rendered).filter(item => !sourceNumbers.has(item));
     assertions.push({ pass: additions.length === 0, message: additions.length ? `Invented numeric content: ${additions.join(', ')}` : 'No date or quantity is invented.' });
   }
-  return { id: testCase.id, category: testCase.category, pass: assertions.every(item => item.pass), assertions, pipeline };
+  return { id: testCase.id, ...(testCase.canonicalId ? { canonicalId: testCase.canonicalId } : {}), category: testCase.category, pass: assertions.every(item => item.pass), assertions, pipeline };
 }
 
 export interface EvaluationSummary { passed: number; failed: number; total: number; results: LocalEvaluationResult[] }

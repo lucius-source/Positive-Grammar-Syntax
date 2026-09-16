@@ -176,6 +176,118 @@
       "expectedProtectedContent": ["conditional_negation"],
       "expectedL1Fragments": ["Delivery proceeds only if payment is received by Friday."],
       "protectedFragments": ["payment", "Friday", "Delivery"]
+    },
+    {
+      "id": "LOCAL-021",
+      "canonicalId": "CAN-021",
+      "category": "medical",
+      "source": "Do not take more than two tablets in 24 hours.",
+      "expectedRules": ["PGS-007"],
+      "expectedDomain": "medical",
+      "expectedProtectedContent": ["operative_negation"],
+      "expectedSpeechActs": ["command"],
+      "expectedActions": ["take"],
+      "expectedQuantities": ["two", "24"],
+      "protectedFragments": ["Do not take more than two tablets in 24 hours"],
+      "forbidNewNumbers": true
+    },
+    {
+      "id": "LOCAL-022",
+      "canonicalId": "CAN-022",
+      "category": "conditional",
+      "source": "If payment isn't received by Friday, delivery won't proceed.",
+      "expectedPropositionCount": 2,
+      "expectedRelationTypes": ["condition"],
+      "expectedActions": ["receive", "proceed"],
+      "expectedTimeValues": ["friday"],
+      "expectedProtectedContent": ["conditional_negation"],
+      "expectedL1Fragments": ["Delivery proceeds only if payment is received by Friday."],
+      "protectedFragments": ["payment", "Friday", "Delivery"]
+    },
+    {
+      "id": "LOCAL-023",
+      "canonicalId": "CAN-023",
+      "category": "question",
+      "source": "Why didn't you do it?",
+      "expectedSpeechActs": ["question"],
+      "expectedActions": ["complete"],
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["Why didn't you do it?"],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-024",
+      "canonicalId": "CAN-024",
+      "category": "past-tense",
+      "source": "I sent the document yesterday.",
+      "expectedSpeechActs": ["assertion"],
+      "expectedEpistemicStatuses": ["reported"],
+      "expectedActions": ["send"],
+      "expectedTimeValues": ["yesterday"],
+      "expectedL1Fragments": ["I sent the document yesterday."]
+    },
+    {
+      "id": "LOCAL-025",
+      "canonicalId": "CAN-025",
+      "category": "future-tense",
+      "source": "I will send the document tomorrow.",
+      "expectedSpeechActs": ["assertion"],
+      "expectedEpistemicStatuses": ["intended"],
+      "expectedActions": ["send"],
+      "expectedTimeValues": ["tomorrow"],
+      "expectedL1Fragments": ["I will send the document tomorrow."]
+    },
+    {
+      "id": "LOCAL-026",
+      "canonicalId": "CAN-026",
+      "category": "pronoun-clear",
+      "source": "Maria opened the file. She reviewed it carefully.",
+      "expectedPropositionCount": 2,
+      "expectedRelationTypes": ["continuation"],
+      "expectedActions": ["open", "review"],
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["Maria opened the file. She reviewed it carefully."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-027",
+      "canonicalId": "CAN-027",
+      "category": "irony",
+      "source": "Great, another three-hour delay.",
+      "expectedQuantities": ["three"],
+      "expectedL1Fragments": ["Great, another three-hour delay."],
+      "protectedFragments": ["three-hour"],
+      "forbidNewNumbers": true
+    },
+    {
+      "id": "LOCAL-028",
+      "canonicalId": "CAN-028",
+      "category": "metaphor",
+      "source": "This project is drowning in paperwork.",
+      "expectedUnresolved": ["reference"],
+      "expectedL1Fragments": ["This project is drowning in paperwork."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-029",
+      "canonicalId": "CAN-029",
+      "category": "command",
+      "source": "Stop talking.",
+      "expectedSpeechActs": ["command"],
+      "expectedActions": ["stop"],
+      "expectedL1Fragments": ["Stop talking."]
+    },
+    {
+      "id": "LOCAL-030",
+      "canonicalId": "CAN-030",
+      "category": "promise",
+      "source": "I promise I won't let you down.",
+      "expectedRules": ["PGS-007"],
+      "expectedSpeechActs": ["promise"],
+      "expectedEpistemicStatuses": ["intended"],
+      "expectedProtectedContent": ["operative_negation"],
+      "expectedL1Fragments": ["I promise I won't let you down."],
+      "protectedFragments": ["won't let you down"]
     }
   ]
 }

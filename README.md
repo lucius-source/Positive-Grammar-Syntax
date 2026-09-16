@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI foundation/core-engine slice is implemented and verified. The current checkpoint passes 79 automated tests and 20 live local-model evaluation cases. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, limitations and the next milestone.
+The local CLI foundation/core-engine slice is implemented and verified. The current checkpoint passes 85 automated tests and contains 30 live local-model evaluation cases. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, limitations and the next milestone.
 
 ## Local CLI
 
@@ -63,6 +63,15 @@ npm run pgs -- "They deliberately ignored my email."
 ```
 
 The CLI performs deterministic PGS-PIR analysis first, requests semantic determination only when review is required, validates the model's JSON response, and applies an initial fidelity gate before displaying recommendations. The semantic adapter accepts local engines only; it has no cloud fallback. Configure another local Ollama model or endpoint with `PGS_OLLAMA_MODEL` and `PGS_OLLAMA_URL`.
+
+Add `--json` for a versioned `pgs.output.v1` machine-readable envelope:
+
+```bash
+npm run --silent pgs -- "Maybe it will work." --json
+npm run --silent eval:local -- --json
+```
+
+Evaluation progress remains on stderr so redirected stdout contains valid JSON only.
 
 Supply facts and intended action only when they are known:
 

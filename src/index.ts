@@ -4,6 +4,7 @@ export * from './pipeline';
 export * from './evaluation/local';
 export * from './render/recommendations';
 export * from './resolution/ledger';
+export * from './output/json';
 export * from './semantic/types';
 export * from './semantic/registry';
 export * from './semantic/adapters/ollama';

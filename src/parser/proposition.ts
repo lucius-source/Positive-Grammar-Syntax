@@ -13,8 +13,9 @@ function inferSpeechAct(text: string): PgsProposition['speechAct'] {
   if (/\b(?:i do not consent|i don't consent)\b/i.test(text)) return 'refusal';
   if (/\b(?:i consent|i agree)\b/i.test(text)) return 'consent';
   if (/\b(?:do not|don't|must not|mustn't)\b/i.test(text)) return 'command';
-  if (/\b(?:i promise|i will)\b/i.test(text)) return 'promise';
+  if (/\bi promise\b/i.test(text)) return 'promise';
   if (/\b(?:please|i request|i ask)\b/i.test(text)) return 'request';
+  if (/^\s*(?:stop|start|arrive|send|confirm|provide|remain|submit|take)\b/i.test(text)) return 'command';
   return 'assertion';
 }
 
@@ -23,7 +24,7 @@ function inferEpistemic(text: string): PgsProposition['epistemicStatus'] {
   if (/\b(?:i assume|assuming)\b/i.test(text)) return 'assumed';
   if (/\b(?:maybe|perhaps|possibly|uncertain)\b/i.test(text)) return 'uncertain';
   if (/\b(?:seems?|appears?)\b/i.test(text) || /\bcould\s+fail\b/i.test(text)) return 'uncertain';
-  if (/\b(?:i intend|i plan|i will)\b/i.test(text)) return 'intended';
+  if (/\b(?:i intend|i plan|i promise|i will)\b/i.test(text)) return 'intended';
   if (/\b(?:allege|alleged|claims?)\b/i.test(text)) return 'alleged';
   if (/\b(?:going to|will)\s+fail\b/i.test(text)) return 'predicted';
   if (/^\s*I\s+(?:reviewed|found|sent|received|observed|saw|heard)\b/i.test(text)) return 'reported';
@@ -31,6 +32,7 @@ function inferEpistemic(text: string): PgsProposition['epistemicStatus'] {
 }
 
 const ACTIONS: Array<[RegExp, string]> = [
+  [/\b(?:open|opened)\b/i, 'open'], [/\b(?:stop|stopped)\b/i, 'stop'],
   [/\b(?:review|reviewed)\b/i, 'review'], [/\b(?:find|found)\b/i, 'find'],
   [/\b(?:send|sent)\b/i, 'send'], [/\b(?:ignore|ignored)\b/i, 'ignore'],
   [/\b(?:listen|listened)\b/i, 'listen'], [/\bconsent\b/i, 'consent'],
@@ -84,7 +86,7 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   const epistemicStatus = inferEpistemic(text);
   const domain = classifyProtectedDomain(text);
   const hasNegation = parsed.negationTokens.length > 0;
-  const operativeNegation = speechAct === 'refusal' || /\b(?:must not|mustn't|do not|don't)\b/i.test(text);
+  const operativeNegation = speechAct === 'refusal' || (speechAct === 'promise' && hasNegation) || /\b(?:must not|mustn't|do not|don't)\b/i.test(text);
   const protectedNegation = operativeNegation || (hasNegation && (domain === 'legal' || domain === 'medical' || domain === 'safety'));
   const unresolved: string[] = [];
   const actor = inferActor(text);

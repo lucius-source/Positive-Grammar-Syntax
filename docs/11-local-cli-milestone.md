@@ -1,6 +1,6 @@
 # Local PGS CLI Foundation Milestone
 
-**Checkpoint date:** 2026-09-15
+**Checkpoint date:** 2026-09-16
 
 **Status:** verified local foundation/core-engine slice
 
@@ -38,6 +38,8 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Conditional PIR for `if`, `unless` and `only if` constructions.
 - Structurally verified double-negative conditional contraposition.
 - Executable local evaluation corpus with per-case progress and selectable case IDs.
+- Stable, versioned `pgs.output.v1` JSON envelopes for analysis and evaluation commands.
+- Canonical identifiers in executable evaluation results for traceability to the specification corpus.
 
 ## Fidelity behavior
 
@@ -58,11 +60,10 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 79/79 tests passed across 12 files
-- `npm run eval:local`: 20/20 live cases passed
-- Working tree before this documentation commit: clean
+- `npm test`: 85/85 tests passed across 13 files
+- `npm run eval:local`: 30/30 live cases passed
 
-The local corpus covers ambiguity, motive attribution, safety and medical instructions, legal factual negation, vague timing, unsupported certainty, consent/refusal, quantities, positive controls, verified context, reference binding, evidence sufficiency, canonical/paraphrase pairs and conditional negation.
+The local corpus covers ambiguity, motive attribution, safety and medical instructions, legal factual negation, vague timing, unsupported certainty, consent/refusal, quantities, positive controls, verified context, reference binding, evidence sufficiency, canonical/paraphrase pairs, conditional negation, questions, past/future tense, pronouns, irony, metaphor, bare commands and explicit promises.
 
 ## Known limitations
 
@@ -73,17 +74,17 @@ The local corpus covers ambiguity, motive attribution, safety and medical instru
 - Evidence sufficiency records type and provenance but does not authenticate external evidence.
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
-- The executable evaluation subset contains 20 cases; the canonical corpus contains 50 cases.
-- There is no stable JSON CLI output, published package API, email adapter, document adapter or user interface yet.
+- The executable evaluation subset contains 30 cases; the canonical corpus contains 50 cases.
+- There is no published package API, email adapter, document adapter or user interface yet.
 
 ## Recommended next milestone
 
 Expand the executable evaluation gate toward the full canonical corpus before broadening free-form rendering. The next work should prioritize:
 
-1. Machine-readable CLI output for repeatable evaluation artifacts.
+1. Onboard canonical cases 31–40 with explicit invariants and counterexamples.
 2. More complete deterministic PIR extraction and proposition alignment.
 3. Additional protected exception and counterexample coverage.
-4. Gradual onboarding of canonical cases with explicit expected invariants.
+4. Persist repeatable JSON evaluation artifacts in CI or a release workflow.
 5. Public `analyse`, `suggest`, `compare` and `explain` operations built on the verified pipeline.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.

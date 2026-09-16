@@ -23,6 +23,10 @@ describe('deterministic sentence parser', () => {
   it('detects contracted copular negation', () => {
     expect(parseSentence("Payment isn't received.").negationTokens).toContain("isn't");
   });
+
+  it('classifies a bare imperative as a command', () => {
+    expect(parseSentence('Stop talking.').sentenceType).toBe('command');
+  });
 });
 
 describe('proposition seed extraction', () => {
@@ -77,5 +81,22 @@ describe('proposition seed extraction', () => {
     expect(proposition.negation).toMatchObject({ present: true, necessary: true });
     expect(proposition.protectedContent).toContain('high_risk_negation');
     expect(proposition.fidelityStatus).toBe('protected');
+  });
+
+  it('extracts the action and speech act from a bare imperative', () => {
+    const { proposition } = extractPropositionSeed('Stop talking.');
+    expect(proposition.actor).toBe('addressee');
+    expect(proposition.actionOrRelation).toBe('stop');
+    expect(proposition.objectOrTarget).toBe('talking');
+    expect(proposition.speechAct).toBe('command');
+  });
+
+  it('distinguishes future intention from an explicit promise', () => {
+    const future = extractPropositionSeed('I will send the document tomorrow.').proposition;
+    const promise = extractPropositionSeed("I promise I won't let you down.").proposition;
+    expect(future).toMatchObject({ speechAct: 'assertion', epistemicStatus: 'intended' });
+    expect(promise).toMatchObject({ speechAct: 'promise', epistemicStatus: 'intended' });
+    expect(promise.negation).toMatchObject({ necessary: true });
+    expect(promise.protectedContent).toContain('operative_negation');
   });
 });
