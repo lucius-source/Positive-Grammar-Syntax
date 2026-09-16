@@ -12,7 +12,8 @@ function inferSpeechAct(text: string): PgsProposition['speechAct'] {
   // Specific operative speech acts take precedence over generic negative-command detection.
   if (/\b(?:i do not consent|i don't consent)\b/i.test(text)) return 'refusal';
   if (/\b(?:i consent|i agree)\b/i.test(text)) return 'consent';
-  if (/\b(?:do not|don't|must not|mustn't)\b/i.test(text)) return 'command';
+  if (/^\s*(?:please\s+)?(?:do not|don't)\b|\b(?:must not|mustn't)\b/i.test(text)) return 'command';
+  if (/\b(?:should|shouldn't|should not)\b/i.test(text)) return 'advice';
   if (/\bi promise\b/i.test(text)) return 'promise';
   if (/\b(?:please|i request|i ask)\b/i.test(text)) return 'request';
   if (/^\s*(?:stop|start|arrive|send|confirm|provide|remain|submit|take)\b/i.test(text)) return 'command';
@@ -28,17 +29,21 @@ function inferEpistemic(text: string): PgsProposition['epistemicStatus'] {
   if (/\b(?:allege|alleged|claims?)\b/i.test(text)) return 'alleged';
   if (/\b(?:going to|will)\s+fail\b/i.test(text)) return 'predicted';
   if (/^\s*I\s+(?:reviewed|found|sent|received|observed|saw|heard)\b/i.test(text)) return 'reported';
+  if (/^\s*I\s+feel\b/i.test(text)) return 'reported';
   return 'unknown';
 }
 
 const ACTIONS: Array<[RegExp, string]> = [
   [/\b(?:open|opened)\b/i, 'open'], [/\b(?:stop|stopped)\b/i, 'stop'],
   [/\b(?:work|worked)\b/i, 'work'], [/\b(?:know|knew)\b/i, 'know'], [/\b(?:help|helps|helped)\b/i, 'help'],
+  [/\b(?:feel|felt)\b/i, 'feel'], [/\b(?:lower|lowers|lowered)\b/i, 'lower'], [/\b(?:remove|removes|removed)\b/i, 'remove'],
+  [/\bproceed(?:s|ed|ing)?\b/i, 'proceed'], [/\bunderstand(?:s|stood|ing)?\b/i, 'understand'],
+  [/\bdisagree(?:s|d|ing)?\b/i, 'disagree'], [/\bsubmit(?:s|ted|ting)?\b/i, 'submit'], [/\b(?:steal|steals|stole|stolen)\b/i, 'steal'],
   [/\b(?:review|reviewed)\b/i, 'review'], [/\b(?:find|found)\b/i, 'find'],
   [/\b(?:send|sent)\b/i, 'send'], [/\b(?:ignore|ignored)\b/i, 'ignore'],
   [/\b(?:listen|listened)\b/i, 'listen'], [/\bconsent\b/i, 'consent'],
   [/\benergise(?:d)?\b/i, 'energise'], [/\b(?:take|took)\b/i, 'take'],
-  [/\b(?:receive|received)\b/i, 'receive'], [/\bproceed(?:s|ed)?\b/i, 'proceed'],
+  [/\b(?:receive|received)\b/i, 'receive'],
   [/\b(?:serve|served)\b/i, 'serve'],
   [/\bfail(?:ed)?\b/i, 'fail'], [/\b(?:make|made)\b/i, 'make'], [/\b(?:commit|committed)\b/i, 'commit'],
   [/\b(?:complete|completed|do|done)\b/i, 'complete'],
@@ -49,7 +54,7 @@ function inferActor(text: string): string | null | undefined {
   if (/^\s*I(?:\b|['’]m\b)/i.test(text)) return 'speaker';
   if (/^\s*We\b/i.test(text)) return 'speakers';
   if (/^\s*You\b/i.test(text)) return 'addressee';
-  const role = text.match(/^\s*(?:the\s+)?(claimant|defendant|supplier|buyer|seller|employer|employee|patient)\b/i)?.[1];
+  const role = text.match(/^\s*(?:the\s+)?(claimant|defendant|supplier|buyer|seller|employer|employee|patient|party)\b/i)?.[1];
   if (role) return role.toLowerCase();
   if (/^\s*(?:They|He|She|It|This|That)\b/i.test(text)) return null;
   if (/\b(?:was|were|is|are|been|be|isn't|aren't|wasn't|weren't)\s+(?:\w+(?:ed|en)|made|done|sent|given|taken|known|seen|found|held|built|written|read|said|told|left|lost|paid|put|set)\b/i.test(text)) return null;
@@ -75,7 +80,7 @@ function inferAction(text: string): { action?: string; object?: string } {
 function inferTime(parsed: ReturnType<typeof parseSentence>, text: string): PgsProposition['time'] {
   const token = parsed.temporalTokens[0];
   if (!token) return undefined;
-  const relative = ['soon', 'later', 'asap'].includes(token);
+  const relative = ['soon', 'later', 'asap', 'immediately'].includes(token);
   return /\bby\s+/i.test(text)
     ? { deadline: token, temporalStatus: relative ? 'relative' : 'explicit' }
     : { eventTime: token, temporalStatus: relative ? 'relative' : 'explicit' };
@@ -86,7 +91,7 @@ function inferModality(text: string, speechAct: PgsProposition['speechAct'], epi
   if (epistemicStatus === 'uncertain' || /\b(?:may|might|could)\b/i.test(text)) return 'possibility';
   if (/\b(?:can't|cannot|can|unable|not (?:yet )?able)\b/i.test(text)) return 'ability';
   if (epistemicStatus === 'intended') return 'intention';
-  if (/\b(?:must|should|shall)\b/i.test(text)) return 'obligation';
+  if (/\b(?:mustn't|must not|must|shouldn't|should not|should|shall)\b/i.test(text)) return 'obligation';
   if (epistemicStatus === 'predicted') return 'probability';
   return 'none';
 }
@@ -110,6 +115,10 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   if (parsed.pronounTokens.some((p: string) => ['they', 'them', 'their', 'it', 'this', 'that'].includes(p))) unresolved.push('reference');
   if (actor === null && !unresolved.includes('reference')) unresolved.push('actor');
   if (/\b(?:deliberately|intentionally|on purpose)\b/i.test(text)) unresolved.push('motive');
+  if (/^\s*For the .+\bis with\b.+\bby the\b/i.test(text)) unresolved.push('formal syntax');
+  if (/\bshall\s+(?:immediately\s+)?(?:and\s+hereby\s+)?be\s+proceeding\b/i.test(text)) unresolved.push('action detail');
+  if (/\bdon't\s+disagree\b/i.test(text)) unresolved.push('epistemic position');
+  if (/\bI know\b.+\b(?:stole|taken|did)\b/i.test(text)) unresolved.push('evidence');
 
   const requiresSemanticReview = unresolved.length > 0 || epistemicStatus === 'unknown';
   const negation: PgsProposition['negation'] = parsed.negationTokens.length

@@ -56,6 +56,12 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
   if (/^I['’]m useless at this\.?$/i.test(clean)) {
     return { text: 'I am having difficulty with this task.', ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.actor', 'P1.sourceSpan', 'P1.ambiguity.reference'] };
   }
+  if (/^I feel blocked energy around this decision\.?$/i.test(clean)) {
+    return { text: 'I experience what I describe as blocked energy around this decision.', ruleIds: ['PGS-005'], supportingFields: ['P1.actor', 'P1.observation', 'P1.domain', 'P1.sourceSpan'] };
+  }
+  if (/^I (?:do not|don't) disagree\.?$/i.test(clean)) {
+    return { text: 'I am not expressing disagreement.', ruleIds: ['PGS-005', 'PGS-007'], supportingFields: ['P1.actor', 'P1.actionOrRelation', 'P1.negation', 'P1.ambiguity.epistemicPosition'] };
+  }
   const uncertainty = clean.match(/^Maybe\s+(.+?)[.]?$/i);
   if (uncertainty?.[1]) {
     return { text: `I am uncertain whether ${uncertainty[1].replace(/[.]$/, '')}.`, ruleIds: ['PGS-005'], supportingFields: ['P1.epistemicStatus', 'P1.sourceSpan'] };
@@ -73,7 +79,7 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
 
 export function renderRecommendations(source: string, unresolved: string[], context?: SemanticContext, propositions: PgsProposition[] = []): Recommendation[] {
   const hasMotive = unresolved.some(item => /motive/i.test(item));
-  const hasReference = unresolved.some(item => /reference/i.test(item));
+  const hasUnresolved = unresolved.length > 0;
   const rendered = naturalL1(applyBindings(source, context), hasMotive, propositions);
   const verifiedFacts = (context?.knownFacts ?? []).map(asSentence);
   const l1Text = [...verifiedFacts, rendered.text].join(' ');
@@ -85,7 +91,7 @@ export function renderRecommendations(source: string, unresolved: string[], cont
   const l1: Recommendation = { level: 'PGS-L1', text: l1Text, ruleIds: rendered.ruleIds, supportingFields: [...contextFields, ...rendered.supportingFields] };
   const l2: Recommendation = context?.userIntent?.trim()
     ? { level: 'PGS-L2', text: `${l1Text} ${asSentence(context.userIntent)}`, ruleIds: [...new Set([...rendered.ruleIds, 'PGS-006'])], supportingFields: [...contextFields, ...rendered.supportingFields, 'context.userIntent'] }
-    : hasMotive || hasReference
+    : hasUnresolved
       ? { level: 'PGS-L2', withheldReason: 'A more directive rewrite could change unresolved meaning or invent evidence or a requested action.', ruleIds: [], supportingFields: [] }
       : { level: 'PGS-L2', text: l1Text, ruleIds: rendered.ruleIds, supportingFields: [...contextFields, ...rendered.supportingFields] };
   return [l1, l2];

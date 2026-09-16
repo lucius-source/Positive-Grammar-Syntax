@@ -110,4 +110,29 @@ describe('proposition seed extraction', () => {
   it('preserves an embedded conditional without inventing an admission', () => {
     expect(extractPropositionSeed('Sorry if you were offended.').proposition.conditions).toEqual(['if you were offended']);
   });
+
+  it('preserves experiential status in the spiritual domain', () => {
+    expect(extractPropositionSeed('I feel blocked energy around this decision.').proposition).toMatchObject({
+      actor: 'speaker', actionOrRelation: 'feel', epistemicStatus: 'reported', domain: 'spiritual',
+    });
+  });
+
+  it('keeps negated disagreement ambiguous rather than upgrading it to agreement', () => {
+    expect(extractPropositionSeed("I don't disagree.").proposition).toMatchObject({
+      actor: 'speaker', actionOrRelation: 'disagree', speechAct: 'assertion', unresolved: ['epistemic position'],
+    });
+  });
+
+  it('extracts obligation, relative timing and unresolved action detail from a null chain', () => {
+    expect(extractPropositionSeed('The party shall immediately and hereby be proceeding.').proposition).toMatchObject({
+      actor: 'party', actionOrRelation: 'proceed', modality: 'obligation',
+      time: { eventTime: 'immediately', temporalStatus: 'relative' }, unresolved: ['action detail'],
+    });
+  });
+
+  it('keeps asserted knowledge unresolved pending evidence classification', () => {
+    expect(extractPropositionSeed('I know he stole it.').proposition).toMatchObject({
+      actor: 'speaker', actionOrRelation: 'know', unresolved: expect.arrayContaining(['reference', 'evidence']),
+    });
+  });
 });

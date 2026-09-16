@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "cases": [
     {
       "id": "LOCAL-001",
@@ -399,6 +399,125 @@
       "expectedModalities": ["probability"],
       "expectedL1Fragments": ["I assess a risk of failure."],
       "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-041",
+      "canonicalId": "CAN-041",
+      "category": "spiritual",
+      "source": "I feel blocked energy around this decision.",
+      "expectedRules": ["PGS-005"],
+      "expectedDomain": "spiritual",
+      "expectedUnresolved": ["reference"],
+      "expectedEpistemicStatuses": ["reported"],
+      "expectedActions": ["feel"],
+      "expectedL1Fragments": ["I experience what I describe as blocked energy around this decision."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-042",
+      "canonicalId": "CAN-042",
+      "category": "spiritual-assertion",
+      "source": "This word lowers everyone's vibration.",
+      "expectedRules": ["PGS-002", "PGS-005"],
+      "expectedDomain": "spiritual",
+      "expectedUnresolved": ["reference"],
+      "expectedActions": ["lower"],
+      "expectedL1Fragments": ["This word lowers everyone's vibration."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-043",
+      "canonicalId": "CAN-043",
+      "category": "legal-authority-claim",
+      "source": "This grammar removes the court's jurisdiction.",
+      "expectedRules": ["PGS-005"],
+      "expectedDomain": "legal",
+      "expectedUnresolved": ["reference"],
+      "expectedActions": ["remove"],
+      "expectedL1Fragments": ["This grammar removes the court's jurisdiction."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-044",
+      "canonicalId": "CAN-044",
+      "category": "formal-syntax",
+      "source": "For the claim is with the facts by the claimant.",
+      "expectedUnresolved": ["formal syntax"],
+      "expectedL1Fragments": ["For the claim is with the facts by the claimant."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-045",
+      "canonicalId": "CAN-045",
+      "category": "null-chain",
+      "source": "The party shall immediately and hereby be proceeding.",
+      "expectedUnresolved": ["action detail"],
+      "expectedActions": ["proceed"],
+      "expectedTimeValues": ["immediately"],
+      "expectedModalities": ["obligation"],
+      "expectedL1Fragments": ["The party shall immediately and hereby be proceeding."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-046",
+      "canonicalId": "CAN-046",
+      "category": "lexical-prefix",
+      "source": "understand",
+      "expectedActions": ["understand"],
+      "expectedL1Fragments": ["understand"]
+    },
+    {
+      "id": "LOCAL-047",
+      "canonicalId": "CAN-047",
+      "category": "double-negative",
+      "source": "I don't disagree.",
+      "expectedRules": ["PGS-005", "PGS-007"],
+      "expectedUnresolved": ["epistemic position"],
+      "expectedSpeechActs": ["assertion"],
+      "expectedActions": ["disagree"],
+      "expectedProtectedContent": ["operative_negation"],
+      "expectedL1Fragments": ["I am not expressing disagreement."],
+      "protectedFragments": ["not", "disagreement"],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-048",
+      "canonicalId": "CAN-048",
+      "category": "requirement",
+      "source": "You shouldn't forget to submit the form.",
+      "expectedRules": ["PGS-003", "PGS-004", "PGS-007"],
+      "expectedSpeechActs": ["advice"],
+      "expectedActions": ["submit"],
+      "expectedModalities": ["obligation"],
+      "expectedL1Fragments": ["You shouldn't forget to submit the form."],
+      "protectedFragments": ["shouldn't", "submit the form"],
+      "forbidNewNumbers": true
+    },
+    {
+      "id": "LOCAL-049",
+      "canonicalId": "CAN-049",
+      "category": "evidential",
+      "source": "I know he stole it.",
+      "expectedRules": ["PGS-002", "PGS-005"],
+      "expectedUnresolved": ["reference", "evidence"],
+      "expectedActions": ["know"],
+      "expectedL1Fragments": ["I know he stole it."],
+      "requireL2Withheld": true
+    },
+    {
+      "id": "LOCAL-050",
+      "canonicalId": "CAN-050",
+      "category": "complete-action",
+      "source": "I reviewed the figures. I found a £500 discrepancy. I want the accounts reconciled by Friday, so I will send the transaction list today.",
+      "expectedPropositionCount": 3,
+      "expectedRelationTypes": ["continuation", "temporal_sequence"],
+      "expectedEpistemicStatuses": ["reported", "intended"],
+      "expectedActions": ["review", "find", "send"],
+      "expectedTimeValues": ["friday"],
+      "expectedQuantities": ["£500"],
+      "expectedL1Fragments": ["I reviewed the figures. I found a £500 discrepancy. I want the accounts reconciled by Friday, so I will send the transaction list today."],
+      "protectedFragments": ["£500", "Friday", "today"],
+      "forbidNewNumbers": true
     }
   ]
 }

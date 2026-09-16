@@ -19,6 +19,10 @@ describe('deterministic PGS rule detection', () => {
     expect(finding?.patternId).toBe('PAT-007-PROTECTED');
   });
 
+  it('detects contracted protected refusal negation', () => {
+    expect(ids("I don't consent to this.")).toContain('PGS-007');
+  });
+
   it('detects absolute generalisation candidates', () => {
     expect(ids('You never listen to me.')).toContain('PGS-002');
   });
@@ -50,5 +54,20 @@ describe('deterministic PGS rule detection', () => {
 
   it('recognizes a conditional apology without treating impact as admitted', () => {
     expect(ids('Sorry if you were offended.')).toEqual(expect.arrayContaining(['PGS-001', 'PGS-002']));
+  });
+
+  it('calibrates experiential, spiritual and claimed legal effects', () => {
+    expect(ids('I feel blocked energy around this decision.')).toContain('PGS-005');
+    expect(ids("This word lowers everyone's vibration.")).toEqual(expect.arrayContaining(['PGS-002', 'PGS-005']));
+    expect(ids("This grammar removes the court's jurisdiction.")).toContain('PGS-005');
+  });
+
+  it('protects ambiguous double negation and requirements', () => {
+    expect(ids("I don't disagree.")).toEqual(expect.arrayContaining(['PGS-005', 'PGS-007']));
+    expect(ids("You shouldn't forget to submit the form.")).toEqual(expect.arrayContaining(['PGS-003', 'PGS-004', 'PGS-007']));
+  });
+
+  it('requires evidence classification for asserted knowledge', () => {
+    expect(ids('I know he stole it.')).toEqual(expect.arrayContaining(['PGS-002', 'PGS-005']));
   });
 });

@@ -46,6 +46,13 @@ describe('conservative natural recommendations', () => {
     expect(l1?.supportingFields).toContain('relation.condition');
   });
 
+  it('preserves experiential status and ambiguous disagreement', () => {
+    expect(renderFromPir('I feel blocked energy around this decision.')[0]?.text).toBe('I experience what I describe as blocked energy around this decision.');
+    const [l1, l2] = renderFromPir("I don't disagree.");
+    expect(l1?.text).toBe('I am not expressing disagreement.');
+    expect(l2?.text).toBeUndefined();
+  });
+
   it.each([
     ['Errors were committed.', 'The actor responsible for the errors is not identified.'],
     ["I'm not yet able to complete this.", 'I do not currently have the capability to complete this.'],
