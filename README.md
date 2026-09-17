@@ -52,14 +52,14 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI and source-level engine API foundation are implemented and verified. The current checkpoint passes 111 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
+The local CLI and compiled private engine API foundation are implemented and verified. The current checkpoint passes 113 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
 
 ## Engine API
 
-The root module exports `analyse`, `suggest`, `compare`, and `explain`. Deterministic operations never call a model; `suggest` requires an explicitly supplied local semantic engine whenever semantic review is necessary.
+The package root exports `analyse`, `suggest`, `compare`, `explain`, and the local `OllamaSemanticEngine`. Deterministic operations never call a model; `suggest` requires an explicitly supplied local semantic engine whenever semantic review is necessary.
 
 ```ts
-import { OllamaSemanticEngine, analyse, compare, explain, suggest } from './src/index';
+import { OllamaSemanticEngine, analyse, compare, explain, suggest } from 'positive-grammar-syntax';
 
 const analysis = analyse('Maybe it will work.');
 const explanation = explain('Maybe it will work.');
@@ -69,7 +69,7 @@ const suggestion = await suggest('They deliberately ignored my email.', {
 const fidelity = compare('Send the report.', 'Send the report by 2026-10-01.');
 ```
 
-The former rule-only analysis helper remains available as `analyseRules`. The repository does not yet publish a compiled npm package.
+The former rule-only analysis helper remains available internally as `analyseRules`. Run `npm run build` to emit the private ESM package and TypeScript declarations into `dist`; `npm run check` also verifies the built package through its public export map. The package remains marked private and is not published.
 
 ## Local CLI
 

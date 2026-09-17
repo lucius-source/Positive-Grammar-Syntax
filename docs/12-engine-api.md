@@ -1,6 +1,6 @@
-# PGS Engine API
+# PGS Engine API and Package Boundary
 
-The source-level engine boundary exports four primary operations from `src/index.ts`:
+The private package boundary exports four primary operations plus the local Ollama adapter from the package root:
 
 - `analyse(source)` performs deterministic document/PIR analysis, rule detection and validation without calling a model.
 - `suggest(source, options)` runs the verified recommendation pipeline. When semantic review is required, `options.engine` must be an explicitly supplied local semantic engine.
@@ -18,7 +18,7 @@ import {
   compare,
   explain,
   suggest,
-} from './src/index';
+} from 'positive-grammar-syntax';
 
 const analysis = analyse('Maybe it will work.');
 const explanation = explain('Maybe it will work.');
@@ -42,4 +42,13 @@ const fidelity = compare(
 - Model output remains untrusted and is validated through the existing PGS-PIR, resolution-ledger and fidelity pipeline.
 - User context remains explicitly typed and provenance-bearing; it is not merged into the source.
 
-The repository remains private and source-based. This API is an internal stable boundary for the next packaging milestone, not yet a compiled or published npm package.
+## Build and verification
+
+```bash
+npm run build
+npm run verify:package
+```
+
+The build emits ESM JavaScript, source maps, declarations and declaration maps into `dist`. A narrow `src/public.ts` entrypoint controls the package's runtime surface. Package verification imports the emitted JavaScript through Node, type-checks a consumer importing by package name, and confirms that only `analyse`, `suggest`, `compare`, `explain`, and `OllamaSemanticEngine` are runtime exports.
+
+The repository remains private and the package is not published. The compiled boundary is an internal integration artifact for adapter and application development.

@@ -1,0 +1,20 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const publicModule = await import('../dist/public.js');
+const expectedExports = ['OllamaSemanticEngine', 'analyse', 'compare', 'explain', 'suggest'];
+const actualExports = Object.keys(publicModule).sort();
+if (JSON.stringify(actualExports) !== JSON.stringify(expectedExports)) {
+  throw new Error(`Unexpected public exports: ${actualExports.join(', ')}`);
+}
+
+const analysis = publicModule.analyse('I sent the document yesterday.');
+if (!analysis.validation.valid || analysis.operation !== 'analyse') throw new Error('Built analyse operation failed verification.');
+const comparison = publicModule.compare('Send the report.', 'Send the report by 2026-10-01.');
+if (comparison.status !== 'blocked') throw new Error('Built compare operation failed verification.');
+
+for (const path of ['dist/public.js', 'dist/public.d.ts', 'dist/api.js', 'dist/api.d.ts']) {
+  if (!existsSync(resolve(path))) throw new Error(`Missing package artifact: ${path}`);
+}
+
+console.log(`Verified compiled package exports: ${actualExports.join(', ')}`);
