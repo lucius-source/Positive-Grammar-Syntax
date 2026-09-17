@@ -57,6 +57,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Deterministic non-mutating diffs, explicit approval and copy-on-write application for selected email/document recommendations.
 - Revalidation at approval and stale-source rejection at application.
 - Hosted CI verification for source, tests, package boundary and deterministic fidelity artifacts.
+- Manual, main-only live evaluation workflow for an explicitly labelled self-hosted Ollama runner.
 
 ## Fidelity behavior
 
@@ -107,10 +108,10 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 
 Extend the verified engine boundary and deterministic alignment without broadening unsafe rewrites. The next work should prioritize:
 
-1. Add an explicitly provisioned local-model or self-hosted live evaluation workflow.
-2. Expand from deterministic property matrices to seeded generative fuzz coverage.
-3. Define release/versioning criteria for the private package boundary.
-4. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
-5. Build a review interface over the explicit proposal and approval contract without weakening it.
+1. Expand from deterministic property matrices to seeded generative fuzz coverage.
+2. Define release/versioning criteria for the private package boundary.
+3. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
+4. Build a review interface over the explicit proposal and approval contract without weakening it.
+5. Add persistent, authenticated approval records at the application layer without treating them as linguistic evidence.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.

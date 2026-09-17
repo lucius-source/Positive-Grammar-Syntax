@@ -1,0 +1,65 @@
+name: PGS live local-model evaluation
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Exact Ollama model name provisioned on the runner
+        required: true
+        default: qwen3.8:latest
+        type: string
+      case_ids:
+        description: Optional space-separated evaluation case IDs; blank runs all cases
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pgs-live-evaluation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, pgs-ollama]
+    timeout-minutes: 240
+    env:
+      PGS_OLLAMA_URL: http://127.0.0.1:11434
+      PGS_OLLAMA_MODEL: ${{ inputs.model }}
+      PGS_EVAL_CASE_IDS: ${{ inputs.case_ids }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify source and package boundary
+        run: npm run check
+      - name: Verify explicitly provisioned local model
+        run: npm run eval:local:preflight
+      - name: Run live canonical evaluation
+        shell: bash
+        run: |
+          mkdir -p artifacts/live
+          if [[ -n "$PGS_EVAL_CASE_IDS" ]]; then
+            read -r -a case_ids <<< "$PGS_EVAL_CASE_IDS"
+            npm run --silent eval:local -- "${case_ids[@]}" --json > artifacts/live/local-evaluation.json
+          else
+            npm run --silent eval:local -- --json > artifacts/live/local-evaluation.json
+          fi
+      - name: Upload live evaluation artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pgs-live-evaluation-${{ github.run_id }}
+          path: artifacts/live/local-evaluation.json
+          if-no-files-found: warn
+          retention-days: 30

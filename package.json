@@ -22,6 +22,7 @@
   "scripts": {
     "pgs": "node --import tsx src/cli.ts",
     "eval:local": "node --import tsx src/eval-cli.ts",
+    "eval:local:preflight": "node scripts/check-local-model.mjs",
     "eval:fidelity": "node --import tsx src/fidelity-eval-cli.ts",
     "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json && node scripts/finalize-esm-build.mjs",
     "verify:package": "tsc -p tsconfig.package-consumer.json && node scripts/verify-package.mjs",

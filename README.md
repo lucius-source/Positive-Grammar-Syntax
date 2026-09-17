@@ -174,3 +174,5 @@ npm run artifacts:ci
 ```
 
 Hosted CI uploads `artifacts/ci/fidelity-evaluation.json`. The Ollama-dependent live gate remains a separate local verification and never falls back to a cloud provider.
+
+A separate manual GitHub Actions workflow can run that live gate on an explicitly provisioned self-hosted runner labelled `pgs-ollama`. It accepts an exact Ollama model name, is restricted to `main`, preflights the loopback Ollama endpoint and uploads the versioned live JSON result. See `docs/13-ci-evaluation-artifacts.md` for the runner and invocation contract.
