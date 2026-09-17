@@ -54,4 +54,37 @@ describe('deterministic fidelity comparison', () => {
     expect(result.status).toBe('review_required');
     expect(result.issues.map(item => item.code)).toContain('FIDELITY_PIR_ACTOR_OMITTED');
   });
+
+  it('blocks reversal or removal of an explicitly aligned temporal order', () => {
+    const reversed = compareFidelity(
+      'I sent the report after Maria reviewed the file.',
+      'I sent the report before Maria reviewed the file.',
+    );
+    expect(reversed.status).toBe('blocked');
+    expect(reversed.issues.map(issue => issue.code)).toContain('FIDELITY_TEMPORAL_ORDER_CHANGED');
+
+    const removed = compareFidelity(
+      'After Maria reviewed the file, I sent the report.',
+      'Maria reviewed the file and I sent the report.',
+    );
+    expect(removed.issues.map(issue => issue.code)).toContain('FIDELITY_TEMPORAL_ORDER_CHANGED');
+  });
+
+  it('accepts equivalent leading and trailing expressions of the same temporal order', () => {
+    const result = compareFidelity(
+      'After Maria reviewed the file, I sent the report.',
+      'I sent the report after Maria reviewed the file.',
+    );
+    expect(result.issues.map(issue => issue.code)).not.toContain('FIDELITY_TEMPORAL_ORDER_CHANGED');
+    expect(result.issues.map(issue => issue.code)).not.toContain('FIDELITY_TEMPORAL_ORDER_INVENTED');
+  });
+
+  it('blocks an explicit temporal order invented by a candidate', () => {
+    const result = compareFidelity(
+      'Maria reviewed the file. I sent the report.',
+      'I sent the report after Maria reviewed the file.',
+    );
+    expect(result.status).toBe('blocked');
+    expect(result.issues.map(issue => issue.code)).toContain('FIDELITY_TEMPORAL_ORDER_INVENTED');
+  });
 });

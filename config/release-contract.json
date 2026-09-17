@@ -1,5 +1,5 @@
 {
-  "packageVersion": "0.1.0",
+  "packageVersion": "0.2.0",
   "visibility": "private",
   "jsonSchemaVersion": "pgs.output.v1",
   "runtimeExports": [
@@ -22,8 +22,8 @@
   "evaluationMinimums": {
     "canonicalLiveCases": 50,
     "adversarialCases": 19,
-    "seededFuzzCases": 325,
-    "seededFuzzFamilies": 13
+    "seededFuzzCases": 350,
+    "seededFuzzFamilies": 14
   },
   "liveGate": {
     "providerKind": "local",

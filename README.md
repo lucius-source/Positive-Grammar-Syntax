@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI, compiled private engine API, deterministic analysis-readiness scoring, and first email/general-document analysis, selected-content suggestion, and explicit approval/application adapters are implemented and verified. The current checkpoint passes 180 automated tests, including a 325-case seeded fidelity fuzz gate, 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, `docs/13-email-document-adapters.md` for the adapter boundary, and `docs/14-suggestion-approval.md` for the application boundary.
+The local CLI, compiled private engine API, deterministic analysis-readiness scoring, and first email/general-document analysis, selected-content suggestion, and explicit approval/application adapters are implemented and verified. The current checkpoint passes 187 automated tests, including a 350-case seeded fidelity fuzz gate across 14 invariant families, 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, `docs/13-email-document-adapters.md` for the adapter boundary, and `docs/14-suggestion-approval.md` for the application boundary.
 
 ## Engine API
 
@@ -160,6 +160,8 @@ The deterministic proposition seed records recoverable PIR fields—including ac
 
 Controlled comma-`so` coordination is aligned as separate desired-state and action propositions only when the right side has an explicit clause actor. Explicit contrast clauses using `but`, `yet`, `however` or leading `although`, and causal clauses using `because`, `therefore`, `thus` or `consequently`, are also aligned when both clauses have explicit actors. Contrast relations are deterministic; causal relations remain candidates for semantic review. Ordinary comma lists, adverbial `so` phrases and `because of` phrases remain unsplit.
 
+Explicit `after` and `before` constructions are aligned only when both clauses contain a verified actor and controlled action. Their `temporal_sequence` relation always points from the earlier event to the later event. Fidelity comparison blocks removal, reversal or invention of that established order; temporal phrases without two actor-action clauses remain unsplit.
+
 Run the live canonical corpus and deterministic adversarial fidelity corpus with:
 
 ```bash
@@ -168,7 +170,7 @@ npm run eval:fidelity
 npm run eval:fuzz
 ```
 
-The live gate exercises all 50 canonical cases against the configured local Ollama model. The adversarial gate runs without a model and verifies blocked mutations plus narrowly established equivalence controls. The seeded fuzz gate generates 325 reproducible cases across 13 invariant families; pass `--seed` and `--iterations` to replay or expand a run. Automated tests also retain deterministic mutation matrices for actor, action, date, quantity, motive, evidence and modality changes.
+The live gate exercises all 50 canonical cases against the configured local Ollama model. The adversarial gate runs without a model and verifies blocked mutations plus narrowly established equivalence controls. The seeded fuzz gate generates 350 reproducible cases across 14 invariant families; pass `--seed` and `--iterations` to replay or expand a run. Automated tests also retain deterministic mutation matrices for actor, action, date, quantity, motive, evidence and modality changes.
 
 Run the complete source, package and deterministic artifact checks with:
 

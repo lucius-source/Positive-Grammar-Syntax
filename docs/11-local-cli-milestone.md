@@ -24,6 +24,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 
 - Sentence and multi-proposition document analysis.
 - Conservative intra-sentence proposition alignment for explicit comma-`so` action, contrast and causal clauses.
+- Deterministic chronological alignment for explicit `after` and `before` clauses with verified actors and controlled actions on both sides.
 - Deterministic PIR fields for actor, action/relation, object/target, epistemic status, speech act, time, quantities, conditions, ambiguity and protected content.
 - Explicit `null` representation for unresolved actors.
 - Local-only Ollama semantic determination with no cloud fallback.
@@ -47,7 +48,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Canonical identifiers in executable evaluation results for traceability to the specification corpus.
 - Executable adversarial fidelity corpus with versioned JSON output and selectable mutation IDs.
 - Deterministic property-style mutation matrices covering actor, action, date, quantity, motive, evidence and modality preservation.
-- Reproducible seeded fuzz generation covering 13 fidelity invariant families, with exact source and candidate inputs retained for failure replay.
+- Reproducible seeded fuzz generation covering 14 fidelity invariant families, with exact source and candidate inputs retained for failure replay.
 - Source-level `analyse`, `score`, `suggest`, `compare` and `explain` engine operations with an explicit local-only semantic boundary.
 - Compiled private ESM package boundary with declarations, declaration maps and a narrow verified export surface.
 - Deterministic email analysis adapter preserving subject, body, participants, thread and attachment snapshots without merging contextual text into source analysis.
@@ -84,11 +85,11 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 180/180 tests passed across 21 files
+- `npm test`: 187/187 tests passed across 21 files
 - `npm run build` and `npm run verify:package`: pass
 - `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
-- `npm run eval:fuzz`: 325/325 seeded generated cases passed across 13 invariant families
+- `npm run eval:fuzz`: 350/350 seeded generated cases passed across 14 invariant families
 - Live canonical regression: 47 unaffected cases passed in the strengthened full run; the 3 affected equivalence cases then passed 3/3 after narrow fixes
 - Live public `suggest` operation: local Ollama response validated; unresolved reference, motive, actor and epistemic status retained; L2 withheld; no blocked fidelity finding
 
@@ -103,7 +104,7 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 - Evidence sufficiency records type and provenance but does not authenticate external evidence.
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
-- The executable evaluation corpus covers all 50 canonical cases plus 19 adversarial mutations, 24 deterministic property-style mutations and a reproducible 325-case seeded fuzz gate. The generator remains bounded by the comparator's current controlled vocabulary.
+- The executable evaluation corpus covers all 50 canonical cases plus 19 adversarial mutations, 24 deterministic property-style mutations and a reproducible 350-case seeded fuzz gate. The generator remains bounded by the comparator's current controlled vocabulary.
 - The email and text-document adapters can prepare and apply explicitly approved text replacements, but visual diff presentation, persistent approval records, DOCX/PDF ingestion and a user interface remain future work.
 - The compiled engine package remains private and unpublished.
 

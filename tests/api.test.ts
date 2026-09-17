@@ -47,6 +47,15 @@ describe('public PGS engine API', () => {
     ]);
   });
 
+  it('exposes deterministic temporal ordering only for explicit actor-action clauses', () => {
+    const result = analyse('I sent the report after Maria reviewed the file.');
+    expect(result.deterministic.document.propositions).toHaveLength(2);
+    expect(result.deterministic.relations).toContainEqual({
+      from: 'P2', to: 'P1', type: 'temporal_sequence', marker: 'after', confidence: 'deterministic',
+    });
+    expect(analyse('I sent the report after lunch.').deterministic.document.propositions).toHaveLength(1);
+  });
+
   it('retains the legacy rule-only operation under an explicit name', () => {
     expect(analyseRules('Respond soon.').findings.map(finding => finding.ruleId)).toContain('PGS-004');
   });

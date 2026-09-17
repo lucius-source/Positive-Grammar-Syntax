@@ -102,4 +102,28 @@ describe('multi-proposition document analyser', () => {
     expect(analyseDocument('I reviewed the figures, but carefully and slowly.').document.propositions).toHaveLength(1);
     expect(analyseDocument('I reviewed the figures because of the deadline.').document.propositions).toHaveLength(1);
   });
+
+  it('orders explicit leading after and before clauses chronologically', () => {
+    const after = analyseDocument('After Maria reviewed the file, I sent the report.');
+    expect(after.document.propositions.map(proposition => proposition.actionOrRelation)).toEqual(['review', 'send']);
+    expect(after.relations).toContainEqual({ from: 'P1', to: 'P2', type: 'temporal_sequence', marker: 'After', confidence: 'deterministic' });
+
+    const before = analyseDocument('Before I sent the report, Maria reviewed the file.');
+    expect(before.document.propositions.map(proposition => proposition.actionOrRelation)).toEqual(['send', 'review']);
+    expect(before.relations).toContainEqual({ from: 'P2', to: 'P1', type: 'temporal_sequence', marker: 'Before', confidence: 'deterministic' });
+  });
+
+  it('orders explicit trailing after and before clauses chronologically', () => {
+    const after = analyseDocument('I sent the report after Maria reviewed the file.');
+    expect(after.relations).toContainEqual({ from: 'P2', to: 'P1', type: 'temporal_sequence', marker: 'after', confidence: 'deterministic' });
+
+    const before = analyseDocument('I sent the report before Maria reviewed the file.');
+    expect(before.relations).toContainEqual({ from: 'P1', to: 'P2', type: 'temporal_sequence', marker: 'before', confidence: 'deterministic' });
+  });
+
+  it('does not align temporal phrases without two actor-action clauses', () => {
+    expect(analyseDocument('I sent the report after lunch.').document.propositions).toHaveLength(1);
+    expect(analyseDocument('I sent the report after the meeting.').document.propositions).toHaveLength(1);
+    expect(analyseDocument('I reviewed the report before signing it.').document.propositions).toHaveLength(1);
+  });
 });

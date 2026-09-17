@@ -72,6 +72,8 @@ export function analyseDocument(text: string): DocumentAnalysis {
     const trailingCause = sentence.match(/^\s*(.+?)\s+(because)\s+(.+)$/i);
     const leadingCause = sentence.match(/^\s*(Because)\s+(.+?),\s+(.+)$/i);
     const coordinatedCause = sentence.match(/^\s*(.+?),\s*(therefore|thus|consequently)\s+(.+)$/i);
+    const leadingTemporal = sentence.match(/^\s*(After|Before)\s+(.+?),\s+(.+)$/i);
+    const trailingTemporal = sentence.match(/^\s*(.+?)\s+(after|before)\s+(.+)$/i);
     const firstId = `P${seeds.length + 1}`;
     const marker = conditional?.[1] ?? (onlyIf ? 'Only if' : undefined);
     const antecedentText = conditional?.[2] ?? onlyIf?.[2];
@@ -110,22 +112,34 @@ export function analyseDocument(text: string): DocumentAnalysis {
               ? { first: coordinatedCause[1], second: coordinatedCause[3], marker: coordinatedCause[2], type: 'cause' as const, confidence: 'candidate' as const, reverse: false }
               : trailingCause?.[1] && trailingCause[2] && trailingCause[3]
                 ? { first: trailingCause[1], second: trailingCause[3], marker: trailingCause[2], type: 'cause' as const, confidence: 'candidate' as const, reverse: true }
-                : undefined;
+                : leadingTemporal?.[1] && leadingTemporal[2] && leadingTemporal[3]
+                  ? { first: leadingTemporal[2], second: leadingTemporal[3], marker: leadingTemporal[1], type: 'temporal_sequence' as const, confidence: 'deterministic' as const, reverse: /^before$/i.test(leadingTemporal[1]) }
+                  : trailingTemporal?.[1] && trailingTemporal[2] && trailingTemporal[3]
+                    ? { first: trailingTemporal[1], second: trailingTemporal[3], marker: trailingTemporal[2], type: 'temporal_sequence' as const, confidence: 'deterministic' as const, reverse: /^after$/i.test(trailingTemporal[2]) }
+                    : undefined;
       const firstClause = aligned ? cleanClause(aligned.first) : '';
       const secondClause = aligned ? cleanClause(aligned.second) : '';
       if (aligned && hasExplicitClauseActor(firstClause) && hasExplicitClauseActor(secondClause)) {
         const first = extractPropositionSeed(firstClause, firstId);
         const secondId = `P${seeds.length + 2}`;
         const second = extractPropositionSeed(secondClause, secondId);
-        seeds.push(first, second);
-        relations.push({
-          from: aligned.reverse ? second.proposition.id : first.proposition.id,
-          to: aligned.reverse ? first.proposition.id : second.proposition.id,
-          type: aligned.type,
-          marker: aligned.marker,
-          confidence: aligned.confidence,
-        });
-        sentenceRanges.push({ first: first.proposition.id, last: second.proposition.id });
+        const verifiedTemporalActions = aligned.type !== 'temporal_sequence'
+          || Boolean(first.proposition.actionOrRelation && second.proposition.actionOrRelation);
+        if (verifiedTemporalActions) {
+          seeds.push(first, second);
+          relations.push({
+            from: aligned.reverse ? second.proposition.id : first.proposition.id,
+            to: aligned.reverse ? first.proposition.id : second.proposition.id,
+            type: aligned.type,
+            marker: aligned.marker,
+            confidence: aligned.confidence,
+          });
+          sentenceRanges.push({ first: first.proposition.id, last: second.proposition.id });
+        } else {
+          const seed = extractPropositionSeed(sentence, firstId);
+          seeds.push(seed);
+          sentenceRanges.push({ first: seed.proposition.id, last: seed.proposition.id });
+        }
       } else {
         const seed = extractPropositionSeed(sentence, firstId);
         seeds.push(seed);

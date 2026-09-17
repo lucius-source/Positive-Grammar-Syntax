@@ -62,6 +62,28 @@ function unionPirFields(texts: string[]): { actions: Set<string>; actors: Set<st
   return { actions, actors };
 }
 
+function deterministicTemporalEdges(text: string): Set<string> {
+  const analysis = analyseDocument(text);
+  const propositions = new Map(analysis.document.propositions.map(proposition => [proposition.id, proposition]));
+  const edges = new Set<string>();
+  for (const relation of analysis.relations) {
+    if (relation.type !== 'temporal_sequence' || relation.confidence !== 'deterministic') continue;
+    const from = propositions.get(relation.from);
+    const to = propositions.get(relation.to);
+    if (!from?.actionOrRelation || !to?.actionOrRelation) continue;
+    edges.add(`${from.actor ?? 'unknown'}:${actionFamily(from.actionOrRelation)} -> ${to.actor ?? 'unknown'}:${actionFamily(to.actionOrRelation)}`);
+  }
+  return edges;
+}
+
+function unionTemporalEdges(texts: string[]): Set<string> {
+  const edges = new Set<string>();
+  for (const text of texts.filter(item => item.trim())) {
+    for (const edge of deterministicTemporalEdges(text)) edges.add(edge);
+  }
+  return edges;
+}
+
 function verifiedConditionalReframe(source: string, candidate: string): boolean {
   const sourceAnalysis = analyseDocument(source);
   const candidateAnalysis = analyseDocument(candidate);
@@ -116,6 +138,17 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
     if (absent.length) add({ code, severity: 'blocked', message: `Candidate removes or changes source ${label} content.`, evidence: absent.join(', ') });
     const additions = missing(terms(candidate, pattern), terms(authorised, pattern));
     if (additions.length) add({ code: code.replace('REMOVED', 'INVENTED'), severity: 'blocked', message: `Candidate introduces unauthorised ${label} content.`, evidence: additions.join(', ') });
+  }
+
+  const sourceTemporalEdges = deterministicTemporalEdges(source);
+  const candidateTemporalEdges = deterministicTemporalEdges(candidate);
+  const changedTemporalEdges = missing(sourceTemporalEdges, candidateTemporalEdges);
+  if (changedTemporalEdges.length) {
+    add({ code: 'FIDELITY_TEMPORAL_ORDER_CHANGED', severity: 'blocked', message: 'Candidate removes or reverses an explicitly established event order.', evidence: changedTemporalEdges.join(', ') });
+  }
+  const inventedTemporalEdges = missing(candidateTemporalEdges, unionTemporalEdges(authorisedTexts));
+  if (inventedTemporalEdges.length) {
+    add({ code: 'FIDELITY_TEMPORAL_ORDER_INVENTED', severity: 'blocked', message: 'Candidate introduces an event order absent from source and verified context.', evidence: inventedTemporalEdges.join(', ') });
   }
 
   const sourceHedges = terms(source, HEDGES);

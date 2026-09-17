@@ -185,6 +185,17 @@ const families: readonly FuzzFamily[] = [
       };
     },
   },
+  {
+    id: 'temporal-order-inversion',
+    expectedCode: 'FIDELITY_TEMPORAL_ORDER_CHANGED',
+    generate: random => {
+      const actor = pick(random, actors);
+      const trailing = random() < 0.5;
+      return trailing
+        ? { source: `I sent the report after ${actor} reviewed the file.`, candidate: `I sent the report before ${actor} reviewed the file.` }
+        : { source: `After ${actor} reviewed the file, I sent the report.`, candidate: `Before ${actor} reviewed the file, I sent the report.` };
+    },
+  },
 ];
 
 function normalizedOptions(options: FidelityFuzzOptions): Required<FidelityFuzzOptions> {

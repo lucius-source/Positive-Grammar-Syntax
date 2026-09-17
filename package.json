@@ -1,6 +1,6 @@
 {
   "name": "positive-grammar-syntax",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Positive Grammar Syntax core language analysis and transformation engine",
   "type": "module",

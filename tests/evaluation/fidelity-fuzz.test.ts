@@ -10,8 +10,8 @@ describe('seeded fidelity fuzz evaluation', () => {
   it('blocks every generated invariant violation in the default corpus', () => {
     const summary = evaluateFidelityFuzz();
     expect(summary.iterationsPerFamily).toBe(DEFAULT_FIDELITY_FUZZ_ITERATIONS);
-    expect(summary.families).toBe(13);
-    expect(summary.total).toBe(325);
+    expect(summary.families).toBe(14);
+    expect(summary.total).toBe(350);
     expect(summary.failed).toBe(0);
     expect(summary.passed).toBe(summary.total);
   });

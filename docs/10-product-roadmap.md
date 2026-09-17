@@ -2,7 +2,7 @@
 
 ## Current checkpoint — 2026-09-17
 
-The local CLI and private engine API foundation now span parts of Phases 2–6: all 50 canonical cases in an executable local corpus, typed deterministic PGS-PIR, transparent deterministic analysis-readiness scoring, bounded conditional, action, contrast and causal proposition alignment, conservative rendering and fidelity comparison, a validated local Ollama semantic adapter, 19 deterministic adversarial fidelity mutations, 24 property-style mutation cases, and analysis-only email and plain-text/Markdown adapters. This is a verified vertical slice rather than completion of those phases. See `docs/11-local-cli-milestone.md` and `docs/13-email-document-adapters.md`.
+The local CLI and private engine API foundation now span parts of Phases 2–6: all 50 canonical cases in an executable local corpus, typed deterministic PGS-PIR, transparent deterministic analysis-readiness scoring, bounded conditional, action, contrast, causal and explicit temporal proposition alignment, conservative rendering and fidelity comparison, a validated local Ollama semantic adapter, 19 deterministic adversarial fidelity mutations, 24 property-style mutation cases, a 350-case seeded fuzz gate, and analysis-only email and plain-text/Markdown adapters. This is a verified vertical slice rather than completion of those phases. See `docs/11-local-cli-milestone.md` and `docs/13-email-document-adapters.md`.
 
 ## Phase 0 — Foundation
 
