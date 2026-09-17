@@ -52,11 +52,11 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI, compiled private engine API, and first email/general-document analysis, selected-content suggestion, and explicit approval/application adapters are implemented and verified. The current checkpoint passes 169 automated tests, including 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, `docs/13-email-document-adapters.md` for the adapter boundary, and `docs/14-suggestion-approval.md` for the application boundary.
+The local CLI, compiled private engine API, deterministic analysis-readiness scoring, and first email/general-document analysis, selected-content suggestion, and explicit approval/application adapters are implemented and verified. The current checkpoint passes 171 automated tests, including 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, `docs/13-email-document-adapters.md` for the adapter boundary, and `docs/14-suggestion-approval.md` for the application boundary.
 
 ## Engine API
 
-The package root exports `analyse`, `suggest`, `compare`, `explain`, the email/document analysis and suggestion adapters, the explicit approval/application operations, and the local `OllamaSemanticEngine`. Deterministic operations and analysis adapters never call a model; suggestion operations require an explicitly supplied local semantic engine whenever semantic review is necessary.
+The package root exports `analyse`, `score`, `suggest`, `compare`, `explain`, the email/document analysis and suggestion adapters, the explicit approval/application operations, and the local `OllamaSemanticEngine`. Deterministic operations and analysis adapters never call a model; suggestion operations require an explicitly supplied local semantic engine whenever semantic review is necessary. The score measures analysis readiness only, exposes every deduction, and never claims to measure truth, quality, morality or the speaker.
 
 ```ts
 import {
@@ -69,12 +69,14 @@ import {
   compare,
   explain,
   prepareTextChange,
+  score,
   suggest,
   suggestEmail,
   suggestTextDocument,
 } from 'positive-grammar-syntax';
 
 const analysis = analyse('Maybe it will work.');
+const readiness = score('Maybe it will work.');
 const explanation = explain('Maybe it will work.');
 const suggestion = await suggest('They deliberately ignored my email.', {
   engine: new OllamaSemanticEngine(),

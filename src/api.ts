@@ -33,6 +33,26 @@ export interface ExplainOperationResult {
   messages: string[];
 }
 
+export interface ScoreDeduction {
+  code: 'VALIDATION_ERROR' | 'SEMANTIC_REVIEW_REQUIRED' | 'UNRESOLVED_FIELD' | 'RULE_FINDING' | 'CANDIDATE_RELATION';
+  points: number;
+  message: string;
+  propositionId?: string;
+  ruleId?: string;
+}
+
+export interface ScoreOperationResult {
+  operation: 'score';
+  source: string;
+  score: number;
+  band: 'ready' | 'review_required' | 'invalid';
+  provisional: boolean;
+  deductions: ScoreDeduction[];
+  protectedContent: string[];
+  analysis: AnalyseOperationResult;
+  limitation: string;
+}
+
 function requireSource(source: string): void {
   if (!source.trim()) throw new Error('PGS source text is required.');
 }
@@ -63,6 +83,85 @@ export function analyse(source: string): AnalyseOperationResult {
     deterministic,
     ruleFindings: detectDeterministicRules(source),
     validation: validatePgsDocument(deterministic.document),
+  };
+}
+
+/**
+ * Score deterministic analysis readiness. This is not a truth, evidence,
+ * morality, or writing-quality score; every deduction is returned to callers.
+ */
+export function score(source: string): ScoreOperationResult {
+  const analysis = analyse(source);
+  const deductions: ScoreDeduction[] = [];
+  const propositions = analysis.deterministic.document.propositions;
+
+  for (const issue of analysis.validation.issues) {
+    if (issue.severity !== 'error') continue;
+    deductions.push({
+      code: 'VALIDATION_ERROR',
+      points: 25,
+      message: issue.message,
+      ...(issue.propositionId ? { propositionId: issue.propositionId } : {}),
+    });
+  }
+
+  if (analysis.deterministic.requiresSemanticReview) {
+    deductions.push({
+      code: 'SEMANTIC_REVIEW_REQUIRED',
+      points: 10,
+      message: 'Semantic review is required before unresolved meaning can be treated as determined.',
+    });
+  }
+
+  for (const proposition of propositions) {
+    for (const field of proposition.unresolved ?? []) {
+      deductions.push({
+        code: 'UNRESOLVED_FIELD',
+        points: 10,
+        message: `${field} remains unresolved.`,
+        propositionId: proposition.id,
+      });
+    }
+  }
+
+  for (const finding of analysis.ruleFindings) {
+    const points = finding.severity === 'warning' ? 10 : finding.severity === 'suggestion' ? 5 : 0;
+    if (!points) continue;
+    deductions.push({
+      code: 'RULE_FINDING',
+      points,
+      message: finding.message,
+      ruleId: finding.ruleId,
+    });
+  }
+
+  for (const relation of analysis.deterministic.relations) {
+    if (relation.confidence !== 'candidate') continue;
+    deductions.push({
+      code: 'CANDIDATE_RELATION',
+      points: 3,
+      message: `${relation.type} relation from ${relation.from} to ${relation.to} remains a candidate.`,
+    });
+  }
+
+  const protectedContent = propositions.flatMap(proposition =>
+    (proposition.protectedContent ?? []).map(item => `${proposition.id}: ${item}`),
+  );
+  const scoreValue = Math.max(0, 100 - Math.min(100, deductions.reduce((total, deduction) => total + deduction.points, 0)));
+  const band = analysis.validation.valid
+    ? analysis.deterministic.requiresSemanticReview || deductions.length > 0 ? 'review_required' : 'ready'
+    : 'invalid';
+
+  return {
+    operation: 'score',
+    source,
+    score: scoreValue,
+    band,
+    provisional: band !== 'ready',
+    deductions,
+    protectedContent,
+    analysis,
+    limitation: 'This deterministic score measures analysis readiness only. It does not establish truth, evidence, intent, writing quality, or moral value.',
   };
 }
 

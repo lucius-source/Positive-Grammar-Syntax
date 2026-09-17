@@ -47,7 +47,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Canonical identifiers in executable evaluation results for traceability to the specification corpus.
 - Executable adversarial fidelity corpus with versioned JSON output and selectable mutation IDs.
 - Deterministic property-style mutation matrices covering actor, action, date, quantity, motive, evidence and modality preservation.
-- Source-level `analyse`, `suggest`, `compare` and `explain` engine operations with an explicit local-only semantic boundary.
+- Source-level `analyse`, `score`, `suggest`, `compare` and `explain` engine operations with an explicit local-only semantic boundary.
 - Compiled private ESM package boundary with declarations, declaration maps and a narrow verified export surface.
 - Deterministic email analysis adapter preserving subject, body, participants, thread and attachment snapshots without merging contextual text into source analysis.
 - Plain-text and Markdown analysis adapter with exact source offsets and protected quotation and fenced-code sections.
@@ -82,7 +82,7 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 169/169 tests passed across 20 files
+- `npm test`: 171/171 tests passed across 20 files
 - `npm run build` and `npm run verify:package`: pass
 - `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed

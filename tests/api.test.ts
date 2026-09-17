@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { analyse, analyseRules, compare, explain, suggest, type SemanticEngine } from '../src/index';
+import { analyse, analyseRules, compare, explain, score, suggest, type SemanticEngine } from '../src/index';
 
 const localEngine: SemanticEngine = {
   id: 'local:api-test',
@@ -75,6 +75,32 @@ describe('public PGS engine API', () => {
     expect(result.issues.map(issue => issue.code)).toContain('FIDELITY_TIME_INVENTED');
   });
 
+  it('scores deterministic analysis readiness with transparent deductions', () => {
+    const ready = score('I sent the document yesterday.');
+    expect(ready.operation).toBe('score');
+    expect(ready.score).toBe(100);
+    expect(ready.band).toBe('ready');
+    expect(ready.provisional).toBe(false);
+    expect(ready.deductions).toEqual([]);
+
+    const review = score('They deliberately ignored my email.');
+    expect(review.score).toBe(70);
+    expect(review.band).toBe('review_required');
+    expect(review.provisional).toBe(true);
+    expect(review.deductions.map(deduction => deduction.code)).toEqual([
+      'SEMANTIC_REVIEW_REQUIRED', 'UNRESOLVED_FIELD', 'UNRESOLVED_FIELD',
+    ]);
+    expect(review.limitation).toMatch(/does not establish truth/i);
+  });
+
+  it('records protected content without penalising it', () => {
+    const result = score('Do not energise the circuit.');
+    expect(result.protectedContent).toContain('P1: operative_negation');
+    expect(result.deductions).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ ruleId: 'PGS-007' }),
+    ]));
+  });
+
   it('explains unresolved and protected content without inventing resolution', () => {
     const ambiguity = explain('They deliberately ignored my email.');
     expect(ambiguity.unresolved).toEqual(expect.arrayContaining(['P1: reference', 'P1: motive']));
@@ -87,6 +113,7 @@ describe('public PGS engine API', () => {
 
   it('rejects empty source and candidate inputs', async () => {
     expect(() => analyse('   ')).toThrow(/source text is required/i);
+    expect(() => score('   ')).toThrow(/source text is required/i);
     expect(() => compare('Source.', '   ')).toThrow(/candidate text is required/i);
     await expect(suggest('')).rejects.toThrow(/source text is required/i);
   });

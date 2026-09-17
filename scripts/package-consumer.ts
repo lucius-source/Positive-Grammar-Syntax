@@ -4,6 +4,7 @@ import {
   analyseTextDocument,
   compare,
   explain,
+  score,
   suggest,
   suggestEmail,
   suggestTextDocument,
@@ -11,6 +12,7 @@ import {
   approveSuggestionApplication,
   applyApprovedEmailSuggestion,
   type AnalyseOperationResult,
+  type ScoreOperationResult,
   type FidelityComparison,
   type EmailAnalysisResult,
   type TextDocumentAnalysisResult,
@@ -21,6 +23,7 @@ import {
 
 const context: SemanticContext = { knownFacts: ['I sent the document'] };
 const analysis: AnalyseOperationResult = analyse('I sent the document yesterday.');
+const readiness: ScoreOperationResult = score('I sent the document yesterday.');
 const comparison: FidelityComparison = compare('Send the report.', 'Send the report by 2026-10-01.', { context });
 const explanation = explain('Maybe it will work.');
 const deterministicSuggestion = suggest('I sent the document yesterday.');
@@ -32,4 +35,4 @@ const proposal = prepareTextChange({ kind: 'body' as const }, 'Maybe it will wor
 const approved = approveSuggestionApplication(proposal, { proposalId: proposal.proposalId, approved: true });
 const updatedEmail = applyApprovedEmailSuggestion({ body: proposal.source }, approved);
 
-void [analysis, comparison, explanation, deterministicSuggestion, emailAnalysis, documentAnalysis, emailSuggestion, documentSuggestion, updatedEmail];
+void [analysis, readiness, comparison, explanation, deterministicSuggestion, emailAnalysis, documentAnalysis, emailSuggestion, documentSuggestion, updatedEmail];

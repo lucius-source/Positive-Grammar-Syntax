@@ -1,8 +1,9 @@
 # PGS Engine API and Package Boundary
 
-The private package boundary exports four primary operations, four channel-adapter operations, and the local Ollama adapter from the package root:
+The private package boundary exports five primary operations, four channel-adapter operations, and the local Ollama adapter from the package root:
 
 - `analyse(source)` performs deterministic document/PIR analysis, rule detection and validation without calling a model.
+- `score(source)` returns a deterministic 0–100 analysis-readiness score with every deduction exposed. It does not score truth, writing quality, morality or the speaker.
 - `suggest(source, options)` runs the verified recommendation pipeline. When semantic review is required, `options.engine` must be an explicitly supplied local semantic engine.
 - `compare(source, candidate, options)` applies deterministic fidelity invariants to a proposed transformation.
 - `explain(source)` returns deterministic rule, ambiguity and protected-content explanations without inventing resolution.
@@ -23,12 +24,14 @@ import {
   analyseTextDocument,
   compare,
   explain,
+  score,
   suggest,
   suggestEmail,
   suggestTextDocument,
 } from 'positive-grammar-syntax';
 
 const analysis = analyse('Maybe it will work.');
+const readiness = score('Maybe it will work.');
 const explanation = explain('Maybe it will work.');
 
 const suggestion = await suggest('They deliberately ignored my email.', {
@@ -58,7 +61,9 @@ const documentSuggestion = await suggestTextDocument(
 ## Safety contract
 
 - Empty source or candidate values are rejected.
-- `analyse`, `compare`, `explain`, `analyseEmail` and `analyseTextDocument` are deterministic and do not call a model.
+- `analyse`, `score`, `compare`, `explain`, `analyseEmail` and `analyseTextDocument` are deterministic and do not call a model.
+- A score is provisional whenever review is required or analysis is invalid. Protected content is reported but never penalised.
+- Score deductions are bounded, machine-readable and traceable to validation errors, unresolved fields, rule findings or candidate relations.
 - Email thread and attachment content is preserved but never silently merged into subject or body analysis context.
 - Quoted Markdown and fenced code are protected from analysis; attachment references remain unresolved when their target is ambiguous.
 - `suggest`, `suggestEmail` and `suggestTextDocument` do not silently continue through unresolved semantic review without an engine.
@@ -75,6 +80,6 @@ npm run build
 npm run verify:package
 ```
 
-The build emits ESM JavaScript, source maps, declarations and declaration maps into `dist`. A narrow `src/public.ts` entrypoint controls the package's runtime surface. Package verification imports the emitted JavaScript through Node, type-checks a consumer importing by package name, and confirms that only `analyse`, `suggest`, `compare`, `explain`, `analyseEmail`, `analyseTextDocument`, `suggestEmail`, `suggestTextDocument`, and `OllamaSemanticEngine` are runtime exports.
+The build emits ESM JavaScript, source maps, declarations and declaration maps into `dist`. A narrow `src/public.ts` entrypoint controls the package's runtime surface. Package verification imports the emitted JavaScript through Node, type-checks a consumer importing by package name, and confirms the exact supported runtime export list, including `analyse`, `score`, `suggest`, `compare`, `explain`, the email/document adapters, approval/application operations and `OllamaSemanticEngine`.
 
 The repository remains private and the package is not published. The compiled boundary is an internal integration artifact for application development. See `docs/13-email-document-adapters.md` for the adapter contract.

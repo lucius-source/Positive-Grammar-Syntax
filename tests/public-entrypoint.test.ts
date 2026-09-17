@@ -6,13 +6,15 @@ describe('public package entrypoint', () => {
     expect(Object.keys(publicApi).sort()).toEqual([
       'OllamaSemanticEngine', 'analyse', 'analyseEmail', 'analyseTextDocument', 'applyApprovedEmailSuggestion',
       'applyApprovedTextDocumentSuggestion', 'approveSuggestionApplication', 'compare', 'explain',
-      'prepareSuggestionApplication', 'prepareTextChange', 'suggest', 'suggestEmail', 'suggestTextDocument',
+      'prepareSuggestionApplication', 'prepareTextChange', 'score', 'suggest', 'suggestEmail',
+      'suggestTextDocument',
     ]);
   });
 
   it('runs deterministic operations through the narrow entrypoint', () => {
     expect(publicApi.analyse('I sent the document yesterday.').validation.valid).toBe(true);
     expect(publicApi.compare('Send the report.', 'Send the report by 2026-10-01.').status).toBe('blocked');
+    expect(publicApi.score('I sent the document yesterday.').score).toBe(100);
     expect(publicApi.analyseEmail({ subject: 'Status' }).operation).toBe('analyse-email');
     expect(publicApi.analyseTextDocument({ format: 'plain_text', text: 'I sent it.' }).operation).toBe('analyse-document');
   });

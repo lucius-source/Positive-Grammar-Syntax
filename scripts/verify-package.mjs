@@ -14,6 +14,7 @@ const expectedExports = [
   'explain',
   'prepareSuggestionApplication',
   'prepareTextChange',
+  'score',
   'suggest',
   'suggestEmail',
   'suggestTextDocument',
@@ -27,6 +28,7 @@ const analysis = publicModule.analyse('I sent the document yesterday.');
 if (!analysis.validation.valid || analysis.operation !== 'analyse') throw new Error('Built analyse operation failed verification.');
 const comparison = publicModule.compare('Send the report.', 'Send the report by 2026-10-01.');
 if (comparison.status !== 'blocked') throw new Error('Built compare operation failed verification.');
+if (publicModule.score('I sent the document yesterday.').score !== 100) throw new Error('Built score operation failed verification.');
 if (publicModule.analyseEmail({ subject: 'Status' }).operation !== 'analyse-email') throw new Error('Built email adapter failed verification.');
 if (publicModule.analyseTextDocument({ format: 'plain_text', text: 'I sent it.' }).operation !== 'analyse-document') throw new Error('Built document adapter failed verification.');
 if ((await publicModule.suggestEmail({ body: 'I sent the report yesterday.' }, { targets: [{ kind: 'body' }] })).operation !== 'suggest-email') throw new Error('Built email suggestion adapter failed verification.');

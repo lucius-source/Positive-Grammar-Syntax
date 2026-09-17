@@ -1,4 +1,4 @@
-export { analyse, compare, explain, suggest } from './api';
+export { analyse, compare, explain, score, suggest } from './api';
 export { analyseEmail, analyseTextDocument, suggestEmail, suggestTextDocument } from './adapters';
 export { applyApprovedEmailSuggestion, applyApprovedTextDocumentSuggestion, approveSuggestionApplication, prepareSuggestionApplication, prepareTextChange } from './adapters';
 export type {
@@ -32,6 +32,8 @@ export type {
   AnalyseOperationResult,
   CompareOptions,
   ExplainOperationResult,
+  ScoreDeduction,
+  ScoreOperationResult,
   SuggestOptions,
 } from './api';
 export { OllamaSemanticEngine } from './semantic/adapters/ollama';
