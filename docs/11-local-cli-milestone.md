@@ -61,6 +61,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Hosted CI verification for source, tests, package boundary and deterministic fidelity artifacts.
 - Manual, main-only live evaluation workflow for an explicitly labelled self-hosted Ollama runner.
 - Machine-readable private-package release contract with explicit compatibility, deterministic-candidate and required local-model gates.
+- Framework-neutral review preparation and explicit approve/reject decisions with deterministic diff data, fidelity findings and reject-by-default controls.
 
 ## Fidelity behavior
 
@@ -85,7 +86,7 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 187/187 tests passed across 21 files
+- `npm test`: 196/196 tests passed across 22 files
 - `npm run build` and `npm run verify:package`: pass
 - `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
@@ -105,7 +106,7 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
 - The executable evaluation corpus covers all 50 canonical cases plus 19 adversarial mutations, 24 deterministic property-style mutations and a reproducible 350-case seeded fuzz gate. The generator remains bounded by the comparator's current controlled vocabulary.
-- The email and text-document adapters can prepare and apply explicitly approved text replacements, but visual diff presentation, persistent approval records, DOCX/PDF ingestion and a user interface remain future work.
+- The email and text-document adapters expose a review-ready diff and decision contract, but a rendered visual component, persistent approval records, DOCX/PDF ingestion and a complete user interface remain future work.
 - The compiled engine package remains private and unpublished.
 
 ## Recommended next milestone
@@ -113,7 +114,7 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 Extend the verified engine boundary and deterministic alignment without broadening unsafe rewrites. The next work should prioritize:
 
 1. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
-2. Build a review interface over the explicit proposal and approval contract without weakening it.
+2. Build an accessible visual component over the framework-neutral review contract without weakening it.
 3. Add persistent, authenticated approval records at the application layer without treating them as linguistic evidence.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.

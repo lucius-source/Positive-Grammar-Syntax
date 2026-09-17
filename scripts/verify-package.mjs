@@ -19,6 +19,10 @@ if (publicModule.analyseTextDocument({ format: 'plain_text', text: 'I sent it.' 
 if ((await publicModule.suggestEmail({ body: 'I sent the report yesterday.' }, { targets: [{ kind: 'body' }] })).operation !== 'suggest-email') throw new Error('Built email suggestion adapter failed verification.');
 if ((await publicModule.suggestTextDocument({ format: 'plain_text', text: 'I sent the report yesterday.' }, { sectionIds: ['S1'] })).operation !== 'suggest-document') throw new Error('Built document suggestion adapter failed verification.');
 const proposal = publicModule.prepareTextChange({ kind: 'body' }, 'Maybe it will work.', 'I am uncertain whether it will work.', 'PGS-L1');
+const review = publicModule.prepareSuggestionReview(proposal);
+if (review.controls.defaultDecision !== 'reject' || !review.controls.approveEnabled) throw new Error('Built review interface contract failed verification.');
+const reviewed = publicModule.decideSuggestionReview(proposal, { proposalId: proposal.proposalId, decision: 'approve', reviewedBy: 'package-verifier' });
+if (reviewed.decision !== 'approved' || reviewed.application.approvedBy !== 'package-verifier') throw new Error('Built review decision contract failed verification.');
 const approved = publicModule.approveSuggestionApplication(proposal, { proposalId: proposal.proposalId, approved: true });
 if (publicModule.applyApprovedEmailSuggestion({ body: proposal.source }, approved).body !== proposal.candidate) throw new Error('Built approval boundary failed verification.');
 

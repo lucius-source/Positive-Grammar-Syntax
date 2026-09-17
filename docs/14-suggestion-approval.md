@@ -42,3 +42,5 @@ The identifier prevents a decision for one proposal from being accidentally reus
 ## Intended interface flow
 
 A user interface should display the proposal's source, candidate, replacement span and fidelity findings before enabling approval. It should retain rejection as the default, capture an authenticated approver separately, and call application only with the exact approved proposal. It must surface stale-source refusal as a request to generate and review a new proposal rather than silently rebasing the old change.
+
+The framework-neutral portion of this flow is implemented by `prepareSuggestionReview` and `decideSuggestionReview`. See `docs/16-review-interface.md` for the view model, decision outcome and remaining visual/authentication boundary.

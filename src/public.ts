@@ -1,6 +1,6 @@
 export { analyse, compare, explain, score, suggest } from './api';
 export { analyseEmail, analyseTextDocument, suggestEmail, suggestTextDocument } from './adapters';
-export { applyApprovedEmailSuggestion, applyApprovedTextDocumentSuggestion, approveSuggestionApplication, prepareSuggestionApplication, prepareTextChange } from './adapters';
+export { applyApprovedEmailSuggestion, applyApprovedTextDocumentSuggestion, approveSuggestionApplication, decideSuggestionReview, prepareSuggestionApplication, prepareSuggestionReview, prepareTextChange } from './adapters';
 export type {
   DocumentSection,
   DocumentSectionKind,
@@ -27,6 +27,14 @@ export type {
   SuggestionApplicationProposal,
   SuggestionApprovalDecision,
   TextReplacement,
+  ApprovedSuggestionReview,
+  RejectedSuggestionReview,
+  SuggestionReview,
+  SuggestionReviewControls,
+  SuggestionReviewDecision,
+  SuggestionReviewDiff,
+  SuggestionReviewOutcome,
+  SuggestionReviewStatus,
 } from './adapters';
 export type {
   AnalyseOperationResult,

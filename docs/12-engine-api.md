@@ -1,6 +1,6 @@
 # PGS Engine API and Package Boundary
 
-The private package boundary exports five primary operations, four channel-adapter operations, and the local Ollama adapter from the package root:
+The private package boundary exports five primary operations, four channel-adapter operations, two review operations, and the local Ollama adapter from the package root:
 
 - `analyse(source)` performs deterministic document/PIR analysis, rule detection and validation without calling a model.
 - `score(source)` returns a deterministic 0–100 analysis-readiness score with every deduction exposed. It does not score truth, writing quality, morality or the speaker.
@@ -11,6 +11,8 @@ The private package boundary exports five primary operations, four channel-adapt
 - `analyseTextDocument(input)` preserves and analyses supplied plain text or Markdown with source-aligned protected sections.
 - `suggestEmail(input, options)` runs suggestions only for explicitly selected email fields or attachment sections.
 - `suggestTextDocument(input, options)` runs suggestions only for explicitly selected, non-protected document sections.
+- `prepareSuggestionReview(proposal)` creates an integrity-checked review view with deterministic diff and fidelity findings.
+- `decideSuggestionReview(proposal, decision)` records an explicit approval or rejection and yields an application only after revalidation.
 
 The earlier rule-only operation remains available as `analyseRules(source)`.
 
@@ -23,8 +25,11 @@ import {
   analyseEmail,
   analyseTextDocument,
   compare,
+  decideSuggestionReview,
   explain,
   score,
+  prepareTextChange,
+  prepareSuggestionReview,
   suggest,
   suggestEmail,
   suggestTextDocument,
@@ -56,6 +61,18 @@ const documentSuggestion = await suggestTextDocument(
   { format: 'markdown', text: '# Status\nI sent the report yesterday.\n' },
   { sectionIds: ['S2'] },
 );
+const proposal = prepareTextChange(
+  { kind: 'body' },
+  'Maybe it will work.',
+  'I am uncertain whether it will work.',
+  'PGS-L1',
+);
+const review = prepareSuggestionReview(proposal);
+const outcome = decideSuggestionReview(proposal, {
+  proposalId: review.proposalId,
+  decision: 'reject',
+  reviewedBy: 'authenticated-reviewer-id',
+});
 ```
 
 ## Safety contract
@@ -72,6 +89,8 @@ const documentSuggestion = await suggestTextDocument(
 - Supplied semantic engines must report `providerKind: 'local'`; cloud engines are rejected even when deterministic review would otherwise be sufficient.
 - Model output remains untrusted and is validated through the existing PGS-PIR, resolution-ledger and fidelity pipeline.
 - User context remains explicitly typed and provenance-bearing; it is not merged into the source.
+- Review preparation rebuilds proposal integrity and always defaults to rejection; approval remains disabled for blocked fidelity results.
+- Review decisions require a caller-supplied reviewer identity, but authentication and durable audit storage remain application responsibilities.
 
 ## Build and verification
 

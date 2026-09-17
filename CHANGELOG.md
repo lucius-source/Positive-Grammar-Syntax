@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 — in development
+
+- Adds framework-neutral review preparation with source/candidate diff data, fidelity findings and reject-by-default control state.
+- Adds explicit approve/reject review decisions requiring a reviewer identity.
+- Revalidates proposal integrity and fidelity before approval; rejection never produces an application.
+- Leaves authentication, durable audit storage and visual rendering to the integrating application.
+
 ## 0.2.0 — release candidate
 
 This internal candidate intentionally changes deterministic analysis and fidelity behavior:

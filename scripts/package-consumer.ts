@@ -3,12 +3,14 @@ import {
   analyseEmail,
   analyseTextDocument,
   compare,
+  decideSuggestionReview,
   explain,
   score,
   suggest,
   suggestEmail,
   suggestTextDocument,
   prepareTextChange,
+  prepareSuggestionReview,
   approveSuggestionApplication,
   applyApprovedEmailSuggestion,
   type AnalyseOperationResult,
@@ -19,6 +21,8 @@ import {
   type EmailSuggestionResult,
   type TextDocumentSuggestionResult,
   type SemanticContext,
+  type SuggestionReview,
+  type SuggestionReviewOutcome,
 } from 'positive-grammar-syntax';
 
 const context: SemanticContext = { knownFacts: ['I sent the document'] };
@@ -32,7 +36,13 @@ const documentAnalysis: TextDocumentAnalysisResult = analyseTextDocument({ forma
 const emailSuggestion: Promise<EmailSuggestionResult> = suggestEmail({ body: 'I sent the report yesterday.' }, { targets: [{ kind: 'body' }] });
 const documentSuggestion: Promise<TextDocumentSuggestionResult> = suggestTextDocument({ format: 'plain_text', text: 'I sent the report yesterday.' }, { sectionIds: ['S1'] });
 const proposal = prepareTextChange({ kind: 'body' as const }, 'Maybe it will work.', 'I am uncertain whether it will work.', 'PGS-L1');
+const review: SuggestionReview<{ kind: 'body' }> = prepareSuggestionReview(proposal);
+const reviewOutcome: SuggestionReviewOutcome<{ kind: 'body' }> = decideSuggestionReview(proposal, {
+  proposalId: proposal.proposalId,
+  decision: 'reject',
+  reviewedBy: 'package-consumer',
+});
 const approved = approveSuggestionApplication(proposal, { proposalId: proposal.proposalId, approved: true });
 const updatedEmail = applyApprovedEmailSuggestion({ body: proposal.source }, approved);
 
-void [analysis, readiness, comparison, explanation, deterministicSuggestion, emailAnalysis, documentAnalysis, emailSuggestion, documentSuggestion, updatedEmail];
+void [analysis, readiness, comparison, explanation, deterministicSuggestion, emailAnalysis, documentAnalysis, emailSuggestion, documentSuggestion, review, reviewOutcome, updatedEmail];

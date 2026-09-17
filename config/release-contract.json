@@ -1,5 +1,5 @@
 {
-  "packageVersion": "0.2.0",
+  "packageVersion": "0.3.0",
   "visibility": "private",
   "jsonSchemaVersion": "pgs.output.v1",
   "runtimeExports": [
@@ -11,8 +11,10 @@
     "applyApprovedTextDocumentSuggestion",
     "approveSuggestionApplication",
     "compare",
+    "decideSuggestionReview",
     "explain",
     "prepareSuggestionApplication",
+    "prepareSuggestionReview",
     "prepareTextChange",
     "score",
     "suggest",
