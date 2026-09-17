@@ -2,6 +2,7 @@ export * from './analyser/document';
 export * from './core';
 export * from './pipeline';
 export * from './evaluation/local';
+export * from './evaluation/adversarial';
 export * from './render/recommendations';
 export * from './resolution/ledger';
 export * from './output/json';

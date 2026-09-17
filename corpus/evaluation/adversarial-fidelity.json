@@ -1,0 +1,165 @@
+{
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ADV-001",
+      "category": "removed-negation",
+      "source": "Do not energise the circuit.",
+      "candidate": "Energise the circuit.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_NEGATION_REMOVED"]
+    },
+    {
+      "id": "ADV-002",
+      "category": "invented-negation",
+      "source": "Submit the form.",
+      "candidate": "Do not submit the form.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_NEGATION_INVENTED"]
+    },
+    {
+      "id": "ADV-003",
+      "category": "removed-condition",
+      "source": "If payment is received, delivery proceeds.",
+      "candidate": "Delivery proceeds.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_CONDITION_REMOVED"]
+    },
+    {
+      "id": "ADV-004",
+      "category": "invented-condition",
+      "source": "Payment is received. Delivery proceeds.",
+      "candidate": "Delivery proceeds only if payment is received.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_CONDITION_INVENTED"]
+    },
+    {
+      "id": "ADV-005",
+      "category": "changed-quantity",
+      "source": "Take two tablets.",
+      "candidate": "Take three tablets.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_QUANTITY_REMOVED", "FIDELITY_QUANTITY_INVENTED"]
+    },
+    {
+      "id": "ADV-006",
+      "category": "invented-date",
+      "source": "Send the report.",
+      "candidate": "Send the report by 2026-10-01.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_TIME_INVENTED"]
+    },
+    {
+      "id": "ADV-007",
+      "category": "invented-actor",
+      "source": "The actor is unknown.",
+      "candidate": "The supplier sent it.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_ACTOR_INVENTED"]
+    },
+    {
+      "id": "ADV-008",
+      "category": "invented-action",
+      "source": "The claimant reviewed the notice.",
+      "candidate": "The claimant sent the notice.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_ACTION_INVENTED"]
+    },
+    {
+      "id": "ADV-009",
+      "category": "certainty-upgrade",
+      "source": "I may send it Friday.",
+      "candidate": "I will send it Friday.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_CERTAINTY_UPGRADED", "FIDELITY_MODALITY_CHANGED"]
+    },
+    {
+      "id": "ADV-010",
+      "category": "invented-evidence",
+      "source": "The claimant sent the notice.",
+      "candidate": "Records show the claimant sent the notice.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_EVIDENCE_INVENTED"]
+    },
+    {
+      "id": "ADV-011",
+      "category": "invented-motive",
+      "source": "They ignored my email.",
+      "candidate": "They deliberately ignored my email.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_MOTIVE_INVENTED"]
+    },
+    {
+      "id": "ADV-012",
+      "category": "changed-modality",
+      "source": "The supplier must not disclose confidential information.",
+      "candidate": "The supplier should not disclose confidential information.",
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_MODALITY_CHANGED"]
+    },
+    {
+      "id": "ADV-013",
+      "category": "removed-protected-term",
+      "source": "The product remains covered.",
+      "candidate": "The item remains covered.",
+      "context": { "protectedTerms": ["product"] },
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_PROTECTED_TERM_REMOVED"]
+    },
+    {
+      "id": "ADV-014",
+      "category": "insufficient-motive-evidence",
+      "source": "They ignored my email.",
+      "candidate": "They deliberately ignored my email.",
+      "context": {
+        "evidence": [{ "field": "motive", "kind": "belief", "statement": "I believe they deliberately ignored it." }]
+      },
+      "expectedStatus": "blocked",
+      "expectedCodes": ["FIDELITY_MOTIVE_INVENTED"]
+    },
+    {
+      "id": "ADV-015",
+      "category": "sufficient-motive-evidence",
+      "source": "They ignored my email.",
+      "candidate": "They deliberately ignored my email.",
+      "context": {
+        "evidence": [{ "field": "motive", "kind": "attributed_admission", "statement": "They confirmed they deliberately ignored my email." }]
+      },
+      "expectedStatus": "pass",
+      "forbiddenCodes": ["FIDELITY_MOTIVE_INVENTED"]
+    },
+    {
+      "id": "ADV-016",
+      "category": "verified-conditional-reframe",
+      "source": "If payment isn't received by Friday, delivery won't proceed.",
+      "candidate": "Delivery proceeds only if payment is received by Friday.",
+      "expectedStatus": "review_required",
+      "expectedCodes": ["FIDELITY_CONDITION_EQUIVALENT"],
+      "forbiddenCodes": ["FIDELITY_NEGATION_REMOVED", "FIDELITY_CONDITION_INVENTED"]
+    },
+    {
+      "id": "ADV-017",
+      "category": "verified-capability-reframe",
+      "source": "I can't do this yet.",
+      "candidate": "I do not currently have the capability to complete this.",
+      "expectedStatus": "pass",
+      "forbiddenCodes": ["FIDELITY_MODALITY_CHANGED", "FIDELITY_NEGATION_REMOVED"]
+    },
+    {
+      "id": "ADV-018",
+      "category": "verified-unknown-actor-reframe",
+      "source": "Mistakes were made.",
+      "candidate": "The actor responsible for the errors is not identified.",
+      "expectedStatus": "review_required",
+      "forbiddenCodes": ["FIDELITY_NEGATION_INVENTED"]
+    },
+    {
+      "id": "ADV-019",
+      "category": "verified-risk-reframe",
+      "source": "It seems this could fail.",
+      "candidate": "I assess a risk of failure.",
+      "expectedStatus": "review_required",
+      "forbiddenCodes": ["FIDELITY_MODALITY_CHANGED", "FIDELITY_CERTAINTY_UPGRADED"]
+    }
+  ]
+}

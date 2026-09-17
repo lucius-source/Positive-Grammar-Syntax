@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI foundation/core-engine slice is implemented and verified. The current checkpoint passes 100 automated tests and all 50 canonical cases in the live local-model evaluation gate. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, limitations and the next milestone.
+The local CLI foundation/core-engine slice is implemented and verified. The current checkpoint passes 103 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, limitations and the next milestone.
 
 ## Local CLI
 
@@ -69,6 +69,7 @@ Add `--json` for a versioned `pgs.output.v1` machine-readable envelope:
 ```bash
 npm run --silent pgs -- "Maybe it will work." --json
 npm run --silent eval:local -- --json
+npm run --silent eval:fidelity -- --json
 ```
 
 Evaluation progress remains on stderr so redirected stdout contains valid JSON only.
@@ -89,7 +90,7 @@ Use `--bind "reference=entity"` for an explicit referential resolution and `--ev
 
 For example, binding `they=Acme support team` resolves only the reference. Motive remains unresolved unless separate motive evidence is supplied.
 
-Each recommendation also passes through a deterministic source-to-candidate comparator. It blocks removed negation or conditions, changed or invented quantities and times, upgraded certainty, and actors or actions absent from the source and verified context.
+Each recommendation also passes through a deterministic source-to-candidate comparator. It blocks removed or invented negation and conditions, changed modality, invented motive or evidence, removed protected terms, changed or invented quantities and times, upgraded certainty, and actors or actions absent from the source and verified context.
 
 The comparator also analyses the candidate as PIR. Omitted source actions or known actors produce `review_required` findings rather than assumed equivalence; hard invariant violations remain blocked.
 
@@ -103,10 +104,11 @@ Conservative PGS-L1 rendering currently covers explicit non-consent, stated unce
 
 The deterministic proposition seed records recoverable PIR fields—including actor, action or relation, object or target, reported observation, intention, requested action, time, conditions, and quantities—while representing unresolved actors as `null`. Selected recommendations render from those fields, allowing equivalent paraphrases to follow the same rule-traced path.
 
-Run the executable local fidelity corpus with:
+Run the live canonical corpus and deterministic adversarial fidelity corpus with:
 
 ```bash
 npm run eval:local
+npm run eval:fidelity
 ```
 
-This gate exercises ambiguity, motive attribution, safety and medical negation, vague timing, unsupported certainty, operative refusal, quantities, and a positive control against the configured local Ollama model.
+The live gate exercises all 50 canonical cases against the configured local Ollama model. The adversarial gate runs without a model and verifies blocked mutations plus narrowly established equivalence controls.

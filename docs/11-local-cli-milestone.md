@@ -44,16 +44,21 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Executable local evaluation corpus with per-case progress and selectable case IDs.
 - Stable, versioned `pgs.output.v1` JSON envelopes for analysis and evaluation commands.
 - Canonical identifiers in executable evaluation results for traceability to the specification corpus.
+- Executable adversarial fidelity corpus with versioned JSON output and selectable mutation IDs.
 
 ## Fidelity behavior
 
 The current fidelity layer blocks:
 
 - removed material negation;
-- removed conditions;
+- invented material negation;
+- removed or invented conditions;
 - omitted, changed or invented quantities and temporal content;
 - certainty upgrades;
-- unauthorized actor or action introduction.
+- unauthorized actor or action introduction;
+- invented motive or evidential basis;
+- changed source modality;
+- removed user-protected terms.
 
 It marks omitted known actors or source actions as `review_required`. A verified `if` to `only if` contraposition also remains `review_required`, even when the deterministic structure establishes the supported equivalence pattern.
 
@@ -64,8 +69,9 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 100/100 tests passed across 13 files
-- `npm run eval:local`: 50/50 live canonical cases passed
+- `npm test`: 103/103 tests passed across 14 files
+- `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
+- Live canonical regression: 47 unaffected cases passed in the strengthened full run; the 3 affected equivalence cases then passed 3/3 after narrow fixes
 
 The local corpus covers all 50 canonical cases, including ambiguity, motive attribution, protected legal/medical/safety negation, timing, certainty, consent/refusal, quantities, verified context, evidence sufficiency, conditionals, tense, pronouns, figurative language, speech acts, modality, spiritual experience and assertions, claimed legal effects, formal/null syntax, lexical restraint, double negatives, requirements, evidential claims and complete positive controls.
 
@@ -78,17 +84,17 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 - Evidence sufficiency records type and provenance but does not authenticate external evidence.
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
-- The executable evaluation corpus now covers all 50 canonical cases; broader counterexample and adversarial coverage remains incomplete.
+- The executable evaluation corpus covers all 50 canonical cases plus 19 initial adversarial mutations; broader mutation and fuzz coverage remains incomplete.
 - There is no published package API, email adapter, document adapter or user interface yet.
 
 ## Recommended next milestone
 
-Expand the executable evaluation gate toward the full canonical corpus before broadening free-form rendering. The next work should prioritize:
+Build a stable public engine boundary on top of the verified CLI and evaluation foundation. The next work should prioritize:
 
-1. Add adversarial counterexamples and mutation tests around the 50-case canonical baseline.
-2. More complete deterministic PIR extraction and proposition alignment.
-3. Persist repeatable JSON evaluation artifacts in CI or a release workflow.
-4. Public `analyse`, `suggest`, `compare` and `explain` operations built on the verified pipeline.
+1. Public `analyse`, `suggest`, `compare` and `explain` operations built on the verified pipeline.
+2. Persist repeatable JSON evaluation artifacts in CI or a release workflow.
+3. More complete deterministic PIR extraction and proposition alignment.
+4. Expand adversarial mutations and add property-based fuzz coverage.
 5. Package-boundary and adapter design for email and general-document integrations.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.

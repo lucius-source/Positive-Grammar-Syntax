@@ -1,4 +1,5 @@
 import type { EvaluationSummary } from '../evaluation/local';
+import type { FidelityMutationSummary } from '../evaluation/adversarial';
 import type { PipelineResult } from '../pipeline';
 import type { SemanticProviderKind } from '../semantic/types';
 
@@ -23,6 +24,12 @@ export interface EvaluationOutputEnvelope {
   summary: EvaluationSummary;
 }
 
+export interface FidelityEvaluationOutputEnvelope {
+  schemaVersion: typeof PGS_JSON_SCHEMA_VERSION;
+  kind: 'fidelity-evaluation';
+  summary: FidelityMutationSummary;
+}
+
 export function analysisOutput(result: PipelineResult, engine: OutputEngine): AnalysisOutputEnvelope {
   return { schemaVersion: PGS_JSON_SCHEMA_VERSION, kind: 'analysis', engine, result };
 }
@@ -31,6 +38,10 @@ export function evaluationOutput(summary: EvaluationSummary, engine: OutputEngin
   return { schemaVersion: PGS_JSON_SCHEMA_VERSION, kind: 'evaluation', engine, summary };
 }
 
-export function formatJsonOutput(value: AnalysisOutputEnvelope | EvaluationOutputEnvelope): string {
+export function fidelityEvaluationOutput(summary: FidelityMutationSummary): FidelityEvaluationOutputEnvelope {
+  return { schemaVersion: PGS_JSON_SCHEMA_VERSION, kind: 'fidelity-evaluation', summary };
+}
+
+export function formatJsonOutput(value: AnalysisOutputEnvelope | EvaluationOutputEnvelope | FidelityEvaluationOutputEnvelope): string {
   return JSON.stringify(value, null, 2);
 }
