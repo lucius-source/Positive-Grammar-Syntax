@@ -1,24 +1,9 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const publicModule = await import('../dist/public.js');
-const expectedExports = [
-  'OllamaSemanticEngine',
-  'analyse',
-  'analyseEmail',
-  'analyseTextDocument',
-  'applyApprovedEmailSuggestion',
-  'applyApprovedTextDocumentSuggestion',
-  'approveSuggestionApplication',
-  'compare',
-  'explain',
-  'prepareSuggestionApplication',
-  'prepareTextChange',
-  'score',
-  'suggest',
-  'suggestEmail',
-  'suggestTextDocument',
-];
+const releaseContract = JSON.parse(readFileSync(new URL('../config/release-contract.json', import.meta.url), 'utf8'));
+const expectedExports = [...releaseContract.runtimeExports].sort();
 const actualExports = Object.keys(publicModule).sort();
 if (JSON.stringify(actualExports) !== JSON.stringify(expectedExports)) {
   throw new Error(`Unexpected public exports: ${actualExports.join(', ')}`);

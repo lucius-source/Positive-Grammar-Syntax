@@ -28,6 +28,7 @@
     "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json && node scripts/finalize-esm-build.mjs",
     "verify:package": "tsc -p tsconfig.package-consumer.json && node scripts/verify-package.mjs",
     "artifacts:ci": "node scripts/write-ci-artifacts.mjs",
+    "release:check": "npm run check && npm run artifacts:ci && node scripts/verify-release-candidate.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,0 +1,33 @@
+{
+  "packageVersion": "0.1.0",
+  "visibility": "private",
+  "jsonSchemaVersion": "pgs.output.v1",
+  "runtimeExports": [
+    "OllamaSemanticEngine",
+    "analyse",
+    "analyseEmail",
+    "analyseTextDocument",
+    "applyApprovedEmailSuggestion",
+    "applyApprovedTextDocumentSuggestion",
+    "approveSuggestionApplication",
+    "compare",
+    "explain",
+    "prepareSuggestionApplication",
+    "prepareTextChange",
+    "score",
+    "suggest",
+    "suggestEmail",
+    "suggestTextDocument"
+  ],
+  "evaluationMinimums": {
+    "canonicalLiveCases": 50,
+    "adversarialCases": 19,
+    "seededFuzzCases": 325,
+    "seededFuzzFamilies": 13
+  },
+  "liveGate": {
+    "providerKind": "local",
+    "defaultModel": "qwen3.8:latest",
+    "cloudFallback": false
+  }
+}

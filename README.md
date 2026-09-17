@@ -105,7 +105,7 @@ const approved = approveSuggestionApplication(proposal, {
 const updatedEmail = applyApprovedEmailSuggestion({ body: proposal.source }, approved);
 ```
 
-The former rule-only analysis helper remains available internally as `analyseRules`. Run `npm run build` to emit the private ESM package and TypeScript declarations into `dist`; `npm run check` also verifies the built package through its public export map. The package remains marked private and is not published.
+The former rule-only analysis helper remains available internally as `analyseRules`. Run `npm run build` to emit the private ESM package and TypeScript declarations into `dist`; `npm run check` also verifies the built package through its public export map. The package remains marked private and is not published. `npm run release:check` verifies a deterministic internal release candidate against `config/release-contract.json`; the local-model gate remains a separate mandatory step documented in `docs/15-release-versioning.md`.
 
 ## Local CLI
 

@@ -82,4 +82,4 @@ npm run verify:package
 
 The build emits ESM JavaScript, source maps, declarations and declaration maps into `dist`. A narrow `src/public.ts` entrypoint controls the package's runtime surface. Package verification imports the emitted JavaScript through Node, type-checks a consumer importing by package name, and confirms the exact supported runtime export list, including `analyse`, `score`, `suggest`, `compare`, `explain`, the email/document adapters, approval/application operations and `OllamaSemanticEngine`.
 
-The repository remains private and the package is not published. The compiled boundary is an internal integration artifact for application development. See `docs/13-email-document-adapters.md` for the adapter contract.
+The repository remains private and the package is not published. The compiled boundary is an internal integration artifact for application development. See `docs/13-email-document-adapters.md` for the adapter contract and `docs/15-release-versioning.md` for the release-candidate and compatibility gates.

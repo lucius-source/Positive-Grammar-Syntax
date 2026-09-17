@@ -59,6 +59,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Revalidation at approval and stale-source rejection at application.
 - Hosted CI verification for source, tests, package boundary and deterministic fidelity artifacts.
 - Manual, main-only live evaluation workflow for an explicitly labelled self-hosted Ollama runner.
+- Machine-readable private-package release contract with explicit compatibility, deterministic-candidate and required local-model gates.
 
 ## Fidelity behavior
 
@@ -110,9 +111,8 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 
 Extend the verified engine boundary and deterministic alignment without broadening unsafe rewrites. The next work should prioritize:
 
-1. Define release/versioning criteria for the private package boundary.
-2. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
-3. Build a review interface over the explicit proposal and approval contract without weakening it.
-4. Add persistent, authenticated approval records at the application layer without treating them as linguistic evidence.
+1. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
+2. Build a review interface over the explicit proposal and approval contract without weakening it.
+3. Add persistent, authenticated approval records at the application layer without treating them as linguistic evidence.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.
