@@ -25,6 +25,7 @@
     "eval:fidelity": "node --import tsx src/fidelity-eval-cli.ts",
     "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json && node scripts/finalize-esm-build.mjs",
     "verify:package": "tsc -p tsconfig.package-consumer.json && node scripts/verify-package.mjs",
+    "artifacts:ci": "node scripts/write-ci-artifacts.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

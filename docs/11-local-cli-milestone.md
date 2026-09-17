@@ -1,6 +1,6 @@
 # Local PGS CLI Foundation Milestone
 
-**Checkpoint date:** 2026-09-16
+**Checkpoint date:** 2026-09-17
 
 **Status:** verified local foundation/core-engine slice
 
@@ -47,6 +47,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Executable adversarial fidelity corpus with versioned JSON output and selectable mutation IDs.
 - Source-level `analyse`, `suggest`, `compare` and `explain` engine operations with an explicit local-only semantic boundary.
 - Compiled private ESM package boundary with declarations, declaration maps and a narrow verified export surface.
+- Hosted CI verification for source, tests, package boundary and deterministic fidelity artifacts.
 
 ## Fidelity behavior
 
@@ -73,6 +74,7 @@ At this checkpoint:
 - `npm run typecheck`: pass
 - `npm test`: 113/113 tests passed across 16 files
 - `npm run build` and `npm run verify:package`: pass
+- `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
 - Live canonical regression: 47 unaffected cases passed in the strengthened full run; the 3 affected equivalence cases then passed 3/3 after narrow fixes
 - Live public `suggest` operation: local Ollama response validated; unresolved reference, motive, actor and epistemic status retained; L2 withheld; no blocked fidelity finding
@@ -95,10 +97,10 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 
 Build a stable public engine boundary on top of the verified CLI and evaluation foundation. The next work should prioritize:
 
-1. Persist repeatable JSON evaluation artifacts in CI or a release workflow.
-2. Add automated CI checks for build, package verification and evaluation artifacts.
-3. More complete deterministic PIR extraction and proposition alignment.
-4. Expand adversarial mutations and add property-based fuzz coverage.
-5. Adapter design for email and general-document integrations.
+1. More complete deterministic PIR extraction and proposition alignment.
+2. Expand adversarial mutations and add property-based fuzz coverage.
+3. Adapter design for email and general-document integrations.
+4. Add an explicitly provisioned local-model or self-hosted live evaluation workflow.
+5. Define release/versioning criteria for the private package boundary.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.

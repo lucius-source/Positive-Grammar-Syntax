@@ -129,3 +129,12 @@ npm run eval:fidelity
 ```
 
 The live gate exercises all 50 canonical cases against the configured local Ollama model. The adversarial gate runs without a model and verifies blocked mutations plus narrowly established equivalence controls.
+
+Run the complete source, package and deterministic artifact checks with:
+
+```bash
+npm run check
+npm run artifacts:ci
+```
+
+Hosted CI uploads `artifacts/ci/fidelity-evaluation.json`. The Ollama-dependent live gate remains a separate local verification and never falls back to a cloud provider.

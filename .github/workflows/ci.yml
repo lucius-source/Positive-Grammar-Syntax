@@ -9,9 +9,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: pgs-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,8 +26,15 @@ jobs:
           node-version: 22
           cache: npm
       - name: Install dependencies
-        run: npm install
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Test
-        run: npm test
+        run: npm ci
+      - name: Verify source, tests, build and package boundary
+        run: npm run check
+      - name: Generate deterministic evaluation artifact
+        run: npm run artifacts:ci
+      - name: Upload evaluation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pgs-fidelity-evaluation
+          path: artifacts/ci/fidelity-evaluation.json
+          if-no-files-found: error
+          retention-days: 14
