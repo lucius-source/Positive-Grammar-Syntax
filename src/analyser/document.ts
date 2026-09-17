@@ -28,6 +28,10 @@ function leadingMarker(text: string): string | undefined {
   return text.match(/^\S+/)?.[0];
 }
 
+function hasExplicitClauseActor(text: string): boolean {
+  return /^(?:i|we|you|they|he|she|it|this|that|the\s+\w+)\b/i.test(text) || /^[A-Z][a-z]+\b/.test(text);
+}
+
 function relationWithMarker(
   from: string,
   to: string,
@@ -57,6 +61,7 @@ export function analyseDocument(text: string): DocumentAnalysis {
   for (const sentence of sentences) {
     const conditional = sentence.match(/^\s*(If|Unless)\s+(.+?),\s+(.+)$/i);
     const onlyIf = sentence.match(/^\s*(.+?)\s+only if\s+(.+)$/i);
+    const coordinatedAction = sentence.match(/^\s*(.+?),\s+(so)\s+(.+)$/i);
     const firstId = `P${seeds.length + 1}`;
     const marker = conditional?.[1] ?? (onlyIf ? 'Only if' : undefined);
     const antecedentText = conditional?.[2] ?? onlyIf?.[2];
@@ -76,6 +81,14 @@ export function analyseDocument(text: string): DocumentAnalysis {
       seeds.push(antecedent, consequent);
       relations.push({ from: antecedent.proposition.id, to: consequent.proposition.id, type: 'condition', marker, confidence: 'deterministic' });
       sentenceRanges.push({ first: antecedent.proposition.id, last: consequent.proposition.id });
+    } else if (coordinatedAction?.[1] && coordinatedAction[2] && coordinatedAction[3]
+      && hasExplicitClauseActor(coordinatedAction[3])) {
+      const premise = extractPropositionSeed(coordinatedAction[1].replace(/[.]$/, ''), firstId);
+      const actionId = `P${seeds.length + 2}`;
+      const action = extractPropositionSeed(coordinatedAction[3].replace(/[.]$/, ''), actionId);
+      seeds.push(premise, action);
+      relations.push({ from: premise.proposition.id, to: action.proposition.id, type: 'action', marker: coordinatedAction[2], confidence: 'candidate' });
+      sentenceRanges.push({ first: premise.proposition.id, last: action.proposition.id });
     } else {
       const seed = extractPropositionSeed(sentence, firstId);
       seeds.push(seed);

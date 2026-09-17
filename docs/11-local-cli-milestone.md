@@ -23,6 +23,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 ## Verified capabilities
 
 - Sentence and multi-proposition document analysis.
+- Conservative intra-sentence proposition alignment for explicit comma-`so` action clauses.
 - Deterministic PIR fields for actor, action/relation, object/target, epistemic status, speech act, time, quantities, conditions, ambiguity and protected content.
 - Explicit `null` representation for unresolved actors.
 - Local-only Ollama semantic determination with no cloud fallback.
@@ -72,7 +73,7 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 113/113 tests passed across 16 files
+- `npm test`: 116/116 tests passed across 16 files
 - `npm run build` and `npm run verify:package`: pass
 - `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
@@ -95,9 +96,9 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 
 ## Recommended next milestone
 
-Build a stable public engine boundary on top of the verified CLI and evaluation foundation. The next work should prioritize:
+Extend the verified engine boundary and deterministic alignment without broadening unsafe rewrites. The next work should prioritize:
 
-1. More complete deterministic PIR extraction and proposition alignment.
+1. Extend controlled proposition alignment to well-bounded contrast and causal clauses.
 2. Expand adversarial mutations and add property-based fuzz coverage.
 3. Adapter design for email and general-document integrations.
 4. Add an explicitly provisioned local-model or self-hosted live evaluation workflow.

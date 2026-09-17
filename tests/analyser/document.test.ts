@@ -58,4 +58,17 @@ describe('multi-proposition document analyser', () => {
     expect(result.document.propositions.map(item => item.actionOrRelation)).toEqual(['receive', 'proceed']);
     expect(result.relations[0]).toEqual({ from: 'P1', to: 'P2', type: 'condition', marker: 'Only if', confidence: 'deterministic' });
   });
+
+  it('aligns an explicit comma-so action as two propositions', () => {
+    const source = 'I reviewed the figures. I found a £500 discrepancy. I want the accounts reconciled by Friday, so I will send the transaction list today.';
+    const result = analyseDocument(source);
+    expect(result.document.propositions).toHaveLength(4);
+    expect(result.document.propositions[2]).toMatchObject({ id: 'P3', desiredState: 'the accounts reconciled by Friday', speechAct: 'expression' });
+    expect(result.document.propositions[3]).toMatchObject({ id: 'P4', actionOrRelation: 'send', time: { eventTime: 'today' } });
+    expect(result.relations).toContainEqual({ from: 'P3', to: 'P4', type: 'action', marker: 'so', confidence: 'candidate' });
+  });
+
+  it('does not split a comma-so phrase without an independent right-hand clause', () => {
+    expect(analyseDocument('I reviewed the figures, so carefully that nothing was missed.').document.propositions).toHaveLength(1);
+  });
 });

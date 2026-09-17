@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI and compiled private engine API foundation are implemented and verified. The current checkpoint passes 113 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
+The local CLI and compiled private engine API foundation are implemented and verified. The current checkpoint passes 116 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
 
 ## Engine API
 
@@ -120,6 +120,8 @@ A double-negative `if` condition may render as an affirmative `only if` contrapo
 Conservative PGS-L1 rendering currently covers explicit non-consent, stated uncertainty, unsupported certainty markers, motive attribution, unidentified passive responsibility, absolute relational generalisation, present inability, and unsupported failure prediction. Every changed recommendation reports the governing PGS rule IDs; unrecognised or unsafe constructions preserve the source instead of forcing a rewrite.
 
 The deterministic proposition seed records recoverable PIR fields—including actor, action or relation, object or target, reported observation, intention, requested action, time, conditions, and quantities—while representing unresolved actors as `null`. Selected recommendations render from those fields, allowing equivalent paraphrases to follow the same rule-traced path.
+
+Controlled comma-`so` coordination is aligned as separate desired-state and action propositions only when the right side has an explicit clause actor. Ordinary comma lists and adverbial `so` phrases remain unsplit.
 
 Run the live canonical corpus and deterministic adversarial fidelity corpus with:
 

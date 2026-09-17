@@ -15,6 +15,7 @@ function inferSpeechAct(text: string): PgsProposition['speechAct'] {
   if (/^\s*(?:please\s+)?(?:do not|don't)\b|\b(?:must not|mustn't)\b/i.test(text)) return 'command';
   if (/\b(?:should|shouldn't|should not)\b/i.test(text)) return 'advice';
   if (/\bi promise\b/i.test(text)) return 'promise';
+  if (/^\s*I want\b/i.test(text)) return 'expression';
   if (/\b(?:please|i request|i ask)\b/i.test(text)) return 'request';
   if (/^\s*(?:stop|start|arrive|send|confirm|provide|remain|submit|take)\b/i.test(text)) return 'command';
   return 'assertion';
@@ -25,7 +26,7 @@ function inferEpistemic(text: string): PgsProposition['epistemicStatus'] {
   if (/\b(?:i assume|assuming)\b/i.test(text)) return 'assumed';
   if (/\b(?:maybe|perhaps|possibly|uncertain)\b/i.test(text)) return 'uncertain';
   if (/\b(?:seems?|appears?)\b/i.test(text) || /\bcould\s+fail\b/i.test(text)) return 'uncertain';
-  if (/\b(?:i intend|i plan|i promise|i will)\b/i.test(text)) return 'intended';
+  if (/\b(?:i intend|i plan|i promise|i will|i want)\b/i.test(text)) return 'intended';
   if (/\b(?:allege|alleged|claims?)\b/i.test(text)) return 'alleged';
   if (/\b(?:going to|will)\s+fail\b/i.test(text)) return 'predicted';
   if (/^\s*I\s+(?:reviewed|found|sent|received|observed|saw|heard)\b/i.test(text)) return 'reported';
@@ -111,6 +112,7 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   const modality = inferModality(text, speechAct, epistemicStatus);
   const quantities = text.match(/[£$€]?\d+(?:[.,]\d+)*|\b(?:one|two|three|four|five|six|seven|eight|nine|ten)\b/gi) ?? [];
   const subordinateCondition = text.match(/\bif\s+(.+?)[.!?]?$/i)?.[0]?.replace(/[.!?]+$/, '');
+  const desiredState = text.match(/^\s*I want\s+(.+?)[.!?]?$/i)?.[1]?.replace(/[.!?]+$/, '').trim();
 
   if (parsed.pronounTokens.some((p: string) => ['they', 'them', 'their', 'it', 'this', 'that'].includes(p))) unresolved.push('reference');
   if (actor === null && !unresolved.includes('reference')) unresolved.push('actor');
@@ -138,6 +140,7 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
     ...(extracted.object ? { objectOrTarget: extracted.object } : {}),
     ...(epistemicStatus === 'reported' ? { observation: text } : {}),
     ...(epistemicStatus === 'intended' ? { intention: text } : {}),
+    ...(desiredState ? { desiredState } : {}),
     ...(speechAct === 'request' || speechAct === 'command' ? { requestedAction: text } : {}),
     ...(time ? { time } : {}),
     ...(quantities.length ? { quantities } : {}),

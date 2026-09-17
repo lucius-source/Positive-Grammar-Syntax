@@ -135,4 +135,11 @@ describe('proposition seed extraction', () => {
       actor: 'speaker', actionOrRelation: 'know', unresolved: expect.arrayContaining(['reference', 'evidence']),
     });
   });
+
+  it('extracts an explicit desired state without promoting it to fact', () => {
+    expect(extractPropositionSeed('I want the accounts reconciled by Friday.').proposition).toMatchObject({
+      actor: 'speaker', desiredState: 'the accounts reconciled by Friday', epistemicStatus: 'intended', speechAct: 'expression',
+      time: { deadline: 'friday' },
+    });
+  });
 });
