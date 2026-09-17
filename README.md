@@ -52,14 +52,22 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI and compiled private engine API foundation are implemented and verified. The current checkpoint passes 147 automated tests, including 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
+The local CLI, compiled private engine API, and first email/general-document analysis adapters are implemented and verified. The current checkpoint passes 154 automated tests, including 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, and `docs/13-email-document-adapters.md` for the adapter boundary.
 
 ## Engine API
 
-The package root exports `analyse`, `suggest`, `compare`, `explain`, and the local `OllamaSemanticEngine`. Deterministic operations never call a model; `suggest` requires an explicitly supplied local semantic engine whenever semantic review is necessary.
+The package root exports `analyse`, `suggest`, `compare`, `explain`, `analyseEmail`, `analyseTextDocument`, and the local `OllamaSemanticEngine`. Deterministic operations and analysis adapters never call a model; `suggest` requires an explicitly supplied local semantic engine whenever semantic review is necessary.
 
 ```ts
-import { OllamaSemanticEngine, analyse, compare, explain, suggest } from 'positive-grammar-syntax';
+import {
+  OllamaSemanticEngine,
+  analyse,
+  analyseEmail,
+  analyseTextDocument,
+  compare,
+  explain,
+  suggest,
+} from 'positive-grammar-syntax';
 
 const analysis = analyse('Maybe it will work.');
 const explanation = explain('Maybe it will work.');
@@ -67,6 +75,8 @@ const suggestion = await suggest('They deliberately ignored my email.', {
   engine: new OllamaSemanticEngine(),
 });
 const fidelity = compare('Send the report.', 'Send the report by 2026-10-01.');
+const email = analyseEmail({ subject: 'Status', body: 'I sent the report.' });
+const document = analyseTextDocument({ format: 'markdown', text: '# Status\nI sent the report.\n' });
 ```
 
 The former rule-only analysis helper remains available internally as `analyseRules`. Run `npm run build` to emit the private ESM package and TypeScript declarations into `dist`; `npm run check` also verifies the built package through its public export map. The package remains marked private and is not published.

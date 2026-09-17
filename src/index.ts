@@ -1,4 +1,5 @@
 export * from './analyser/document';
+export * from './adapters';
 export * from './api';
 export * from './core';
 export * from './pipeline';

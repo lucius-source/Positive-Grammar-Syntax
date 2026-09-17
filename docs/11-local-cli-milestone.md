@@ -49,6 +49,9 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Deterministic property-style mutation matrices covering actor, action, date, quantity, motive, evidence and modality preservation.
 - Source-level `analyse`, `suggest`, `compare` and `explain` engine operations with an explicit local-only semantic boundary.
 - Compiled private ESM package boundary with declarations, declaration maps and a narrow verified export surface.
+- Deterministic email analysis adapter preserving subject, body, participants, thread and attachment snapshots without merging contextual text into source analysis.
+- Plain-text and Markdown analysis adapter with exact source offsets and protected quotation and fenced-code sections.
+- Conservative cross-document dependency reporting that leaves ambiguous attachment references unresolved.
 - Hosted CI verification for source, tests, package boundary and deterministic fidelity artifacts.
 
 ## Fidelity behavior
@@ -74,7 +77,7 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 147/147 tests passed across 17 files
+- `npm test`: 154/154 tests passed across 19 files
 - `npm run build` and `npm run verify:package`: pass
 - `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
@@ -93,13 +96,14 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
 - The executable evaluation corpus covers all 50 canonical cases plus 19 adversarial mutations, with 24 additional deterministic property-style mutations; broader generative fuzz coverage remains incomplete.
-- The compiled engine package remains private and unpublished; there is no email adapter, document adapter or user interface yet.
+- The email and text-document adapters are analysis-only; recommendation, transformation, diff presentation, DOCX/PDF ingestion and a user interface remain future work.
+- The compiled engine package remains private and unpublished.
 
 ## Recommended next milestone
 
 Extend the verified engine boundary and deterministic alignment without broadening unsafe rewrites. The next work should prioritize:
 
-1. Adapter design for email and general-document integrations.
+1. Add explicit recommendation and transformation orchestration over selected email/document content while retaining source-to-candidate fidelity comparison.
 2. Add an explicitly provisioned local-model or self-hosted live evaluation workflow.
 3. Expand from deterministic property matrices to seeded generative fuzz coverage.
 4. Define release/versioning criteria for the private package boundary.

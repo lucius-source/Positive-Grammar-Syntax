@@ -1,4 +1,18 @@
 export { analyse, compare, explain, suggest } from './api';
+export { analyseEmail, analyseTextDocument } from './adapters';
+export type {
+  DocumentSection,
+  DocumentSectionKind,
+  EmailAnalysisResult,
+  EmailAttachment,
+  EmailAttachmentAnalysis,
+  EmailDependency,
+  EmailInput,
+  EmailThreadMessage,
+  TextDocumentAnalysisResult,
+  TextDocumentFormat,
+  TextDocumentInput,
+} from './adapters';
 export type {
   AnalyseOperationResult,
   CompareOptions,
