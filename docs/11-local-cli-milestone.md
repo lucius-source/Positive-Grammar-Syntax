@@ -47,6 +47,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Canonical identifiers in executable evaluation results for traceability to the specification corpus.
 - Executable adversarial fidelity corpus with versioned JSON output and selectable mutation IDs.
 - Deterministic property-style mutation matrices covering actor, action, date, quantity, motive, evidence and modality preservation.
+- Reproducible seeded fuzz generation covering 13 fidelity invariant families, with exact source and candidate inputs retained for failure replay.
 - Source-level `analyse`, `score`, `suggest`, `compare` and `explain` engine operations with an explicit local-only semantic boundary.
 - Compiled private ESM package boundary with declarations, declaration maps and a narrow verified export surface.
 - Deterministic email analysis adapter preserving subject, body, participants, thread and attachment snapshots without merging contextual text into source analysis.
@@ -82,10 +83,11 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 171/171 tests passed across 20 files
+- `npm test`: 180/180 tests passed across 21 files
 - `npm run build` and `npm run verify:package`: pass
 - `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
+- `npm run eval:fuzz`: 325/325 seeded generated cases passed across 13 invariant families
 - Live canonical regression: 47 unaffected cases passed in the strengthened full run; the 3 affected equivalence cases then passed 3/3 after narrow fixes
 - Live public `suggest` operation: local Ollama response validated; unresolved reference, motive, actor and epistemic status retained; L2 withheld; no blocked fidelity finding
 
@@ -100,7 +102,7 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 - Evidence sufficiency records type and provenance but does not authenticate external evidence.
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
-- The executable evaluation corpus covers all 50 canonical cases plus 19 adversarial mutations, with 24 additional deterministic property-style mutations; broader generative fuzz coverage remains incomplete.
+- The executable evaluation corpus covers all 50 canonical cases plus 19 adversarial mutations, 24 deterministic property-style mutations and a reproducible 325-case seeded fuzz gate. The generator remains bounded by the comparator's current controlled vocabulary.
 - The email and text-document adapters can prepare and apply explicitly approved text replacements, but visual diff presentation, persistent approval records, DOCX/PDF ingestion and a user interface remain future work.
 - The compiled engine package remains private and unpublished.
 
@@ -108,10 +110,9 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 
 Extend the verified engine boundary and deterministic alignment without broadening unsafe rewrites. The next work should prioritize:
 
-1. Expand from deterministic property matrices to seeded generative fuzz coverage.
-2. Define release/versioning criteria for the private package boundary.
-3. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
-4. Build a review interface over the explicit proposal and approval contract without weakening it.
-5. Add persistent, authenticated approval records at the application layer without treating them as linguistic evidence.
+1. Define release/versioning criteria for the private package boundary.
+2. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
+3. Build a review interface over the explicit proposal and approval contract without weakening it.
+4. Add persistent, authenticated approval records at the application layer without treating them as linguistic evidence.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.

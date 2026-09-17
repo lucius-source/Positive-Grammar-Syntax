@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI, compiled private engine API, deterministic analysis-readiness scoring, and first email/general-document analysis, selected-content suggestion, and explicit approval/application adapters are implemented and verified. The current checkpoint passes 171 automated tests, including 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, `docs/13-email-document-adapters.md` for the adapter boundary, and `docs/14-suggestion-approval.md` for the application boundary.
+The local CLI, compiled private engine API, deterministic analysis-readiness scoring, and first email/general-document analysis, selected-content suggestion, and explicit approval/application adapters are implemented and verified. The current checkpoint passes 180 automated tests, including a 325-case seeded fidelity fuzz gate, 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, `docs/13-email-document-adapters.md` for the adapter boundary, and `docs/14-suggestion-approval.md` for the application boundary.
 
 ## Engine API
 
@@ -123,6 +123,7 @@ Add `--json` for a versioned `pgs.output.v1` machine-readable envelope:
 npm run --silent pgs -- "Maybe it will work." --json
 npm run --silent eval:local -- --json
 npm run --silent eval:fidelity -- --json
+npm run --silent eval:fuzz -- --seed 5261139 --iterations 25 --json
 ```
 
 Evaluation progress remains on stderr so redirected stdout contains valid JSON only.
@@ -164,9 +165,10 @@ Run the live canonical corpus and deterministic adversarial fidelity corpus with
 ```bash
 npm run eval:local
 npm run eval:fidelity
+npm run eval:fuzz
 ```
 
-The live gate exercises all 50 canonical cases against the configured local Ollama model. The adversarial gate runs without a model and verifies blocked mutations plus narrowly established equivalence controls. Automated tests also generate deterministic mutation matrices for actor, action, date, quantity, motive, evidence and modality changes.
+The live gate exercises all 50 canonical cases against the configured local Ollama model. The adversarial gate runs without a model and verifies blocked mutations plus narrowly established equivalence controls. The seeded fuzz gate generates 325 reproducible cases across 13 invariant families; pass `--seed` and `--iterations` to replay or expand a run. Automated tests also retain deterministic mutation matrices for actor, action, date, quantity, motive, evidence and modality changes.
 
 Run the complete source, package and deterministic artifact checks with:
 
@@ -175,6 +177,6 @@ npm run check
 npm run artifacts:ci
 ```
 
-Hosted CI uploads `artifacts/ci/fidelity-evaluation.json`. The Ollama-dependent live gate remains a separate local verification and never falls back to a cloud provider.
+Hosted CI uploads `artifacts/ci/fidelity-evaluation.json` and `artifacts/ci/fidelity-fuzz-evaluation.json`. The Ollama-dependent live gate remains a separate local verification and never falls back to a cloud provider.
 
 A separate manual GitHub Actions workflow can run that live gate on an explicitly provisioned self-hosted runner labelled `pgs-ollama`. It accepts an exact Ollama model name, is restricted to `main`, preflights the loopback Ollama endpoint and uploads the versioned live JSON result. See `docs/13-ci-evaluation-artifacts.md` for the runner and invocation contract.

@@ -1,5 +1,6 @@
 import type { EvaluationSummary } from '../evaluation/local';
 import type { FidelityMutationSummary } from '../evaluation/adversarial';
+import type { FidelityFuzzSummary } from '../evaluation/fuzz';
 import type { PipelineResult } from '../pipeline';
 import type { SemanticProviderKind } from '../semantic/types';
 
@@ -30,6 +31,12 @@ export interface FidelityEvaluationOutputEnvelope {
   summary: FidelityMutationSummary;
 }
 
+export interface FidelityFuzzOutputEnvelope {
+  schemaVersion: typeof PGS_JSON_SCHEMA_VERSION;
+  kind: 'fidelity-fuzz-evaluation';
+  summary: FidelityFuzzSummary;
+}
+
 export function analysisOutput(result: PipelineResult, engine: OutputEngine): AnalysisOutputEnvelope {
   return { schemaVersion: PGS_JSON_SCHEMA_VERSION, kind: 'analysis', engine, result };
 }
@@ -42,6 +49,10 @@ export function fidelityEvaluationOutput(summary: FidelityMutationSummary): Fide
   return { schemaVersion: PGS_JSON_SCHEMA_VERSION, kind: 'fidelity-evaluation', summary };
 }
 
-export function formatJsonOutput(value: AnalysisOutputEnvelope | EvaluationOutputEnvelope | FidelityEvaluationOutputEnvelope): string {
+export function fidelityFuzzOutput(summary: FidelityFuzzSummary): FidelityFuzzOutputEnvelope {
+  return { schemaVersion: PGS_JSON_SCHEMA_VERSION, kind: 'fidelity-fuzz-evaluation', summary };
+}
+
+export function formatJsonOutput(value: AnalysisOutputEnvelope | EvaluationOutputEnvelope | FidelityEvaluationOutputEnvelope | FidelityFuzzOutputEnvelope): string {
   return JSON.stringify(value, null, 2);
 }

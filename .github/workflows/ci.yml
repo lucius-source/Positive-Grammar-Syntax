@@ -29,12 +29,12 @@ jobs:
         run: npm ci
       - name: Verify source, tests, build and package boundary
         run: npm run check
-      - name: Generate deterministic evaluation artifact
+      - name: Generate deterministic evaluation artifacts
         run: npm run artifacts:ci
-      - name: Upload evaluation artifact
+      - name: Upload evaluation artifacts
         uses: actions/upload-artifact@v4
         with:
           name: pgs-fidelity-evaluation
-          path: artifacts/ci/fidelity-evaluation.json
+          path: artifacts/ci/*.json
           if-no-files-found: error
           retention-days: 14

@@ -5,8 +5,8 @@ The repository CI workflow is intentionally deterministic and does not require a
 1. installs the locked dependency graph with `npm ci`;
 2. runs typechecking and all automated tests;
 3. builds the private ESM package and verifies its public consumer boundary;
-4. executes the adversarial fidelity corpus; and
-5. uploads the resulting `pgs.output.v1` JSON artifact.
+4. executes the adversarial fidelity corpus and the reproducible seeded fuzz gate; and
+5. uploads both resulting `pgs.output.v1` JSON artifacts.
 
 Run the same checks locally with:
 
@@ -15,7 +15,14 @@ npm run check
 npm run artifacts:ci
 ```
 
-The generated artifact is written to `artifacts/ci/fidelity-evaluation.json`. The `artifacts` directory is ignored by Git because CI records are derived outputs, not source data.
+The generated artifacts are written to `artifacts/ci/fidelity-evaluation.json` and `artifacts/ci/fidelity-fuzz-evaluation.json`. The fuzz artifact records its seed, iteration count and exact generated inputs so any failure can be replayed locally. The `artifacts` directory is ignored by Git because CI records are derived outputs, not source data.
+
+Run the seeded gate directly with:
+
+```bash
+npm run eval:fuzz
+npm run eval:fuzz -- --seed 5261139 --iterations 25
+```
 
 The live canonical gate remains separate:
 
