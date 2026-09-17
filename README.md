@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI and compiled private engine API foundation are implemented and verified. The current checkpoint passes 123 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
+The local CLI and compiled private engine API foundation are implemented and verified. The current checkpoint passes 147 automated tests, including 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
 
 ## Engine API
 
@@ -130,7 +130,7 @@ npm run eval:local
 npm run eval:fidelity
 ```
 
-The live gate exercises all 50 canonical cases against the configured local Ollama model. The adversarial gate runs without a model and verifies blocked mutations plus narrowly established equivalence controls.
+The live gate exercises all 50 canonical cases against the configured local Ollama model. The adversarial gate runs without a model and verifies blocked mutations plus narrowly established equivalence controls. Automated tests also generate deterministic mutation matrices for actor, action, date, quantity, motive, evidence and modality changes.
 
 Run the complete source, package and deterministic artifact checks with:
 

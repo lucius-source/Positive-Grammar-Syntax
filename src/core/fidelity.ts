@@ -10,7 +10,8 @@ const NEGATION = /\b(?:not|no|never|cannot|can't|don't|doesn't|didn't|isn't|aren
 const HEDGES = /\b(?:may|might|could|maybe|perhaps|possibly|uncertain|believe|think|assume|allege)\b/gi;
 const STRONG_CERTAINTY = /\b(?:will|must|definitely|certainly|obviously|undoubtedly|know|known)\b/gi;
 const CONDITION = /\b(?:if|unless|provided that|only if)\b/gi;
-const TEMPORAL = /\b(?:today|tomorrow|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday|(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}(?:,\s*\d{4})?|\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b/gi;
+const MONTH = '(?:january|february|march|april|may|june|july|august|september|october|november|december)';
+const TEMPORAL = new RegExp(`\\b(?:today|tomorrow|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday|${MONTH}\\s+\\d{1,2}(?:,\\s*\\d{4})?|\\d{1,2}\\s+${MONTH}(?:\\s+\\d{4})?|\\d{4}-\\d{2}-\\d{2}|\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4})\\b`, 'gi');
 const QUANTITY = /(?:£|\$|€)?\d+(?:[.,]\d+)?|\b(?:one|two|three|four|five|six|seven|eight|nine|ten)\b/gi;
 const ACTOR = /\b(?:i|me|my|mine|we|us|our|ours|you|your|yours|he|him|his|she|her|hers|they|them|their|theirs|supplier|claimant|recipient|sender|buyer|seller|employer|employee|court)\b/gi;
 const ACTION = /\b(?:send|sent|receive|received|confirm|confirmed|sign|signed|disclose|disclosed|energise|energised|take|took|pay|paid|proceed|proceeded|review|reviewed|reconcile|reconciled|submit|submitted|reply|respond|ignore|ignored)\b/gi;
@@ -47,6 +48,20 @@ function pirFields(text: string): { actions: Set<string>; actors: Set<string> } 
   };
 }
 
+function unionPirFields(texts: string[]): { actions: Set<string>; actors: Set<string> } {
+  const actions = new Set<string>();
+  const actors = new Set<string>();
+  for (const text of texts.filter(item => item.trim())) {
+    const fields = pirFields(text);
+    for (const action of fields.actions) actions.add(action);
+    for (const actor of fields.actors) actors.add(actor);
+    if (/\b(?:i|me|my|mine)\b/i.test(text)) actors.add('speaker');
+    if (/\b(?:we|us|our|ours)\b/i.test(text)) actors.add('speakers');
+    if (/\b(?:you|your|yours)\b/i.test(text)) actors.add('addressee');
+  }
+  return { actions, actors };
+}
+
 function verifiedConditionalReframe(source: string, candidate: string): boolean {
   const sourceAnalysis = analyseDocument(source);
   const candidateAnalysis = analyseDocument(candidate);
@@ -71,7 +86,8 @@ function verifiedUnknownActorReframe(source: string, candidate: string): boolean
 }
 
 export function compareFidelity(source: string, candidate: string, context?: SemanticContext): FidelityComparison {
-  const authorised = [source, ...(context?.knownFacts ?? []), context?.userIntent ?? '', ...(context?.referenceBindings ?? []).map(item => item.entity), ...(context?.evidence ?? []).filter(item => evidenceIsSufficient(item.field, item)).map(item => item.statement)].join(' ');
+  const authorisedTexts = [source, ...(context?.knownFacts ?? []), context?.userIntent ?? '', ...(context?.referenceBindings ?? []).map(item => item.entity), ...(context?.evidence ?? []).filter(item => evidenceIsSufficient(item.field, item)).map(item => item.statement)];
+  const authorised = authorisedTexts.join(' ');
   const issues: FidelityIssue[] = [];
   const add = (issue: FidelityIssue) => issues.push(issue);
   const conditionalReframe = verifiedConditionalReframe(source, candidate);
@@ -136,6 +152,16 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
 
   const sourcePir = pirFields(source);
   const candidatePir = pirFields(candidate);
+  const authorisedPir = unionPirFields(authorisedTexts);
+  if (terms(source, HEDGES).size || /\b(?:obviously|going to fail)\b/i.test(source)) authorisedPir.actors.add('speaker');
+  const inventedPirActors = conditionalReframe ? [] : missing(candidatePir.actors, authorisedPir.actors);
+  if (inventedPirActors.length && !issues.some(issue => issue.code === 'FIDELITY_ACTOR_INVENTED')) {
+    add({ code: 'FIDELITY_ACTOR_INVENTED', severity: 'blocked', message: 'Candidate PIR introduces an actor absent from source and verified context.', evidence: inventedPirActors.join(', ') });
+  }
+  const inventedPirActions = conditionalReframe ? [] : missing(candidatePir.actions, authorisedPir.actions);
+  if (inventedPirActions.length && !issues.some(issue => issue.code === 'FIDELITY_ACTION_INVENTED')) {
+    add({ code: 'FIDELITY_ACTION_INVENTED', severity: 'blocked', message: 'Candidate PIR introduces an action or relation absent from source and verified context.', evidence: inventedPirActions.join(', ') });
+  }
   const omittedActions = missing(sourcePir.actions, candidatePir.actions);
   if (omittedActions.length) add({ code: 'FIDELITY_PIR_ACTION_OMITTED', severity: 'review_required', message: 'Candidate PIR does not explicitly retain every source action or relation; semantic equivalence requires review.', evidence: omittedActions.join(', ') });
   const omittedActors = missing(sourcePir.actors, candidatePir.actors);

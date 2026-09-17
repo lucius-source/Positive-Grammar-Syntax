@@ -46,6 +46,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Stable, versioned `pgs.output.v1` JSON envelopes for analysis and evaluation commands.
 - Canonical identifiers in executable evaluation results for traceability to the specification corpus.
 - Executable adversarial fidelity corpus with versioned JSON output and selectable mutation IDs.
+- Deterministic property-style mutation matrices covering actor, action, date, quantity, motive, evidence and modality preservation.
 - Source-level `analyse`, `suggest`, `compare` and `explain` engine operations with an explicit local-only semantic boundary.
 - Compiled private ESM package boundary with declarations, declaration maps and a narrow verified export surface.
 - Hosted CI verification for source, tests, package boundary and deterministic fidelity artifacts.
@@ -73,7 +74,7 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 123/123 tests passed across 16 files
+- `npm test`: 147/147 tests passed across 17 files
 - `npm run build` and `npm run verify:package`: pass
 - `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
@@ -91,16 +92,16 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 - Evidence sufficiency records type and provenance but does not authenticate external evidence.
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
-- The executable evaluation corpus covers all 50 canonical cases plus 19 initial adversarial mutations; broader mutation and fuzz coverage remains incomplete.
+- The executable evaluation corpus covers all 50 canonical cases plus 19 adversarial mutations, with 24 additional deterministic property-style mutations; broader generative fuzz coverage remains incomplete.
 - The compiled engine package remains private and unpublished; there is no email adapter, document adapter or user interface yet.
 
 ## Recommended next milestone
 
 Extend the verified engine boundary and deterministic alignment without broadening unsafe rewrites. The next work should prioritize:
 
-1. Expand adversarial mutations and add property-based fuzz coverage.
-2. Adapter design for email and general-document integrations.
-3. Add an explicitly provisioned local-model or self-hosted live evaluation workflow.
+1. Adapter design for email and general-document integrations.
+2. Add an explicitly provisioned local-model or self-hosted live evaluation workflow.
+3. Expand from deterministic property matrices to seeded generative fuzz coverage.
 4. Define release/versioning criteria for the private package boundary.
 5. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
 
