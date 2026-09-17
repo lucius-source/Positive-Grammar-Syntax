@@ -33,6 +33,20 @@ describe('public PGS engine API', () => {
     expect(result.validation.valid).toBe(true);
   });
 
+  it('exposes bounded contrast and causal alignment through the public API', () => {
+    const contrast = analyse('I reviewed the figures, but Maria found a discrepancy.');
+    expect(contrast.deterministic.document.propositions).toHaveLength(2);
+    expect(contrast.deterministic.relations).toEqual([
+      expect.objectContaining({ from: 'P1', to: 'P2', type: 'contrast', confidence: 'deterministic' }),
+    ]);
+
+    const cause = analyse('I sent the report because Maria requested it.');
+    expect(cause.deterministic.document.propositions).toHaveLength(2);
+    expect(cause.deterministic.relations).toEqual([
+      expect.objectContaining({ from: 'P2', to: 'P1', type: 'cause', confidence: 'candidate' }),
+    ]);
+  });
+
   it('retains the legacy rule-only operation under an explicit name', () => {
     expect(analyseRules('Respond soon.').findings.map(finding => finding.ruleId)).toContain('PGS-004');
   });

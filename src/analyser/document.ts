@@ -32,6 +32,10 @@ function hasExplicitClauseActor(text: string): boolean {
   return /^(?:i|we|you|they|he|she|it|this|that|the\s+\w+)\b/i.test(text) || /^[A-Z][a-z]+\b/.test(text);
 }
 
+function cleanClause(text: string): string {
+  return text.trim().replace(/^[,\s]+|[,\s.!?]+$/g, '');
+}
+
 function relationWithMarker(
   from: string,
   to: string,
@@ -62,6 +66,12 @@ export function analyseDocument(text: string): DocumentAnalysis {
     const conditional = sentence.match(/^\s*(If|Unless)\s+(.+?),\s+(.+)$/i);
     const onlyIf = sentence.match(/^\s*(.+?)\s+only if\s+(.+)$/i);
     const coordinatedAction = sentence.match(/^\s*(.+?),\s+(so)\s+(.+)$/i);
+    const coordinatedContrast = sentence.match(/^\s*(.+?),\s*(but|yet)\s+(.+)$/i)
+      ?? sentence.match(/^\s*(.+?),\s*(however),\s*(.+)$/i);
+    const leadingContrast = sentence.match(/^\s*(Although)\s+(.+?),\s+(.+)$/i);
+    const trailingCause = sentence.match(/^\s*(.+?)\s+(because)\s+(.+)$/i);
+    const leadingCause = sentence.match(/^\s*(Because)\s+(.+?),\s+(.+)$/i);
+    const coordinatedCause = sentence.match(/^\s*(.+?),\s*(therefore|thus|consequently)\s+(.+)$/i);
     const firstId = `P${seeds.length + 1}`;
     const marker = conditional?.[1] ?? (onlyIf ? 'Only if' : undefined);
     const antecedentText = conditional?.[2] ?? onlyIf?.[2];
@@ -90,9 +100,37 @@ export function analyseDocument(text: string): DocumentAnalysis {
       relations.push({ from: premise.proposition.id, to: action.proposition.id, type: 'action', marker: coordinatedAction[2], confidence: 'candidate' });
       sentenceRanges.push({ first: premise.proposition.id, last: action.proposition.id });
     } else {
-      const seed = extractPropositionSeed(sentence, firstId);
-      seeds.push(seed);
-      sentenceRanges.push({ first: seed.proposition.id, last: seed.proposition.id });
+      const aligned = coordinatedContrast?.[1] && coordinatedContrast[2] && coordinatedContrast[3]
+        ? { first: coordinatedContrast[1], second: coordinatedContrast[3], marker: coordinatedContrast[2], type: 'contrast' as const, confidence: 'deterministic' as const, reverse: false }
+        : leadingContrast?.[1] && leadingContrast[2] && leadingContrast[3]
+          ? { first: leadingContrast[2], second: leadingContrast[3], marker: leadingContrast[1], type: 'contrast' as const, confidence: 'deterministic' as const, reverse: false }
+          : leadingCause?.[1] && leadingCause[2] && leadingCause[3]
+            ? { first: leadingCause[2], second: leadingCause[3], marker: leadingCause[1], type: 'cause' as const, confidence: 'candidate' as const, reverse: false }
+            : coordinatedCause?.[1] && coordinatedCause[2] && coordinatedCause[3]
+              ? { first: coordinatedCause[1], second: coordinatedCause[3], marker: coordinatedCause[2], type: 'cause' as const, confidence: 'candidate' as const, reverse: false }
+              : trailingCause?.[1] && trailingCause[2] && trailingCause[3]
+                ? { first: trailingCause[1], second: trailingCause[3], marker: trailingCause[2], type: 'cause' as const, confidence: 'candidate' as const, reverse: true }
+                : undefined;
+      const firstClause = aligned ? cleanClause(aligned.first) : '';
+      const secondClause = aligned ? cleanClause(aligned.second) : '';
+      if (aligned && hasExplicitClauseActor(firstClause) && hasExplicitClauseActor(secondClause)) {
+        const first = extractPropositionSeed(firstClause, firstId);
+        const secondId = `P${seeds.length + 2}`;
+        const second = extractPropositionSeed(secondClause, secondId);
+        seeds.push(first, second);
+        relations.push({
+          from: aligned.reverse ? second.proposition.id : first.proposition.id,
+          to: aligned.reverse ? first.proposition.id : second.proposition.id,
+          type: aligned.type,
+          marker: aligned.marker,
+          confidence: aligned.confidence,
+        });
+        sentenceRanges.push({ first: first.proposition.id, last: second.proposition.id });
+      } else {
+        const seed = extractPropositionSeed(sentence, firstId);
+        seeds.push(seed);
+        sentenceRanges.push({ first: seed.proposition.id, last: seed.proposition.id });
+      }
     }
   }
 

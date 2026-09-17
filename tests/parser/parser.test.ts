@@ -136,6 +136,10 @@ describe('proposition seed extraction', () => {
     });
   });
 
+  it('extracts explicit request actions used by causal alignment', () => {
+    expect(extractPropositionSeed('Maria requested the report.').proposition).toMatchObject({ actor: 'Maria', actionOrRelation: 'request', objectOrTarget: 'the report' });
+  });
+
   it('extracts an explicit desired state without promoting it to fact', () => {
     expect(extractPropositionSeed('I want the accounts reconciled by Friday.').proposition).toMatchObject({
       actor: 'speaker', desiredState: 'the accounts reconciled by Friday', epistemicStatus: 'intended', speechAct: 'expression',

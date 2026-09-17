@@ -52,7 +52,7 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI and compiled private engine API foundation are implemented and verified. The current checkpoint passes 116 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
+The local CLI and compiled private engine API foundation are implemented and verified. The current checkpoint passes 123 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
 
 ## Engine API
 
@@ -121,7 +121,7 @@ Conservative PGS-L1 rendering currently covers explicit non-consent, stated unce
 
 The deterministic proposition seed records recoverable PIR fields—including actor, action or relation, object or target, reported observation, intention, requested action, time, conditions, and quantities—while representing unresolved actors as `null`. Selected recommendations render from those fields, allowing equivalent paraphrases to follow the same rule-traced path.
 
-Controlled comma-`so` coordination is aligned as separate desired-state and action propositions only when the right side has an explicit clause actor. Ordinary comma lists and adverbial `so` phrases remain unsplit.
+Controlled comma-`so` coordination is aligned as separate desired-state and action propositions only when the right side has an explicit clause actor. Explicit contrast clauses using `but`, `yet`, `however` or leading `although`, and causal clauses using `because`, `therefore`, `thus` or `consequently`, are also aligned when both clauses have explicit actors. Contrast relations are deterministic; causal relations remain candidates for semantic review. Ordinary comma lists, adverbial `so` phrases and `because of` phrases remain unsplit.
 
 Run the live canonical corpus and deterministic adversarial fidelity corpus with:
 

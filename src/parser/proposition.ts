@@ -37,6 +37,7 @@ function inferEpistemic(text: string): PgsProposition['epistemicStatus'] {
 const ACTIONS: Array<[RegExp, string]> = [
   [/\b(?:open|opened)\b/i, 'open'], [/\b(?:stop|stopped)\b/i, 'stop'],
   [/\b(?:work|worked)\b/i, 'work'], [/\b(?:know|knew)\b/i, 'know'], [/\b(?:help|helps|helped)\b/i, 'help'],
+  [/\b(?:request|requests|requested)\b/i, 'request'],
   [/\b(?:feel|felt)\b/i, 'feel'], [/\b(?:lower|lowers|lowered)\b/i, 'lower'], [/\b(?:remove|removes|removed)\b/i, 'remove'],
   [/\bproceed(?:s|ed|ing)?\b/i, 'proceed'], [/\bunderstand(?:s|stood|ing)?\b/i, 'understand'],
   [/\bdisagree(?:s|d|ing)?\b/i, 'disagree'], [/\bsubmit(?:s|ted|ting)?\b/i, 'submit'], [/\b(?:steal|steals|stole|stolen)\b/i, 'steal'],

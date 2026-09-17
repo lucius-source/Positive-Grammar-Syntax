@@ -71,4 +71,35 @@ describe('multi-proposition document analyser', () => {
   it('does not split a comma-so phrase without an independent right-hand clause', () => {
     expect(analyseDocument('I reviewed the figures, so carefully that nothing was missed.').document.propositions).toHaveLength(1);
   });
+
+  it('aligns explicit contrast clauses while preserving their source order', () => {
+    const result = analyseDocument('I reviewed the figures, but Maria found a discrepancy.');
+    expect(result.document.propositions).toHaveLength(2);
+    expect(result.document.propositions.map(proposition => proposition.actionOrRelation)).toEqual(['review', 'find']);
+    expect(result.relations).toContainEqual({ from: 'P1', to: 'P2', type: 'contrast', marker: 'but', confidence: 'deterministic' });
+  });
+
+  it('aligns a leading although clause as an explicit contrast', () => {
+    const result = analyseDocument('Although Maria reviewed the figures, I found a discrepancy.');
+    expect(result.document.propositions.map(proposition => proposition.actor)).toEqual(['Maria', 'speaker']);
+    expect(result.relations).toContainEqual({ from: 'P1', to: 'P2', type: 'contrast', marker: 'Although', confidence: 'deterministic' });
+  });
+
+  it('points a trailing because relation from cause to effect', () => {
+    const result = analyseDocument('I sent the report because Maria requested it.');
+    expect(result.document.propositions.map(proposition => proposition.actionOrRelation)).toEqual(['send', 'request']);
+    expect(result.relations).toContainEqual({ from: 'P2', to: 'P1', type: 'cause', marker: 'because', confidence: 'candidate' });
+  });
+
+  it('points leading and coordinated causes toward their effects', () => {
+    const leading = analyseDocument('Because Maria requested the report, I sent it.');
+    expect(leading.relations).toContainEqual({ from: 'P1', to: 'P2', type: 'cause', marker: 'Because', confidence: 'candidate' });
+    const coordinated = analyseDocument('Maria requested the report, therefore I sent it.');
+    expect(coordinated.relations).toContainEqual({ from: 'P1', to: 'P2', type: 'cause', marker: 'therefore', confidence: 'candidate' });
+  });
+
+  it('does not split contrast or causal phrases without an independent clause', () => {
+    expect(analyseDocument('I reviewed the figures, but carefully and slowly.').document.propositions).toHaveLength(1);
+    expect(analyseDocument('I reviewed the figures because of the deadline.').document.propositions).toHaveLength(1);
+  });
 });
