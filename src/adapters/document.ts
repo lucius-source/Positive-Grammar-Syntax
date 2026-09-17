@@ -1,4 +1,5 @@
 import { analyse, type AnalyseOperationResult } from '../api';
+import { orchestrateSelectedSuggestion, type SelectedContentSuggestion, type SelectionSuggestionOptions } from './suggestion';
 
 export type TextDocumentFormat = 'plain_text' | 'markdown';
 export type DocumentSectionKind = 'body' | 'heading' | 'paragraph' | 'quote' | 'code' | 'fence';
@@ -27,6 +28,14 @@ export interface TextDocumentAnalysisResult {
   document: TextDocumentInput;
   sections: DocumentSection[];
   protectedSectionIds: string[];
+}
+
+export interface DocumentSuggestionTarget { kind: 'section'; sectionId: string }
+export interface SuggestTextDocumentOptions extends SelectionSuggestionOptions { sectionIds: string[] }
+export interface TextDocumentSuggestionResult {
+  operation: 'suggest-document';
+  analysis: TextDocumentAnalysisResult;
+  suggestions: Array<SelectedContentSuggestion<DocumentSuggestionTarget>>;
 }
 
 function requireDocument(input: TextDocumentInput): void {
@@ -97,4 +106,27 @@ export function analyseTextDocument(input: TextDocumentInput): TextDocumentAnaly
     sections,
     protectedSectionIds: sections.filter(item => item.protected).map(item => item.id),
   };
+}
+
+/** Suggest only for explicitly selected, non-protected document sections. */
+export async function suggestTextDocument(input: TextDocumentInput, options: SuggestTextDocumentOptions): Promise<TextDocumentSuggestionResult> {
+  if (!options.sectionIds.length) throw new Error('At least one PGS document section must be selected for suggestions.');
+  if (new Set(options.sectionIds).size !== options.sectionIds.length) throw new Error('PGS document section selections must be unique.');
+  const analysis = analyseTextDocument(input);
+  const selected = options.sectionIds.map(sectionId => {
+    const selectedSection = analysis.sections.find(item => item.id === sectionId);
+    if (!selectedSection) throw new Error(`Unknown PGS document section: ${sectionId}`);
+    if (selectedSection.protected) throw new Error(`Protected PGS document section cannot be suggested: ${sectionId}`);
+    return selectedSection;
+  });
+  const suggestions: Array<SelectedContentSuggestion<DocumentSuggestionTarget>> = [];
+  for (const selectedSection of selected) {
+    suggestions.push(await orchestrateSelectedSuggestion(
+      { kind: 'section', sectionId: selectedSection.id },
+      selectedSection.text,
+      options,
+      analysis.document.protectedTerms ?? [],
+    ));
+  }
+  return { operation: 'suggest-document', analysis, suggestions };
 }

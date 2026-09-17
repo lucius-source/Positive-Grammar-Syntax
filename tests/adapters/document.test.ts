@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { analyseTextDocument } from '../../src/adapters/document';
+import { analyseTextDocument, suggestTextDocument } from '../../src/adapters/document';
+import type { SemanticEngine } from '../../src/semantic/types';
+
+const localEngine: SemanticEngine = {
+  id: 'local:document-test', providerKind: 'local',
+  capabilities: { propositionExtraction: true, relationResolution: true, ambiguityResolution: true, fidelityVerification: false, rendering: false, structuredOutput: true },
+  async determine(request) {
+    return { propositions: request.deterministicDocument.propositions, relations: request.deterministicRelations, determinations: [], unresolved: request.deterministicDocument.propositions.flatMap(item => item.unresolved ?? []) };
+  },
+};
 
 describe('text document adapter', () => {
   it('analyses plain text through the universal engine while preserving source', () => {
@@ -24,5 +33,28 @@ describe('text document adapter', () => {
   it('rejects empty or unsupported document input', () => {
     expect(() => analyseTextDocument({ format: 'plain_text', text: '  ' })).toThrow(/document text is required/i);
     expect(() => analyseTextDocument({ format: 'html' as 'plain_text', text: '<p>text</p>' })).toThrow(/unsupported/i);
+  });
+
+  it('suggests only for explicitly selected non-protected sections', async () => {
+    const result = await suggestTextDocument({ format: 'markdown', text: '# Status\nI sent the report yesterday.\n> Quoted text.\n' }, { sectionIds: ['S2'] });
+    expect(result.operation).toBe('suggest-document');
+    expect(result.suggestions).toHaveLength(1);
+    expect(result.suggestions[0]).toMatchObject({ target: { kind: 'section', sectionId: 'S2' }, disposition: 'available', source: 'I sent the report yesterday.' });
+    expect(result.suggestions[0]?.recommendations[0]?.text).toBe('I sent the report yesterday.');
+  });
+
+  it('rejects unknown, duplicate and protected section selections', async () => {
+    const input = { format: 'markdown' as const, text: 'Text.\n> Quote.\n' };
+    await expect(suggestTextDocument(input, { sectionIds: [] })).rejects.toThrow(/at least one/i);
+    await expect(suggestTextDocument(input, { sectionIds: ['S1', 'S1'] })).rejects.toThrow(/unique/i);
+    await expect(suggestTextDocument(input, { sectionIds: ['S9'] })).rejects.toThrow(/unknown/i);
+    await expect(suggestTextDocument(input, { sectionIds: ['S2'] })).rejects.toThrow(/protected/i);
+  });
+
+  it('withholds recommendations that remove a document-protected term', async () => {
+    const result = await suggestTextDocument({ format: 'plain_text', text: "I'm useless at this.", protectedTerms: ['useless'] }, { sectionIds: ['S1'], engine: localEngine });
+    expect(result.suggestions[0]?.disposition).toBe('withheld');
+    expect(result.suggestions[0]?.recommendations).toEqual([]);
+    expect(result.suggestions[0]?.withheldReason).toContain('FIDELITY_PROTECTED_TERM_REMOVED');
   });
 });

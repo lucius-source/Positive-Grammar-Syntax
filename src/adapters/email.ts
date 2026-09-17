@@ -1,5 +1,6 @@
 import { analyse, type AnalyseOperationResult } from '../api';
 import { analyseTextDocument, type TextDocumentAnalysisResult, type TextDocumentInput } from './document';
+import { orchestrateSelectedSuggestion, type SelectedContentSuggestion, type SelectionSuggestionOptions } from './suggestion';
 
 export interface EmailThreadMessage {
   id: string;
@@ -45,6 +46,17 @@ export interface EmailAnalysisResult {
   bodyAnalysis?: AnalyseOperationResult;
   attachments: EmailAttachmentAnalysis[];
   dependencies: EmailDependency[];
+}
+
+export type EmailSuggestionTarget =
+  | { kind: 'subject' }
+  | { kind: 'body' }
+  | { kind: 'attachment-section'; attachmentId: string; sectionId: string };
+export interface SuggestEmailOptions extends SelectionSuggestionOptions { targets: EmailSuggestionTarget[] }
+export interface EmailSuggestionResult {
+  operation: 'suggest-email';
+  analysis: EmailAnalysisResult;
+  suggestions: Array<SelectedContentSuggestion<EmailSuggestionTarget>>;
 }
 
 function snapshotDocument(document: TextDocumentInput): TextDocumentInput {
@@ -118,4 +130,28 @@ export function analyseEmail(input: EmailInput): EmailAnalysisResult {
     attachments,
     dependencies: dependencies(input.body ?? '', email.attachments ?? []),
   };
+}
+
+/** Suggest only for explicitly selected email fields or non-protected attachment sections. */
+export async function suggestEmail(input: EmailInput, options: SuggestEmailOptions): Promise<EmailSuggestionResult> {
+  if (!options.targets.length) throw new Error('At least one PGS email target must be selected for suggestions.');
+  const targetKeys = options.targets.map(target => JSON.stringify(target));
+  if (new Set(targetKeys).size !== targetKeys.length) throw new Error('PGS email target selections must be unique.');
+  const analysis = analyseEmail(input);
+  const suggestions: Array<SelectedContentSuggestion<EmailSuggestionTarget>> = [];
+  for (const target of options.targets) {
+    if (target.kind === 'subject' || target.kind === 'body') {
+      const selectedAnalysis = target.kind === 'subject' ? analysis.subjectAnalysis : analysis.bodyAnalysis;
+      if (!selectedAnalysis) throw new Error(`Selected PGS email ${target.kind} is empty.`);
+      suggestions.push(await orchestrateSelectedSuggestion(target, selectedAnalysis.source, options));
+      continue;
+    }
+    const attachment = analysis.attachments.find(item => item.attachment.id === target.attachmentId);
+    if (!attachment?.analysis) throw new Error(`Unknown or non-text PGS email attachment: ${target.attachmentId}`);
+    const selectedSection = attachment.analysis.sections.find(item => item.id === target.sectionId);
+    if (!selectedSection) throw new Error(`Unknown PGS attachment section: ${target.attachmentId}/${target.sectionId}`);
+    if (selectedSection.protected) throw new Error(`Protected PGS attachment section cannot be suggested: ${target.attachmentId}/${target.sectionId}`);
+    suggestions.push(await orchestrateSelectedSuggestion(target, selectedSection.text, options, attachment.analysis.document.protectedTerms ?? []));
+  }
+  return { operation: 'suggest-email', analysis, suggestions };
 }

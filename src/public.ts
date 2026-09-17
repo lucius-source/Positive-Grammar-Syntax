@@ -1,5 +1,5 @@
 export { analyse, compare, explain, suggest } from './api';
-export { analyseEmail, analyseTextDocument } from './adapters';
+export { analyseEmail, analyseTextDocument, suggestEmail, suggestTextDocument } from './adapters';
 export type {
   DocumentSection,
   DocumentSectionKind,
@@ -9,6 +9,16 @@ export type {
   EmailDependency,
   EmailInput,
   EmailThreadMessage,
+  EmailSuggestionResult,
+  EmailSuggestionTarget,
+  SuggestEmailOptions,
+  SuggestTextDocumentOptions,
+  TextDocumentSuggestionResult,
+  DocumentSuggestionTarget,
+  SelectedContentSuggestion,
+  SelectionSuggestionOptions,
+  SuggestionAudit,
+  SuggestionDisposition,
   TextDocumentAnalysisResult,
   TextDocumentFormat,
   TextDocumentInput,
