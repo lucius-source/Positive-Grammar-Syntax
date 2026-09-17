@@ -52,7 +52,24 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI foundation/core-engine slice is implemented and verified. The current checkpoint passes 103 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, limitations and the next milestone.
+The local CLI and source-level engine API foundation are implemented and verified. The current checkpoint passes 111 automated tests, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior and `docs/12-engine-api.md` for the API contract.
+
+## Engine API
+
+The root module exports `analyse`, `suggest`, `compare`, and `explain`. Deterministic operations never call a model; `suggest` requires an explicitly supplied local semantic engine whenever semantic review is necessary.
+
+```ts
+import { OllamaSemanticEngine, analyse, compare, explain, suggest } from './src/index';
+
+const analysis = analyse('Maybe it will work.');
+const explanation = explain('Maybe it will work.');
+const suggestion = await suggest('They deliberately ignored my email.', {
+  engine: new OllamaSemanticEngine(),
+});
+const fidelity = compare('Send the report.', 'Send the report by 2026-10-01.');
+```
+
+The former rule-only analysis helper remains available as `analyseRules`. The repository does not yet publish a compiled npm package.
 
 ## Local CLI
 

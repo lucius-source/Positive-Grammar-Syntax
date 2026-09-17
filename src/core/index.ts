@@ -6,7 +6,7 @@ export * from './domain';
 
 import { detectDeterministicRules } from './rules';
 
-export interface AnalyseResult {
+export interface RuleAnalysisResult {
   source: string;
   findings: ReturnType<typeof detectDeterministicRules>;
 }
@@ -16,7 +16,7 @@ export interface AnalyseResult {
  * proposition extraction. Contextual interpretation belongs behind the future
  * semantic-engine adapter and must conform to PGS-PIR plus fidelity validation.
  */
-export function analyse(text: string): AnalyseResult {
+export function analyseRules(text: string): RuleAnalysisResult {
   return {
     source: text,
     findings: detectDeterministicRules(text),

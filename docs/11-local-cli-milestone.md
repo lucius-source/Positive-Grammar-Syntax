@@ -45,6 +45,7 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Stable, versioned `pgs.output.v1` JSON envelopes for analysis and evaluation commands.
 - Canonical identifiers in executable evaluation results for traceability to the specification corpus.
 - Executable adversarial fidelity corpus with versioned JSON output and selectable mutation IDs.
+- Source-level `analyse`, `suggest`, `compare` and `explain` engine operations with an explicit local-only semantic boundary.
 
 ## Fidelity behavior
 
@@ -69,9 +70,10 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 103/103 tests passed across 14 files
+- `npm test`: 111/111 tests passed across 15 files
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
 - Live canonical regression: 47 unaffected cases passed in the strengthened full run; the 3 affected equivalence cases then passed 3/3 after narrow fixes
+- Live public `suggest` operation: local Ollama response validated; unresolved reference, motive, actor and epistemic status retained; L2 withheld; no blocked fidelity finding
 
 The local corpus covers all 50 canonical cases, including ambiguity, motive attribution, protected legal/medical/safety negation, timing, certainty, consent/refusal, quantities, verified context, evidence sufficiency, conditionals, tense, pronouns, figurative language, speech acts, modality, spiritual experience and assertions, claimed legal effects, formal/null syntax, lexical restraint, double negatives, requirements, evidential claims and complete positive controls.
 
@@ -85,16 +87,16 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
 - The executable evaluation corpus covers all 50 canonical cases plus 19 initial adversarial mutations; broader mutation and fuzz coverage remains incomplete.
-- There is no published package API, email adapter, document adapter or user interface yet.
+- The source-level engine API exists, but there is no compiled/published package artifact, email adapter, document adapter or user interface yet.
 
 ## Recommended next milestone
 
 Build a stable public engine boundary on top of the verified CLI and evaluation foundation. The next work should prioritize:
 
-1. Public `analyse`, `suggest`, `compare` and `explain` operations built on the verified pipeline.
-2. Persist repeatable JSON evaluation artifacts in CI or a release workflow.
+1. Persist repeatable JSON evaluation artifacts in CI or a release workflow.
+2. Add a compiled package boundary, declaration output and explicit exports for the engine API.
 3. More complete deterministic PIR extraction and proposition alignment.
 4. Expand adversarial mutations and add property-based fuzz coverage.
-5. Package-boundary and adapter design for email and general-document integrations.
+5. Adapter design for email and general-document integrations.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.
