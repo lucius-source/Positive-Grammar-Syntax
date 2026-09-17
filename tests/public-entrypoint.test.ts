@@ -3,7 +3,11 @@ import * as publicApi from '../src/public';
 
 describe('public package entrypoint', () => {
   it('exposes only the supported runtime operations and local adapter', () => {
-    expect(Object.keys(publicApi).sort()).toEqual(['OllamaSemanticEngine', 'analyse', 'analyseEmail', 'analyseTextDocument', 'compare', 'explain', 'suggest', 'suggestEmail', 'suggestTextDocument']);
+    expect(Object.keys(publicApi).sort()).toEqual([
+      'OllamaSemanticEngine', 'analyse', 'analyseEmail', 'analyseTextDocument', 'applyApprovedEmailSuggestion',
+      'applyApprovedTextDocumentSuggestion', 'approveSuggestionApplication', 'compare', 'explain',
+      'prepareSuggestionApplication', 'prepareTextChange', 'suggest', 'suggestEmail', 'suggestTextDocument',
+    ]);
   });
 
   it('runs deterministic operations through the narrow entrypoint', () => {

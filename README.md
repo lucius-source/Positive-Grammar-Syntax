@@ -52,11 +52,11 @@ The portable language engine will be implemented in TypeScript/Node.js and remai
 
 ## Project status
 
-The local CLI, compiled private engine API, and first email/general-document analysis and selected-content suggestion adapters are implemented and verified. The current checkpoint passes 162 automated tests, including 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, and `docs/13-email-document-adapters.md` for the adapter boundary.
+The local CLI, compiled private engine API, and first email/general-document analysis, selected-content suggestion, and explicit approval/application adapters are implemented and verified. The current checkpoint passes 169 automated tests, including 24 property-style fidelity mutations, all 50 canonical cases in the local-model evaluation gate, and 19 deterministic adversarial fidelity mutations. General linguistic coverage and the broader application remain in development; see `docs/11-local-cli-milestone.md` for supported behavior, `docs/12-engine-api.md` for the API contract, `docs/13-email-document-adapters.md` for the adapter boundary, and `docs/14-suggestion-approval.md` for the application boundary.
 
 ## Engine API
 
-The package root exports `analyse`, `suggest`, `compare`, `explain`, `analyseEmail`, `analyseTextDocument`, `suggestEmail`, `suggestTextDocument`, and the local `OllamaSemanticEngine`. Deterministic operations and analysis adapters never call a model; suggestion operations require an explicitly supplied local semantic engine whenever semantic review is necessary.
+The package root exports `analyse`, `suggest`, `compare`, `explain`, the email/document analysis and suggestion adapters, the explicit approval/application operations, and the local `OllamaSemanticEngine`. Deterministic operations and analysis adapters never call a model; suggestion operations require an explicitly supplied local semantic engine whenever semantic review is necessary.
 
 ```ts
 import {
@@ -64,8 +64,11 @@ import {
   analyse,
   analyseEmail,
   analyseTextDocument,
+  applyApprovedEmailSuggestion,
+  approveSuggestionApplication,
   compare,
   explain,
+  prepareTextChange,
   suggest,
   suggestEmail,
   suggestTextDocument,
@@ -87,6 +90,17 @@ const documentSuggestion = await suggestTextDocument(
   { format: 'markdown', text: '# Status\nI sent the report yesterday.\n' },
   { sectionIds: ['S2'] },
 );
+const proposal = prepareTextChange(
+  { kind: 'body' },
+  'Maybe it will work.',
+  'I am uncertain whether it will work.',
+  'PGS-L1',
+);
+const approved = approveSuggestionApplication(proposal, {
+  proposalId: proposal.proposalId,
+  approved: true,
+});
+const updatedEmail = applyApprovedEmailSuggestion({ body: proposal.source }, approved);
 ```
 
 The former rule-only analysis helper remains available internally as `analyseRules`. Run `npm run build` to emit the private ESM package and TypeScript declarations into `dist`; `npm run check` also verifies the built package through its public export map. The package remains marked private and is not published.

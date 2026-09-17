@@ -54,6 +54,8 @@ This checkpoint establishes a working and tested architectural path. It does not
 - Conservative cross-document dependency reporting that leaves ambiguous attachment references unresolved.
 - Explicit selected-content suggestion orchestration for email fields and text-document sections.
 - Protected-section rejection and recommendation withholding when fidelity findings are blocked.
+- Deterministic non-mutating diffs, explicit approval and copy-on-write application for selected email/document recommendations.
+- Revalidation at approval and stale-source rejection at application.
 - Hosted CI verification for source, tests, package boundary and deterministic fidelity artifacts.
 
 ## Fidelity behavior
@@ -79,7 +81,7 @@ No model determination alone can resolve deterministic ambiguity. References req
 At this checkpoint:
 
 - `npm run typecheck`: pass
-- `npm test`: 162/162 tests passed across 19 files
+- `npm test`: 169/169 tests passed across 20 files
 - `npm run build` and `npm run verify:package`: pass
 - `npm run artifacts:ci`: deterministic `pgs.output.v1` artifact reproduced byte-for-byte
 - `npm run eval:fidelity`: 19/19 deterministic mutation cases passed
@@ -98,17 +100,17 @@ The local corpus covers all 50 canonical cases, including ambiguity, motive attr
 - Candidate PIR comparison uses semantic action families only for a small set of known equivalents.
 - Conditional contraposition supports one verified two-proposition pattern; broader logical transformations are not yet authorized.
 - The executable evaluation corpus covers all 50 canonical cases plus 19 adversarial mutations, with 24 additional deterministic property-style mutations; broader generative fuzz coverage remains incomplete.
-- The email and text-document adapters support explicit selected-content suggestions but do not apply transformations; diff presentation, DOCX/PDF ingestion and a user interface remain future work.
+- The email and text-document adapters can prepare and apply explicitly approved text replacements, but visual diff presentation, persistent approval records, DOCX/PDF ingestion and a user interface remain future work.
 - The compiled engine package remains private and unpublished.
 
 ## Recommended next milestone
 
 Extend the verified engine boundary and deterministic alignment without broadening unsafe rewrites. The next work should prioritize:
 
-1. Add a non-mutating diff and approval boundary for applying selected email/document recommendations.
-2. Add an explicitly provisioned local-model or self-hosted live evaluation workflow.
-3. Expand from deterministic property matrices to seeded generative fuzz coverage.
-4. Define release/versioning criteria for the private package boundary.
-5. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
+1. Add an explicitly provisioned local-model or self-hosted live evaluation workflow.
+2. Expand from deterministic property matrices to seeded generative fuzz coverage.
+3. Define release/versioning criteria for the private package boundary.
+4. Extend controlled proposition alignment only where relation direction and actor boundaries can be verified.
+5. Build a review interface over the explicit proposal and approval contract without weakening it.
 
 The governing order remains semantic fidelity, factual accuracy, clarity, agency, precision, constructive expression and concision.

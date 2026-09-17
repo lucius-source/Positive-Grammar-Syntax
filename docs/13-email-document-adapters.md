@@ -2,12 +2,15 @@
 
 **Checkpoint date:** 2026-09-17
 
-The first channel adapters expose deterministic analysis and explicitly selected suggestion entrypoints over the universal PGS engine:
+The first channel adapters expose deterministic analysis, explicitly selected suggestion entrypoints and an approval-gated application boundary over the universal PGS engine:
 
 - `analyseEmail(input)` preserves an email snapshot and analyses its supplied subject and body independently.
 - `analyseTextDocument(input)` preserves plain text or Markdown and analyses eligible sections with exact source offsets.
 - `suggestEmail(input, options)` suggests only for explicitly selected subject, body or text-attachment sections.
 - `suggestTextDocument(input, options)` suggests only for explicitly selected, non-protected document sections.
+- `prepareSuggestionApplication(suggestion, level)` converts one available recommendation into a deterministic diff proposal.
+- `approveSuggestionApplication(proposal, decision)` requires an explicit matching approval and re-runs fidelity verification.
+- `applyApprovedEmailSuggestion` and `applyApprovedTextDocumentSuggestion` return changed copies only when the approved source still matches.
 
 These adapters do not add email- or document-specific grammar. They provide structure and provenance around the same `analyse` operation exported by the core engine.
 
@@ -47,7 +50,9 @@ The adapters never:
 - produce recommendations for unselected or protected content;
 - treat a model determination as authorization to transform content.
 
-The suggestion adapters return recommendations and audit data; they do not mutate the input or apply a replacement. A later transformation workflow must preserve explicit authorization, source offsets and the same fidelity gate.
+The suggestion adapters return recommendations and audit data without mutation. Application is a separate three-stage operation: prepare, approve, then apply. Preparation exposes a compact replacement span and all fidelity findings. Approval re-computes the proposal fingerprint and fidelity decision rather than trusting mutable status fields. Application re-analyses the current content and refuses stale, unknown or protected targets. Successful application returns a copy and never mutates the caller's value.
+
+The deterministic proposal identifier correlates an approval with its target, source, candidate, level and semantic context. It is an integrity guard inside the application contract, not a cryptographic signature or identity system. A product integration remains responsible for authenticating the approver and persisting its own audit record.
 
 ## Example
 
@@ -55,6 +60,9 @@ The suggestion adapters return recommendations and audit data; they do not mutat
 import {
   analyseEmail,
   analyseTextDocument,
+  applyApprovedEmailSuggestion,
+  approveSuggestionApplication,
+  prepareSuggestionApplication,
   suggestEmail,
   suggestTextDocument,
 } from 'positive-grammar-syntax';
@@ -81,4 +89,14 @@ const emailSuggestions = await suggestEmail(email.email, {
 const documentSuggestions = await suggestTextDocument(document.document, {
   sectionIds: ['S2'],
 });
+
+const selected = emailSuggestions.suggestions[0];
+if (selected?.disposition === 'available') {
+  const proposal = prepareSuggestionApplication(selected, 'PGS-L1');
+  const approved = approveSuggestionApplication(proposal, {
+    proposalId: proposal.proposalId,
+    approved: true,
+  });
+  const updatedEmail = applyApprovedEmailSuggestion(email.email, approved);
+}
 ```

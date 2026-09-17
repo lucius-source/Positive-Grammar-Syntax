@@ -7,6 +7,9 @@ import {
   suggest,
   suggestEmail,
   suggestTextDocument,
+  prepareTextChange,
+  approveSuggestionApplication,
+  applyApprovedEmailSuggestion,
   type AnalyseOperationResult,
   type FidelityComparison,
   type EmailAnalysisResult,
@@ -25,5 +28,8 @@ const emailAnalysis: EmailAnalysisResult = analyseEmail({ subject: 'Status', bod
 const documentAnalysis: TextDocumentAnalysisResult = analyseTextDocument({ format: 'markdown', text: '# Status\nI sent the report.\n' });
 const emailSuggestion: Promise<EmailSuggestionResult> = suggestEmail({ body: 'I sent the report yesterday.' }, { targets: [{ kind: 'body' }] });
 const documentSuggestion: Promise<TextDocumentSuggestionResult> = suggestTextDocument({ format: 'plain_text', text: 'I sent the report yesterday.' }, { sectionIds: ['S1'] });
+const proposal = prepareTextChange({ kind: 'body' as const }, 'Maybe it will work.', 'I am uncertain whether it will work.', 'PGS-L1');
+const approved = approveSuggestionApplication(proposal, { proposalId: proposal.proposalId, approved: true });
+const updatedEmail = applyApprovedEmailSuggestion({ body: proposal.source }, approved);
 
-void [analysis, comparison, explanation, deterministicSuggestion, emailAnalysis, documentAnalysis, emailSuggestion, documentSuggestion];
+void [analysis, comparison, explanation, deterministicSuggestion, emailAnalysis, documentAnalysis, emailSuggestion, documentSuggestion, updatedEmail];
