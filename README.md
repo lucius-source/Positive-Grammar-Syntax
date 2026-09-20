@@ -56,7 +56,7 @@ The local CLI, compiled private engine API, deterministic analysis-readiness sco
 
 ## Engine API
 
-The package root exports `analyse`, `score`, `suggest`, `compare`, `explain`, the email/document analysis and suggestion adapters, framework-neutral review operations, the explicit approval/application operations, and the local `OllamaSemanticEngine`. Deterministic operations and analysis adapters never call a model; suggestion operations require an explicitly supplied local semantic engine whenever semantic review is necessary. The score measures analysis readiness only, exposes every deduction, and never claims to measure truth, quality, morality or the speaker.
+The package root exports `analyse`, `score`, `suggest`, `compare`, `explain`, the email/document analysis and suggestion adapters, framework-neutral review operations, the explicit approval/application operations, and the local `OllamaSemanticEngine`. Deterministic operations and analysis adapters never call a model; suggestion operations require an explicitly supplied local or approved self-hosted semantic engine whenever semantic review is necessary. Cloud and unclassified custom engines are rejected. The score measures analysis readiness only, exposes every deduction, and never claims to measure truth, quality, morality or the speaker.
 
 ```ts
 import {
@@ -123,7 +123,7 @@ With Ollama running and `qwen3.8:latest` installed, run the local analysis pipel
 npm run pgs -- "They deliberately ignored my email."
 ```
 
-The CLI performs deterministic PGS-PIR analysis first, requests semantic determination only when review is required, validates the model's JSON response, and applies an initial fidelity gate before displaying recommendations. The semantic adapter accepts local engines only; it has no cloud fallback. Configure another local Ollama model or endpoint with `PGS_OLLAMA_MODEL` and `PGS_OLLAMA_URL`; override the four-minute local request ceiling with `PGS_OLLAMA_TIMEOUT_MS` when needed.
+The CLI performs deterministic PGS-PIR analysis first, requests semantic determination only when review is required, validates the model's JSON response, and applies an initial fidelity gate before displaying recommendations. The CLI's Ollama adapter accepts loopback endpoints only and has no cloud fallback. Configure another local Ollama model or loopback endpoint with `PGS_OLLAMA_MODEL` and `PGS_OLLAMA_URL`; override the four-minute local request ceiling with `PGS_OLLAMA_TIMEOUT_MS` when needed. Web applications may supply a separately authenticated engine classified as `self_hosted`; remote infrastructure must never be labelled `local`.
 
 Add `--json` for a versioned `pgs.output.v1` machine-readable envelope:
 

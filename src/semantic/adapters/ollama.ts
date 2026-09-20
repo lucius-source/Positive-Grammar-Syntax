@@ -11,6 +11,18 @@ export interface OllamaSemanticEngineOptions {
 
 interface OllamaGenerateResponse { response?: string; model?: string; done?: boolean }
 
+function requireLoopbackBaseUrl(value: string): string {
+  let url: URL;
+  try { url = new URL(value); }
+  catch { throw new Error('The local Ollama endpoint must be a valid loopback URL.'); }
+  const hostname = url.hostname.toLowerCase();
+  if (!['http:', 'https:'].includes(url.protocol)
+    || !['localhost', '127.0.0.1', '[::1]'].includes(hostname)) {
+    throw new Error('The local Ollama adapter accepts loopback endpoints only. Use a self-hosted semantic adapter for remote infrastructure.');
+  }
+  return value.replace(/\/$/, '');
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -53,7 +65,7 @@ export class OllamaSemanticEngine implements SemanticEngine {
 
   constructor(options: OllamaSemanticEngineOptions = {}) {
     this.model = options.model ?? process.env.PGS_OLLAMA_MODEL ?? 'qwen3.8:latest';
-    this.baseUrl = (options.baseUrl ?? process.env.PGS_OLLAMA_URL ?? 'http://127.0.0.1:11434').replace(/\/$/, '');
+    this.baseUrl = requireLoopbackBaseUrl(options.baseUrl ?? process.env.PGS_OLLAMA_URL ?? 'http://127.0.0.1:11434');
     const configuredTimeout = options.timeoutMs ?? Number(process.env.PGS_OLLAMA_TIMEOUT_MS ?? 240_000);
     this.timeoutMs = Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 240_000;
     this.fetchImpl = options.fetchImpl ?? fetch;

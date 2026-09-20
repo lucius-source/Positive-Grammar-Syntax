@@ -39,6 +39,13 @@ describe('PGS executable pipeline', () => {
     expect(result.semanticError).toMatch(/cloud fallback is disabled/);
   });
 
+  it('accepts an explicitly classified self-hosted semantic engine', async () => {
+    const selfHostedEngine = { ...localEngine, id: 'self-hosted:test', providerKind: 'self_hosted' as const };
+    const result = await runPgsPipeline('They deliberately ignored my email.', selfHostedEngine);
+    expect(result.semantic).toBeDefined();
+    expect(result.semanticError).toBeUndefined();
+  });
+
   it('grounds richer recommendations in explicit facts and intent', async () => {
     const result = await runPgsPipeline('They deliberately ignored my email.', localEngine, {
       context: {

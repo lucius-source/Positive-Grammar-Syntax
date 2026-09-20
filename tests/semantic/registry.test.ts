@@ -3,7 +3,7 @@ import { SemanticEngineRegistry } from '../../src/semantic/registry';
 import { MockSemanticEngine } from '../../src/semantic/adapters/mock';
 import type { SemanticEngine } from '../../src/semantic/types';
 
-const engine = (id: string, providerKind: 'local' | 'cloud' | 'custom'): SemanticEngine => ({
+const engine = (id: string, providerKind: 'local' | 'self_hosted' | 'cloud' | 'custom'): SemanticEngine => ({
   id,
   providerKind,
   capabilities: { propositionExtraction: true, relationResolution: true, ambiguityResolution: true, fidelityVerification: false, rendering: false, structuredOutput: true },
@@ -34,11 +34,26 @@ describe('semantic engine registry', () => {
     expect(result.engineId).toBe('local-qwen');
   });
 
-  it('falls back when the preferred engine fails', async () => {
+  it('falls back from local to approved self-hosted execution', async () => {
     const registry = new SemanticEngineRegistry();
     registry.register({ ...engine('local-qwen', 'local'), async determine() { throw new Error('offline'); } });
+    registry.register(engine('gaia-self-hosted', 'self_hosted'));
     registry.register(engine('cloud-provider', 'cloud'));
     const result = await registry.determineLocalFirst(request);
-    expect(result.engineId).toBe('cloud-provider');
+    expect(result.engineId).toBe('gaia-self-hosted');
+  });
+
+  it('never falls back to a cloud provider', async () => {
+    let called = false;
+    const registry = new SemanticEngineRegistry();
+    registry.register({
+      ...engine('cloud-provider', 'cloud'),
+      async determine(request) {
+        called = true;
+        return engine('unused', 'cloud').determine(request);
+      },
+    });
+    await expect(registry.determineLocalFirst(request)).rejects.toThrow(/No non-cloud semantic determination engine/);
+    expect(called).toBe(false);
   });
 });

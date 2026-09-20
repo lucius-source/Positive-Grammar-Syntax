@@ -4,6 +4,13 @@ import { OllamaSemanticEngine } from '../../src/semantic/adapters/ollama';
 const request = { source: 'Maybe it will work.', deterministicDocument: { source: 'Maybe it will work.', propositions: [] }, deterministicRelations: [] };
 
 describe('Ollama semantic adapter', () => {
+  it('accepts loopback endpoints and rejects remote endpoints that would masquerade as local', () => {
+    expect(() => new OllamaSemanticEngine({ baseUrl: 'http://localhost:11434' })).not.toThrow();
+    expect(() => new OllamaSemanticEngine({ baseUrl: 'http://[::1]:11434' })).not.toThrow();
+    expect(() => new OllamaSemanticEngine({ baseUrl: 'https://ollama.gaia.example' })).toThrow(/loopback endpoints only/);
+    expect(() => new OllamaSemanticEngine({ baseUrl: 'http://192.168.1.20:11434' })).toThrow(/self-hosted semantic adapter/);
+  });
+
   it('uses the configured local model and structured JSON mode', async () => {
     let sent: any;
     const fakeFetch = async (_url: any, init?: any) => {

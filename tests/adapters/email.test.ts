@@ -63,10 +63,10 @@ describe('email adapter', () => {
     await expect(suggestEmail({ body: 'Text.' }, { targets: [{ kind: 'attachment-section', attachmentId: 'missing', sectionId: 'S1' }] })).rejects.toThrow(/unknown or non-text/i);
   });
 
-  it('requires an explicitly supplied local engine when selected content needs semantic review', async () => {
+  it('requires an explicitly supplied local or approved self-hosted engine when selected content needs semantic review', async () => {
     await expect(suggestEmail(
       { body: 'They deliberately ignored my email.' },
       { targets: [{ kind: 'body' }] },
-    )).rejects.toThrow(/local semantic engine is required/i);
+    )).rejects.toThrow(/local semantic engine or approved self-hosted semantic engine is required/i);
   });
 });

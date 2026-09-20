@@ -3,6 +3,7 @@ import { compareFidelity, type FidelityComparison } from './core/fidelity';
 import { detectDeterministicRules, type RuleFinding } from './core/rules';
 import { validatePgsDocument, type ValidationResult } from './core';
 import { runPgsPipeline, type PipelineResult } from './pipeline';
+import { isApprovedSemanticProviderKind } from './semantic/policy';
 import type { SemanticContext, SemanticEngine } from './semantic/types';
 
 export interface AnalyseOperationResult {
@@ -69,7 +70,7 @@ const unusedLocalEngine: SemanticEngine = {
     structuredOutput: true,
   },
   async determine() {
-    throw new Error('A local semantic engine is required for semantic review.');
+    throw new Error('A local semantic engine or approved self-hosted semantic engine is required for semantic review.');
   },
 };
 
@@ -165,14 +166,14 @@ export function score(source: string): ScoreOperationResult {
   };
 }
 
-/** Run the recommendation pipeline, requiring an explicit local engine when semantic review is needed. */
+/** Run the recommendation pipeline with an explicit local or approved self-hosted engine when semantic review is needed. */
 export async function suggest(source: string, options: SuggestOptions = {}): Promise<PipelineResult> {
   const analysis = analyse(source);
-  if (options.engine && options.engine.providerKind !== 'local') {
-    throw new Error('PGS suggestions accept local semantic engines only; cloud fallback is disabled.');
+  if (options.engine && !isApprovedSemanticProviderKind(options.engine.providerKind)) {
+    throw new Error('PGS suggestions accept local or approved self-hosted semantic engines only; cloud fallback is disabled.');
   }
   if (analysis.deterministic.requiresSemanticReview && !options.engine) {
-    throw new Error('A local semantic engine is required because this source needs semantic review.');
+    throw new Error('A local semantic engine or approved self-hosted semantic engine is required because this source needs semantic review.');
   }
   const pipelineOptions = options.context ? { context: options.context } : {};
   return runPgsPipeline(source, options.engine ?? unusedLocalEngine, pipelineOptions);

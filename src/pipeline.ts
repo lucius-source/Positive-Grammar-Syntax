@@ -2,6 +2,7 @@ import { analyseDocument, type DocumentAnalysis } from './analyser/document';
 import { detectDeterministicRules, type RuleFinding } from './core/rules';
 import { validatePgsDocument, type ValidationResult } from './core';
 import { compareFidelity } from './core/fidelity';
+import { isApprovedSemanticProviderKind } from './semantic/policy';
 import type { SemanticContext, SemanticDetermination, SemanticEngine, SemanticResponse } from './semantic/types';
 import { renderRecommendations, type Recommendation } from './render/recommendations';
 import { buildResolutionLedger, unresolvedFromLedger, type ResolutionEntry } from './resolution/ledger';
@@ -50,7 +51,7 @@ export async function runPgsPipeline(source: string, engine: SemanticEngine, opt
   let semanticError: string | undefined;
   if (deterministic.requiresSemanticReview && validation.valid) {
     try {
-      if (engine.providerKind !== 'local') throw new Error('PGS CLI permits local semantic engines only; cloud fallback is disabled.');
+      if (!isApprovedSemanticProviderKind(engine.providerKind)) throw new Error('PGS permits local or approved self-hosted semantic engines only; cloud fallback is disabled.');
       const response = await engine.determine({ source, deterministicDocument: deterministic.document, deterministicRelations: deterministic.relations, ...(options.context ? { context: options.context } : {}) });
       semantic = response;
     } catch (error) { semanticError = error instanceof Error ? error.message : String(error); }

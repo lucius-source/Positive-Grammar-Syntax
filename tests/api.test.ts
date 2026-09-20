@@ -66,8 +66,8 @@ describe('public PGS engine API', () => {
     expect(result.recommendations[0]?.text).toBe('I sent the document yesterday.');
   });
 
-  it('requires an explicit local engine for semantic review', async () => {
-    await expect(suggest('They deliberately ignored my email.')).rejects.toThrow(/local semantic engine is required/i);
+  it('requires an explicit local or approved self-hosted engine for semantic review', async () => {
+    await expect(suggest('They deliberately ignored my email.')).rejects.toThrow(/local semantic engine or approved self-hosted semantic engine is required/i);
     const result = await suggest('They deliberately ignored my email.', { engine: localEngine });
     expect(result.semantic).toBeDefined();
     expect(result.unresolved).toEqual(expect.arrayContaining(['P1: reference', 'P1: motive']));
@@ -76,6 +76,12 @@ describe('public PGS engine API', () => {
   it('rejects cloud engines at the public boundary', async () => {
     const cloudEngine = { ...localEngine, id: 'cloud:api-test', providerKind: 'cloud' as const };
     await expect(suggest('I sent the document yesterday.', { engine: cloudEngine })).rejects.toThrow(/cloud fallback is disabled/i);
+  });
+
+  it('accepts an explicitly classified self-hosted engine at the public boundary', async () => {
+    const selfHostedEngine = { ...localEngine, id: 'self-hosted:api-test', providerKind: 'self_hosted' as const };
+    const result = await suggest('They deliberately ignored my email.', { engine: selfHostedEngine });
+    expect(result.semantic).toBeDefined();
   });
 
   it('compares candidates using deterministic fidelity invariants', () => {

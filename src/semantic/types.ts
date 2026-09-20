@@ -1,7 +1,7 @@
 import type { PgsDocument, PgsProposition, Domain } from '../core/types';
 import type { PropositionRelation } from '../analyser/document';
 
-export type SemanticProviderKind = 'local' | 'cloud' | 'custom';
+export type SemanticProviderKind = 'local' | 'self_hosted' | 'cloud' | 'custom';
 export type PgsLevel = 'L1' | 'L2' | 'L3-natural' | 'L3-formal';
 
 export interface SemanticEngineCapabilities {

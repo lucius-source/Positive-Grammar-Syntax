@@ -4,7 +4,7 @@ The private package boundary exports five primary operations, four channel-adapt
 
 - `analyse(source)` performs deterministic document/PIR analysis, rule detection and validation without calling a model.
 - `score(source)` returns a deterministic 0–100 analysis-readiness score with every deduction exposed. It does not score truth, writing quality, morality or the speaker.
-- `suggest(source, options)` runs the verified recommendation pipeline. When semantic review is required, `options.engine` must be an explicitly supplied local semantic engine.
+- `suggest(source, options)` runs the verified recommendation pipeline. When semantic review is required, `options.engine` must be an explicitly supplied local or approved self-hosted semantic engine.
 - `compare(source, candidate, options)` applies deterministic fidelity invariants to a proposed transformation.
 - `explain(source)` returns deterministic rule, ambiguity and protected-content explanations without inventing resolution.
 - `analyseEmail(input)` preserves and independently analyses supplied subject, body, thread and attachment structure.
@@ -86,7 +86,10 @@ const outcome = decideSuggestionReview(proposal, {
 - `suggest`, `suggestEmail` and `suggestTextDocument` do not silently continue through unresolved semantic review without an engine.
 - Adapter suggestions require explicit, unique selections and reject protected sections.
 - A selected source with any blocked fidelity finding is withheld rather than exposing recommendation text.
-- Supplied semantic engines must report `providerKind: 'local'`; cloud engines are rejected even when deterministic review would otherwise be sufficient.
+- Supplied semantic engines must report `providerKind: 'local'` or `providerKind: 'self_hosted'`; cloud and unclassified custom engines are rejected even when deterministic review would otherwise be sufficient.
+- `local` means loopback execution on the same machine. The local Ollama adapter rejects non-loopback URLs so remote infrastructure cannot masquerade as local.
+- `self_hosted` means an application-controlled production service. Authentication, transport security, entitlement, metering and durable audit remain application responsibilities; the PGS engine receives only the typed semantic-engine boundary.
+- Registry fallback never selects a cloud provider. A failed local engine may use an explicitly registered self-hosted engine, but there is no cloud-model fallback.
 - Model output remains untrusted and is validated through the existing PGS-PIR, resolution-ledger and fidelity pipeline.
 - User context remains explicitly typed and provenance-bearing; it is not merged into the source.
 - Review preparation rebuilds proposal integrity and always defaults to rejection; approval remains disabled for blocked fidelity results.

@@ -19,13 +19,15 @@ export class SemanticEngineRegistry {
   }
 
   preferred(): SemanticEngine[] {
-    const rank = { local: 0, custom: 1, cloud: 2 } as const;
+    const rank = { local: 0, self_hosted: 1, custom: 2, cloud: 3 } as const;
     return this.list().sort((a, b) => rank[a.providerKind] - rank[b.providerKind]);
   }
 
   async determineLocalFirst(request: SemanticRequest): Promise<{ engineId: string; response: SemanticResponse }> {
-    const candidates = this.preferred().filter(e => e.capabilities.propositionExtraction || e.capabilities.ambiguityResolution || e.capabilities.relationResolution);
-    if (!candidates.length) throw new Error('No semantic determination engine is registered.');
+    const candidates = this.preferred().filter(e =>
+      e.providerKind !== 'cloud'
+      && (e.capabilities.propositionExtraction || e.capabilities.ambiguityResolution || e.capabilities.relationResolution));
+    if (!candidates.length) throw new Error('No non-cloud semantic determination engine is registered.');
 
     let lastError: unknown;
     for (const engine of candidates) {
