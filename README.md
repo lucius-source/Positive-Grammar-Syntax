@@ -113,7 +113,7 @@ const approved = approveSuggestionApplication(proposal, {
 const updatedEmail = applyApprovedEmailSuggestion({ body: proposal.source }, approved);
 ```
 
-The former rule-only analysis helper remains available internally as `analyseRules`. Run `npm run build` to emit the private ESM package and TypeScript declarations into `dist`; `npm run check` also verifies the built package through its public export map. The package remains marked private and is not published. `npm run release:check` verifies a deterministic internal release candidate against `config/release-contract.json`; the local-model gate remains a separate mandatory step documented in `docs/15-release-versioning.md`.
+The former rule-only analysis helper remains available internally as `analyseRules`. Run `npm run build` to emit the private ESM package and TypeScript declarations into `dist`; `npm run check` also verifies the built package through its public export map. The package remains marked private and is not published. A portal may install an exact evaluated Git commit; npm's `prepare` lifecycle builds the omitted `dist` artifacts before that dependency is packed. The consuming lockfile must retain the resolved commit rather than follow a moving branch. `npm run release:check` verifies a deterministic internal release candidate against `config/release-contract.json`; the local-model gate remains a separate mandatory step documented in `docs/15-release-versioning.md`.
 
 ## Local CLI
 

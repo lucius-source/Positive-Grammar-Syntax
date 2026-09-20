@@ -26,6 +26,7 @@
     "eval:fidelity": "node --import tsx src/fidelity-eval-cli.ts",
     "eval:fuzz": "node --import tsx src/fidelity-fuzz-cli.ts",
     "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.build.json && node scripts/finalize-esm-build.mjs",
+    "prepare": "npm run build",
     "verify:package": "tsc -p tsconfig.package-consumer.json && node scripts/verify-package.mjs",
     "artifacts:ci": "node scripts/write-ci-artifacts.mjs",
     "release:check": "npm run check && npm run artifacts:ci && node scripts/verify-release-candidate.mjs",

@@ -3,6 +3,10 @@ import { resolve } from 'node:path';
 
 const publicModule = await import('../dist/public.js');
 const releaseContract = JSON.parse(readFileSync(new URL('../config/release-contract.json', import.meta.url), 'utf8'));
+const packageManifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+if (packageManifest.scripts?.prepare !== 'npm run build') {
+  throw new Error('The private Git package must build its dist artifacts during dependency preparation.');
+}
 const expectedExports = [...releaseContract.runtimeExports].sort();
 const actualExports = Object.keys(publicModule).sort();
 if (JSON.stringify(actualExports) !== JSON.stringify(expectedExports)) {

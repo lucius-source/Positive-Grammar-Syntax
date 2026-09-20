@@ -59,4 +59,4 @@ Any weakening of fidelity, provenance, explicit approval, protected-content hand
 
 ## Tagging and publication
 
-No automated publish step is authorized while `private: true` remains in `package.json`. After both gates pass, an internal tag may use `v<package-version>` and should point to the exact evaluated commit. Publishing to a registry, changing package visibility or declaring 1.0 requires a separate explicit decision.
+No automated registry publish step is authorized while `private: true` remains in `package.json`. After both gates pass, an internal tag may use `v<package-version>` and should point to the exact evaluated commit. An authorised internal application may consume that exact Git commit as a private dependency: npm runs `prepare` to build the uncommitted `dist` artifacts, and the application's lockfile records the resolved commit. A moving branch is not a release reference. Publishing to a registry, changing package visibility or declaring 1.0 requires a separate explicit decision.
