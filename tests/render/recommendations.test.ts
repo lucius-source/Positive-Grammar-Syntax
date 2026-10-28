@@ -53,6 +53,40 @@ describe('conservative natural recommendations', () => {
     expect(l2?.text).toBeUndefined();
   });
 
+  /**
+   * The evaluative-label rule covers the family its detector already matches.
+   *
+   * `evaluativeLabel` in core/rules.ts matches useless, hopeless and
+   * worthless, and raises PGS-002 and PGS-005 for all three. Until 2026-10-28
+   * the renderer matched the single sentence "I'm useless at this.", so the
+   * engine could name the problem in "I'm hopeless at spreadsheets" and could
+   * not rewrite it.
+   *
+   * The object is carried through verbatim. Inventing a task the speaker did
+   * not name is the one failure this rule must not have.
+   */
+  it.each([
+    ["I'm useless at this.", 'I am having difficulty with this task.'],
+    ["I'm hopeless at spreadsheets.", 'I am having difficulty with spreadsheets.'],
+    ['I am worthless at negotiating.', 'I am having difficulty with negotiating.'],
+    ["I'm useless at it.", 'I am having difficulty with this task.'],
+    [
+      "I'm hopeless at remembering names.",
+      'I am having difficulty with remembering names.',
+    ],
+  ])('calibrates the evaluative label in %s', (source, expected) => {
+    const [l1] = renderFromPir(source);
+    expect(l1?.text).toBe(expected);
+    expect(l1?.ruleIds).toEqual(['PGS-002', 'PGS-005']);
+  });
+
+  it('does not calibrate an evaluative label about someone else', () => {
+    // The rule speaks for the speaker about the speaker. Rewriting a claim
+    // about a third party would change what was said about them.
+    const [l1] = renderFromPir('He is useless at this.');
+    expect(l1?.text).not.toBe('I am having difficulty with this task.');
+  });
+
   it.each([
     ['Errors were committed.', 'The actor responsible for the errors is not identified.'],
     ["I'm not yet able to complete this.", 'I do not currently have the capability to complete this.'],

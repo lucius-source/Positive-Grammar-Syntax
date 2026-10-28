@@ -53,8 +53,31 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
   if (/^I (?:do not|don't) consent to this\.?$/i.test(clean)) {
     return { text: 'I do not consent to this.', ruleIds: ['PGS-007'], supportingFields: ['P1.actor', 'P1.actionOrRelation', 'P1.negation', 'P1.speechAct'] };
   }
-  if (/^I['’]m useless at this\.?$/i.test(clean)) {
-    return { text: 'I am having difficulty with this task.', ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.actor', 'P1.sourceSpan', 'P1.ambiguity.reference'] };
+  /**
+   * A global evaluative self-description, calibrated to the task.
+   *
+   * `evaluativeLabel` in core/rules.ts already detects the whole family —
+   * /\b(?:useless|hopeless|worthless)\b/ — and raises PGS-002 ("may combine a
+   * present difficulty with a fixed identity claim") and PGS-005 ("a global
+   * capability claim requires calibration to the known task"). The renderer
+   * matched one exact sentence, so the engine could SAY what was wrong with
+   * "I'm hopeless at spreadsheets" and could not rewrite it.
+   *
+   * What is calibrated is the identity claim, not the difficulty: "useless"
+   * asserts a fixed property of the speaker, and the rewrite reduces it to the
+   * present task without denying the difficulty or inventing a cause. The
+   * object is carried through verbatim — inventing a task the speaker did not
+   * name is the one thing this must not do — and only a bare "this" or "it"
+   * becomes "this task", because "difficulty with this" does not read as
+   * English.
+   */
+  const evaluativeSelf = clean.match(
+    /^I(?:\s+am|['’]m)\s+(?:useless|hopeless|worthless)\s+at\s+(.+?)\.?$/i,
+  );
+  if (evaluativeSelf?.[1]) {
+    const object = evaluativeSelf[1].trim();
+    const target = /^(?:this|it)$/i.test(object) ? 'this task' : object;
+    return { text: `I am having difficulty with ${target}.`, ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.actor', 'P1.sourceSpan', 'P1.ambiguity.reference'] };
   }
   if (/^I feel blocked energy around this decision\.?$/i.test(clean)) {
     return { text: 'I experience what I describe as blocked energy around this decision.', ruleIds: ['PGS-005'], supportingFields: ['P1.actor', 'P1.observation', 'P1.domain', 'P1.sourceSpan'] };
