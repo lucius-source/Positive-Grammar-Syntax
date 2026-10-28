@@ -162,6 +162,72 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
     return { text: `I am not currently able to ${inability[1].trim()}.`, ruleIds: ['PGS-003', 'PGS-005'], supportingFields: ['P1.actor', 'P1.actionOrRelation', 'P1.negation', 'P1.modality'] };
   }
 
+  /**
+   * A vague evaluation, with the missing part named rather than supplied.
+   *
+   * `vagueFeedback` raises PGS-002 ("vague evaluation should be separated from
+   * observable criteria") and PGS-006 ("a constructive request requires actual
+   * criteria; none may be invented").
+   *
+   * Those two pull in opposite directions unless the rewrite names the gap
+   * instead of filling it — which is exactly what the PGS-001 rule above
+   * already does for a missing actor ("The actor responsible for the errors is
+   * not identified"). The same move applies here: say that the criteria are
+   * absent, and invent none.
+   *
+   * PGS-006 is not claimed in `ruleIds`, for the reason it is not claimed on
+   * impossibility: no criteria were proposed, so reporting the rule would
+   * overstate what the engine did.
+   */
+  const vagueEvaluation = clean.match(
+    /^(?:the|this|that|my|your)\s+(report|feedback|draft|work)\b[^.!?]*\bbad\b[^.!?]*\.?$/i,
+  );
+  if (vagueEvaluation?.[1]) {
+    return { text: `The criteria for this evaluation of the ${vagueEvaluation[1].toLowerCase()} are not stated.`, ruleIds: ['PGS-002'], supportingFields: ['P1.objectOrTarget', 'P1.observation', 'P1.sourceSpan'] };
+  }
+
+  /**
+   * An absolute generalisation, calibrated and attributed.
+   *
+   * `absoluteGeneralisation` matches always, never, nobody, everybody,
+   * everyone and nothing, raising PGS-002 ("may combine observation with
+   * interpretation") and PGS-005 ("requires evidence or epistemic
+   * calibration"). Only one shape was rendered — addressee + listen + never,
+   * above, which keeps its precedence.
+   *
+   * ── WHY ONLY THE ADVERB MOVES ───────────────────────────────────────────
+   *
+   * Calibration here is two small changes and no more: the absolute becomes a
+   * frequency the speaker can actually support, and the claim is attributed to
+   * them. Everything else is carried through untouched, because rewriting the
+   * verb would mean changing tense — "you have interrupt me" is what regex
+   * surgery on a predicate produces, and a rule that mangles grammar to look
+   * thorough is worse than one that does less.
+   *
+   * ── WHY IMPERATIVES AND PROTECTED DOMAINS ARE EXCLUDED ──────────────────
+   *
+   * The subject is required, so "Never energise the circuit while live" does
+   * not match: it is an instruction, and softening "never" to "rarely" there
+   * would invert a safety rule. The domain guard repeats the point for cases
+   * the grammar lets through, and a necessary negation is refused outright.
+   */
+  const absolute = clean.match(
+    /^(I|we|you|they|he|she)\s+(always|never)\s+(.+?)\.?$/i,
+  );
+  if (
+    absolute?.[1] &&
+    absolute[3] &&
+    !proposition?.domain &&
+    proposition?.negation?.necessary !== true
+  ) {
+    // Lower-cased because the subject moves out of sentence-initial position,
+    // except the first-person pronoun, which is capitalised wherever it sits.
+    const lowered = absolute[1].toLowerCase();
+    const subject = lowered === 'i' ? 'I' : lowered;
+    const frequency = absolute[2].toLowerCase() === 'always' ? 'often' : 'rarely';
+    return { text: `I believe ${subject} ${frequency} ${absolute[3].trim()}.`, ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.actor', 'P1.actionOrRelation', 'P1.epistemicStatus', 'P1.sourceSpan'] };
+  }
+
   const uncertainty = clean.match(/^Maybe\s+(.+?)[.]?$/i);
   if (uncertainty?.[1]) {
     return { text: `I am uncertain whether ${uncertainty[1].replace(/[.]$/, '')}.`, ruleIds: ['PGS-005'], supportingFields: ['P1.epistemicStatus', 'P1.sourceSpan'] };

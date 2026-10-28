@@ -149,6 +149,61 @@ describe('conservative natural recommendations', () => {
     expect(l1?.ruleIds).toEqual([]);
   });
 
+  /**
+   * A vague evaluation names the gap rather than filling it.
+   *
+   * PGS-002 wants the evaluation separated from observable criteria; PGS-006
+   * forbids inventing any. Naming the absence satisfies both, and matches what
+   * the PGS-001 rule already does for a missing actor.
+   */
+  it.each([
+    ['The report is bad.', 'The criteria for this evaluation of the report are not stated.'],
+    ['This draft is really bad.', 'The criteria for this evaluation of the draft are not stated.'],
+  ])('separates vague evaluation from criteria in %s', (source, expected) => {
+    const [l1] = renderFromPir(source);
+    expect(l1?.text).toBe(expected);
+    expect(l1?.ruleIds).toEqual(['PGS-002']);
+  });
+
+  /**
+   * An absolute generalisation is calibrated and attributed — adverb only.
+   *
+   * Rewriting the verb would mean changing tense, and regex surgery on a
+   * predicate produces "you have interrupt me". The rule moves the adverb,
+   * attributes the claim, and carries everything else through.
+   */
+  it.each([
+    ['You always interrupt me.', 'I believe you often interrupt me.'],
+    ['They never reply to my emails.', 'I believe they rarely reply to my emails.'],
+    // The first-person pronoun stays capitalised when it moves out of
+    // sentence-initial position. The first version of this rule lower-cased
+    // every subject and produced "I believe i often...".
+    ['I always get this wrong.', 'I believe I often get this wrong.'],
+  ])('calibrates the absolute in %s', (source, expected) => {
+    const [l1] = renderFromPir(source);
+    expect(l1?.text).toBe(expected);
+    expect(l1?.ruleIds).toEqual(['PGS-002', 'PGS-005']);
+  });
+
+  it('keeps the specific never-listen rule ahead of the general one', () => {
+    // The structural rule is more informative than the generic calibration,
+    // so order matters and is asserted rather than assumed.
+    expect(renderFromPir('You never listen to me.')[0]?.text).toBe(
+      'I believe my points are not being fully heard.',
+    );
+  });
+
+  it.each([
+    'Never energise the circuit while it is live.',
+    'You never disclose the contract terms.',
+  ])('does not soften an absolute that carries operative force: %s', (source) => {
+    // The first has no subject, so it is an instruction rather than a report;
+    // the second is legal by domain. Softening "never" to "rarely" in either
+    // would invert the rule being stated.
+    const [l1] = renderFromPir(source);
+    expect(l1?.text).not.toMatch(/\brarely\b/);
+  });
+
   it.each([
     ['Errors were committed.', 'The actor responsible for the errors is not identified.'],
     ["I'm not yet able to complete this.", 'I do not currently have the capability to complete this.'],
