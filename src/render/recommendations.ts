@@ -85,6 +85,83 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
   if (/^I (?:do not|don't) disagree\.?$/i.test(clean)) {
     return { text: 'I am not expressing disagreement.', ruleIds: ['PGS-005', 'PGS-007'], supportingFields: ['P1.actor', 'P1.actionOrRelation', 'P1.negation', 'P1.ambiguity.epistemicPosition'] };
   }
+  /**
+   * A conditional apology, with its condition preserved.
+   *
+   * `conditionalApology` (/\bsorry\s+if\b/) raises PGS-002: "do not invent an
+   * admission or causal fact". That rules out the obvious rewrite — turning
+   * "I'm sorry if that upset you" into an apology for having upset them
+   * asserts the upset as fact, which is precisely the invention forbidden.
+   *
+   * So the condition is kept and moved to the front. docs/11 requires
+   * "embedded condition preservation for constructions such as conditional
+   * apologies", and fronting preserves the proposition exactly while removing
+   * the reading in which "sorry" lands first and the condition is heard as a
+   * qualifier on it. Truth-conditionally identical; structurally honest.
+   */
+  const conditionalApology = clean.match(
+    /^(?:I(?:\s+am|['’]m)\s+)?sorry\s+if\s+(.+?)\.?$/i,
+  );
+  if (conditionalApology?.[1]) {
+    return { text: `If ${conditionalApology[1].trim()}, I am sorry.`, ruleIds: ['PGS-002'], supportingFields: ['P1.actor', 'P1.speechAct', 'P1.sourceSpan', 'relation.condition'] };
+  }
+
+  /**
+   * Absolute impossibility, calibrated to what the speaker can see.
+   *
+   * `absoluteImpossibility` (/\bimpossible\b/) raises PGS-002 (the absolute
+   * "may combine a constraint with an interpretation"), PGS-005
+   * ("impossibility requires evidence or calibrated personal scope") and
+   * PGS-006 ("a proposed range or alternative requires user-supplied
+   * context").
+   *
+   * PGS-006 is the one that shapes this: the rewrite must NOT offer a way
+   * round. It reduces a claim about the world to a claim about the speaker's
+   * present view, which is what they can actually warrant, and stops there.
+   * PGS-006 is deliberately not in `ruleIds` — no alternative is proposed, so
+   * claiming the rule would misreport what was done.
+   */
+  const impossibility = clean.match(
+    /^(?:this|that|it)\s+is\s+impossible\s*(?:to\s+(.+?))?\.?$/i,
+  );
+  if (impossibility) {
+    const object = impossibility[1]?.trim();
+    return { text: object ? `I do not currently see a way to ${object}.` : 'I do not currently see a way to do this.', ruleIds: ['PGS-002', 'PGS-005'], supportingFields: ['P1.actionOrRelation', 'P1.epistemicStatus', 'P1.sourceSpan'] };
+  }
+
+  /**
+   * Present inability, beyond the one shape that was handled.
+   *
+   * `inability` matches can't, cannot, unable and "not (yet) able", and raises
+   * PGS-003: "present inability is distinguished from permanent incapability;
+   * preserve the actual scope." The structural rule above covers only
+   * speaker + complete + "yet"; everything else fell through unrewritten.
+   *
+   * ── THE GUARD IS THE POINT OF THIS RULE ─────────────────────────────────
+   *
+   * "Currently" is a softener, and softening is exactly what the charter
+   * forbids where the negation is operative: a transformation "must not
+   * reverse, soften or remove their operative meaning". `classifyProtectedDomain`
+   * treats *consent*, *liable*, *contract* and *notice* as legal, so "I cannot
+   * consent to this" is protected — rewriting it to "not currently able"
+   * implies a temporary position the speaker did not take, in the one domain
+   * where that difference is the whole meaning. A necessary negation is
+   * refused for the same reason.
+   *
+   * Both are left exactly as written, which is the correct outcome rather
+   * than a missed one.
+   */
+  const inability = clean.match(
+    /^I\s+(?:can(?:'|’)?t|cannot|can\s+not)\s+(.+?)\.?$/i,
+  );
+  if (
+    inability?.[1] &&
+    !proposition?.domain &&
+    proposition?.negation?.necessary !== true
+  ) {
+    return { text: `I am not currently able to ${inability[1].trim()}.`, ruleIds: ['PGS-003', 'PGS-005'], supportingFields: ['P1.actor', 'P1.actionOrRelation', 'P1.negation', 'P1.modality'] };
+  }
+
   const uncertainty = clean.match(/^Maybe\s+(.+?)[.]?$/i);
   if (uncertainty?.[1]) {
     return { text: `I am uncertain whether ${uncertainty[1].replace(/[.]$/, '')}.`, ruleIds: ['PGS-005'], supportingFields: ['P1.epistemicStatus', 'P1.sourceSpan'] };

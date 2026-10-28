@@ -87,6 +87,68 @@ describe('conservative natural recommendations', () => {
     expect(l1?.text).not.toBe('I am having difficulty with this task.');
   });
 
+  /**
+   * A conditional apology keeps its condition.
+   *
+   * PGS-002 forbids inventing an admission, which rules out the obvious
+   * rewrite: "I am sorry that I upset you" asserts the upset as fact. Fronting
+   * the condition preserves the proposition exactly and removes the reading
+   * where "sorry" lands first and the condition is heard as a qualifier.
+   */
+  it.each([
+    ["I'm sorry if that upset you.", 'If that upset you, I am sorry.'],
+    ['I am sorry if the delay caused problems.', 'If the delay caused problems, I am sorry.'],
+  ])('preserves the embedded condition in %s', (source, expected) => {
+    const [l1] = renderFromPir(source);
+    expect(l1?.text).toBe(expected);
+    expect(l1?.ruleIds).toEqual(['PGS-002']);
+  });
+
+  /**
+   * Impossibility becomes a claim the speaker can warrant — and nothing more.
+   *
+   * PGS-006 says a proposed alternative requires user-supplied context, so the
+   * rewrite must not offer a way round. It is deliberately absent from
+   * ruleIds: no alternative was proposed, so claiming the rule would
+   * misreport what the engine did.
+   */
+  it.each([
+    ['This is impossible.', 'I do not currently see a way to do this.'],
+    ['It is impossible to deliver by Friday.', 'I do not currently see a way to deliver by Friday.'],
+  ])('calibrates absolute impossibility in %s', (source, expected) => {
+    const [l1] = renderFromPir(source);
+    expect(l1?.text).toBe(expected);
+    expect(l1?.ruleIds).toEqual(['PGS-002', 'PGS-005']);
+  });
+
+  /**
+   * Present inability, and the negation that must survive it.
+   *
+   * "Currently" is a softener. The charter forbids softening where the
+   * negation is operative, and classifyProtectedDomain treats consent as
+   * legal — so "I cannot consent" keeps its words. Leaving it untouched is
+   * the correct outcome, not a gap in coverage.
+   */
+  it.each([
+    ["I can't open the file.", 'I am not currently able to open the file.'],
+    ['I cannot attend on Thursday.', 'I am not currently able to attend on Thursday.'],
+  ])('scopes present inability in %s', (source, expected) => {
+    expect(renderFromPir(source)[0]?.text).toBe(expected);
+  });
+
+  it.each([
+    'I cannot consent to this.',
+    'I cannot accept liability for this.',
+  ])('leaves a protected-domain negation unsoftened: %s', (source) => {
+    const [l1] = renderFromPir(source);
+    // Asserted as equality, not as the absence of "not currently able": these
+    // sentences DO match the inability pattern, so a test that only checked
+    // for the softened wording would also pass if the rule had never fired,
+    // and would stop proving the guard the moment the pattern changed.
+    expect(l1?.text).toBe(source);
+    expect(l1?.ruleIds).toEqual([]);
+  });
+
   it.each([
     ['Errors were committed.', 'The actor responsible for the errors is not identified.'],
     ["I'm not yet able to complete this.", 'I do not currently have the capability to complete this.'],
