@@ -98,6 +98,87 @@ function verifiedConditionalReframe(source: string, candidate: string): boolean 
     && missing(terms(source, TEMPORAL), terms(candidate, TEMPORAL)).length === 0;
 }
 
+/**
+ * Verbs whose meaning IS sentential negation of their complement.
+ *
+ * Deliberately tiny, and `refuse` is deliberately absent. "Fail to send" means
+ * "not send", so "did not fail to send" means "sent". "Refuse to attend" means
+ * "declined to attend", which is NOT "not attend" — you can fail to attend
+ * without refusing, and not refusing does not mean you went. Every verb added
+ * here must satisfy `V to X` ≡ `not X` exactly, or EXC-009 starts certifying
+ * inferences instead of equivalences.
+ */
+const NEGATIVE_VERB = /\b(?:fail(?:s|ed|ing)?|neglect(?:s|ed|ing)?|omit(?:s|ted|ting)?|forget(?:s|ting)?|forgot(?:ten)?)\s+to\b/gi;
+
+/**
+ * Where parity reasoning is not sound.
+ *
+ * "Not all balances are addressed" and "all balances are unaddressed" have the
+ * same negation count and opposite meanings, because negation and a universal
+ * quantifier do not commute. Rather than model scope, EXC-009 refuses.
+ */
+const SCOPE_SENSITIVE = /\b(?:not\s+(?:all|every|any|both|each)|(?:all|every|each|both)\b[^.?!]{0,40}\bnot)\b/i;
+
+/** Occurrences, NOT unique terms: "not … not" is two negations and cancels. */
+function countMatches(text: string, pattern: RegExp): number {
+  return (text.match(new RegExp(pattern.source, pattern.flags)) ?? []).length;
+}
+
+/** Even means the proposition asserts; odd means it denies. */
+function negationParity(text: string): number {
+  return (countMatches(text, NEGATION) + countMatches(text, NEGATIVE_VERB)) % 2;
+}
+
+const sameField = (a?: string | null, b?: string | null): boolean =>
+  (a ?? '').trim().toLowerCase() === (b ?? '').trim().toLowerCase();
+
+/**
+ * EXC-009: is this negation change a verified double-negation elimination?
+ *
+ * Three things must hold together, and each stops a different failure. Parity
+ * catches "did not fail to send" ≡ "sent" while rejecting "have not received"
+ * → "received". The core comparison stops parity from certifying two unrelated
+ * sentences that happen to agree modulo two. The scope guard refuses the
+ * quantifier cases parity cannot reason about.
+ *
+ * THE CORE MUST BE VISIBLE, not merely equal. PGS extracts actions from a
+ * closed lexicon, so for most sentences `actionOrRelation` is undefined — and
+ * two undefineds comparing equal would certify anything. An action PGS cannot
+ * see is not a verified one, so an absent action refuses.
+ *
+ * That is why this fires rarely today. The limit is now parser coverage, which
+ * can grow, rather than a blanket refusal, which cannot.
+ */
+function verifiedDoubleNegation(source: string, candidate: string): boolean {
+  /*
+    Nothing to certify when the negation did not change. Without this, an
+    unchanged sentence satisfies parity and core trivially and every ordinary
+    faithful rewrite picks up an EXC-009 note explaining a transformation that
+    never happened.
+  */
+  const sourceMarkers = terms(source, NEGATION);
+  const candidateMarkers = terms(candidate, NEGATION);
+  if (
+    missing(sourceMarkers, candidateMarkers).length === 0
+    && missing(candidateMarkers, sourceMarkers).length === 0
+  ) return false;
+
+  if (SCOPE_SENSITIVE.test(source) || SCOPE_SENSITIVE.test(candidate)) return false;
+  if (negationParity(source) !== negationParity(candidate)) return false;
+
+  const sourcePropositions = analyseDocument(source).document.propositions;
+  const candidatePropositions = analyseDocument(candidate).document.propositions;
+  if (sourcePropositions.length !== 1 || candidatePropositions.length !== 1) return false;
+
+  const from = sourcePropositions[0];
+  const to = candidatePropositions[0];
+  if (!from?.actionOrRelation || !to?.actionOrRelation) return false;
+
+  return sameField(from.actionOrRelation, to.actionOrRelation)
+    && sameField(from.actor, to.actor)
+    && sameField(from.objectOrTarget, to.objectOrTarget);
+}
+
 function verifiedUnknownActorReframe(source: string, candidate: string): boolean {
   const propositions = analyseDocument(source).document.propositions;
   return propositions.length === 1
@@ -114,15 +195,24 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
   const add = (issue: FidelityIssue) => issues.push(issue);
   const conditionalReframe = verifiedConditionalReframe(source, candidate);
   const unknownActorReframe = verifiedUnknownActorReframe(source, candidate);
+  // EXC-009. Claims EQUIVALENCE, so it suppresses both directions: the same
+  // verification that makes "did not fail to send" → "sent" safe makes
+  // "neglected to tell" → "did not tell" safe, and one-way suppression would
+  // be an asymmetry with no reason behind it.
+  const doubleNegation = verifiedDoubleNegation(source, candidate);
 
   const sourceNegation = terms(source, NEGATION);
   const candidateNegation = terms(candidate, NEGATION);
-  if (sourceNegation.size && candidateNegation.size === 0 && !conditionalReframe) {
+  if (sourceNegation.size && candidateNegation.size === 0 && !conditionalReframe && !doubleNegation) {
     add({ code: 'FIDELITY_NEGATION_REMOVED', severity: 'blocked', message: 'Candidate removes source negation; logical equivalence is not established.', evidence: [...sourceNegation].join(', ') });
   }
-  if (!terms(authorised, NEGATION).size && candidateNegation.size && !unknownActorReframe) {
+  if (!terms(authorised, NEGATION).size && candidateNegation.size && !unknownActorReframe && !doubleNegation) {
     add({ code: 'FIDELITY_NEGATION_INVENTED', severity: 'blocked', message: 'Candidate introduces negation absent from source and verified context.', evidence: [...candidateNegation].join(', ') });
   }
+  // review_required, never pass: structural verification is evidence that the
+  // parity and the core agree, not a semantic guarantee that they mean the
+  // same thing. The reader is told what was checked and decides.
+  if (doubleNegation) add({ code: 'FIDELITY_NEGATION_EQUIVALENT', severity: 'review_required', message: 'Candidate changes negation in a structurally verified double-negation elimination (EXC-009); final semantic review remains required.' });
   if (conditionalReframe) add({ code: 'FIDELITY_CONDITION_EQUIVALENT', severity: 'review_required', message: 'Candidate uses a structurally verified only-if contraposition; final semantic review remains required.' });
 
   const sourceConditions = terms(source, CONDITION);
@@ -180,7 +270,16 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
   const newActors = missing(terms(candidate, ACTOR), authorisedActors);
   if (newActors.length) add({ code: 'FIDELITY_ACTOR_INVENTED', severity: 'blocked', message: 'Candidate introduces an actor absent from source and verified context.', evidence: newActors.join(', ') });
 
-  const newActions = missing(terms(candidate, ACTION), terms(authorised, ACTION));
+  /*
+    `ACTION` matches surface forms, so "send" and "sent" are different terms
+    and "I did not fail to send it." → "I sent it." reads as an INVENTED
+    action. Under EXC-009 that conclusion is already known to be wrong:
+    `verifiedDoubleNegation` compared the PARSED `actionOrRelation` of both
+    propositions and found the same lemma. The parser's normalised action is
+    better evidence than a tense difference in a regex, so the verified case
+    defers to it. Everything outside EXC-009 is unchanged.
+  */
+  const newActions = doubleNegation ? [] : missing(terms(candidate, ACTION), terms(authorised, ACTION));
   if (newActions.length) add({ code: 'FIDELITY_ACTION_INVENTED', severity: 'blocked', message: 'Candidate introduces an action absent from source and verified context.', evidence: newActions.join(', ') });
 
   const sourcePir = pirFields(source);

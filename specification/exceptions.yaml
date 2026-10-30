@@ -70,6 +70,42 @@ exceptions:
       - "I am writing about the agreement we signed last year."
       - "The trustee has not replied to either of my letters."
 
+  - id: EXC-009
+    name: verified_double_negation
+    protects: [PGS-003, PGS-007]
+    amends: EXC-001
+    accepted: 2026-10-30
+    rule: >
+      Negation may be removed when its removal is VERIFIED not to alter the
+      asserted fact. Verification is structural and deterministic: the negation
+      parity of source and candidate must match, their propositions must carry
+      the same actor, action and object, and neither may contain a
+      scope-sensitive quantifier. Anything unverified stays blocked.
+    rationale: >
+      EXC-001 has always been conditional — "preserve negation WHEN removing it
+      would alter the asserted fact" — but the comparator read it as absolute
+      and refused every removal. The cost of that is not abstract: "I did not
+      fail to send it." cannot become "I sent it.", so PGS-003 Affirmative
+      Outcome and PGS-007 Constructive Negation, two of the seven rules, could
+      not be exercised at all on the sentences that most need them.
+      This does not weaken EXC-001. It implements the condition EXC-001 always
+      carried, and refuses to certify wherever the condition cannot be checked.
+    verification:
+      parity: Count explicit negation markers and inherently negative verbs; the counts must agree modulo two.
+      core: Both sides must expose a single proposition with the same actor, action and object. An action PGS cannot see is not a verified one.
+      scope_guard: Refuse when either side contains not-all, not-every, not-any, not-both, or an all/every/each separated from a negation — parity is not sufficient under quantifier scope.
+      outcome: review_required, never pass. Structural verification is evidence, not a semantic guarantee.
+    negative_verbs: [fail, neglect, omit, forget]
+    examples:
+      - ["I did not fail to send it.", "I sent it."]
+      - ["They neglected to tell me.", "They did not tell me."]
+    counterexamples:
+      # Not refusing is not doing: "refuse" is deliberately absent from
+      # negative_verbs, because refusal is not sentential negation.
+      - ["I did not refuse to attend.", "I attended."]
+      - ["I have not received the payment.", "I received the payment."]
+      - ["Not all balances are addressed.", "All balances are unaddressed."]
+
   - id: EXC-101
     name: clear_pronoun_reference
     domain: PGS-A

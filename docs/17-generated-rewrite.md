@@ -94,6 +94,58 @@ it is a communication sent to a person, so it is treated as correspondence
 unless a second marker corroborates. `tests/render/instrument.test.ts` holds
 the counterexamples that fix this line.
 
+## EXC-009 — the rule that forbade the fix
+
+**Added 2026-10-30, after the first render eval.**
+
+That eval found the generator safe and mostly inert: 0/8 unfaithful, but six
+of eight rewrites no clearer than the source, and the flagship case — the
+double negative used as the portal's own placeholder text — returned
+essentially unchanged.
+
+The cause was structural, not a prompt that needed another pass:
+
+```
+"I did not fail to send it."  →  "I sent it."
+BLOCKED: FIDELITY_NEGATION_REMOVED
+```
+
+That rewrite is logically equivalent and plainly better, and the comparator
+refused it. The comparator was not wrong — its message says "logical
+equivalence is not established", which is exactly true, it could not establish
+it. But the consequence was that PGS-003 Affirmative Outcome and PGS-007
+Constructive Negation, two of the seven rules, could not be exercised at all.
+
+EXC-001 had always been conditional: "preserve negation WHEN removing it would
+alter the asserted fact." The code read it as absolute. EXC-009 implements the
+condition rather than inventing a rule — parity, core identity and a scope
+guard, all deterministic, and `review_required` rather than `pass`, because
+structural verification is evidence and not a semantic guarantee.
+
+**It fires rarely, and the reason matters.** PGS extracts actions from a closed
+lexicon, so for most sentences `actionOrRelation` is undefined, and an action
+PGS cannot see is not one it can verify. The limit is now parser coverage,
+which can grow, rather than a blanket refusal, which cannot.
+
+Measured after, on the same ten letters plus two that exercise the new path:
+
+|  | before | after |
+|---|---|---|
+| wordings offered | 8/10 | 10/10 (12/12 corpus: 11) |
+| unfaithful | 0/8 | 0/11 |
+| clarity better | 2 | 3 |
+
+The prompt had to change too — the comparator permitting an untangling is no
+use while the renderer is told negation is untouchable. Both were needed, and
+only the `double-neg-send` case is attributable to EXC-009 alone; the council
+sentence improved because the prompt stopped forbidding it, and was never
+blocked by the comparator because its rewrite kept a negation.
+
+Run-to-run variation is real at this corpus size: two cases that scored
+"better" in the first run scored "same" in the second. The offered and
+unfaithful counts are the trustworthy numbers; the clarity split is not a
+precise rate.
+
 ## Testing
 
 `tests/render/instrument.test.ts` — the detector, counterexamples first, per
