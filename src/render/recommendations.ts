@@ -216,6 +216,7 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
   );
   if (
     absolute?.[1] &&
+    absolute[2] &&
     absolute[3] &&
     !proposition?.domain &&
     proposition?.negation?.necessary !== true
