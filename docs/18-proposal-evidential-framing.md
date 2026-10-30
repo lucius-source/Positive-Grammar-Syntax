@@ -1,9 +1,9 @@
 # Proposal — preserve evidential framing
 
-**Status: PROPOSED. Not implemented, and nothing in `specification/` has been
-changed.** AGENTS.md: "For ambiguous language behaviour, create an issue or
-specification proposal instead of silently choosing policy in code." This is
-that proposal. It needs a decision before any of it is built.
+**Status: ACCEPTED at `review_required`, owner, 2026-10-30. Implemented the
+same day.** The document is kept as written, in the proposing voice, because
+the measurement in §5 is the evidence the decision rests on and rewriting it
+as a description would lose that. §8 records what was built.
 
 **Raised:** 2026-10-30, by the render eval, against engine `7aca49f8`.
 
@@ -184,7 +184,46 @@ whatever accepts it.
 
 ---
 
-## 8. Provenance
+## 8. What was decided, and what was built — 2026-10-30
+
+Owner: **accept at `review_required`.** The four questions in §7, answered:
+
+1. **Accepted**, with the live endpoint in view. `review_required` cannot turn
+   a `pass` into a refusal, so no rewrite a member could previously adopt is
+   now refused — they are shown what moved and decide.
+2. **`review_required`**, as recommended.
+3. **`specification/rules.yaml`**, as the invariant
+   `preserve_evidential_framing`, beside
+   `never_increase_certainty_without_evidence` whose gap it closes. The
+   comment there points back to this document.
+4. **Parser work: not scheduled.** So the surface list in §4 is the rule in
+   force and its limits in §6 stand. It should be revisited when the parser's
+   action lexicon is next widened, not before.
+
+Built:
+
+- `preserve_evidential_framing` in `specification/rules.yaml`.
+- `EVIDENTIAL_FRAME` and `FIDELITY_FRAMING_REMOVED` in `core/fidelity.ts`,
+  placed immediately after `FIDELITY_CERTAINTY_UPGRADED` because it closes
+  that rule's gap.
+- `tests/core/evidential-framing.test.ts` — 15 cases, counterexamples first,
+  including the `g`-flag trap: the regex is non-global on purpose, because a
+  global one carries `lastIndex` between calls and would answer the same
+  comparison differently depending on what preceded it.
+- `ADV-020` in `corpus/evaluation/adversarial-fidelity.json`, so the case that
+  used to pass clean is pinned permanently rather than by a unit test alone.
+  The corpus-size guard moves 19 → 20.
+
+Verified: **281 tests** (from 266), **350 seeded fuzz cases**, **20/20
+adversarial**, build and package verify.
+
+**Still true, and not fixed by any of this:** the detector is a closed list of
+surface patterns and will miss framings outside it. §6 is the honest statement
+of what was bought.
+
+---
+
+## 9. Provenance
 
 Found by `scripts/pgs-render-eval.mjs` in the portal, run against engine
 `7aca49f8` on 2026-10-30: 10/12 wordings offered, **1 of 10 judged unfaithful**,

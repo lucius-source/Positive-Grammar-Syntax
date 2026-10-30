@@ -8,6 +8,24 @@ export interface FidelityComparison { status: 'pass' | 'review_required' | 'bloc
 
 const NEGATION = /\b(?:not|no|never|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|wouldn't|shouldn't|mustn't)\b/gi;
 const HEDGES = /\b(?:may|might|could|maybe|perhaps|possibly|uncertain|believe|think|assume|allege)\b/gi;
+/**
+ * Evidential framing — `preserve_evidential_framing`, accepted 2026-10-30.
+ *
+ * `HEDGES` above is epistemic modality and mental-state verbs. It is not
+ * evidentiality: the marking of a proposition as REPORTED or DECIDED rather
+ * than asserted. "It has been decided that X" does not claim X, it claims
+ * that someone unnamed decided X, and a candidate asserting X has changed who
+ * is making the claim. docs/18 has the measurement and the limits.
+ *
+ * No `g` flag. This is used with `test` and `exec` rather than `match`, and a
+ * global regex carries `lastIndex` between calls — which would make the same
+ * comparison answer differently depending on what was compared before it.
+ *
+ * The FRAME is required, never the bare verb: "we decided to close the
+ * account" is an assertion by a named actor and must not match.
+ */
+const EVIDENTIAL_FRAME =
+  /\b(?:it\s+(?:has\s+been|had\s+been|was|is)\s+(?:decided|agreed|determined|concluded|resolved|found|held|understood|reported|alleged|suggested|arranged|confirmed)\s+that|(?:a|the)\s+decision\s+(?:has\s+been|had\s+been|was)\s+(?:made|taken)|(?:i|we)\s+(?:am|are|was|were|have\s+been|has\s+been)\s+(?:told|advised|informed)\s+that|it\s+(?:is|was)\s+(?:believed|thought|said|anticipated|expected)\s+that)\b/i;
 const STRONG_CERTAINTY = /\b(?:will|must|definitely|certainly|obviously|undoubtedly|know|known)\b/gi;
 const CONDITION = /\b(?:if|unless|provided that|only if)\b/gi;
 const MONTH = '(?:january|february|march|april|may|june|july|august|september|october|november|december)';
@@ -244,6 +262,23 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
   const sourceHedges = terms(source, HEDGES);
   if (sourceHedges.size && terms(candidate, HEDGES).size === 0 && terms(candidate, STRONG_CERTAINTY).size > 0) {
     add({ code: 'FIDELITY_CERTAINTY_UPGRADED', severity: 'blocked', message: 'Candidate upgrades hedged language to stronger certainty.' });
+  }
+
+  /*
+    `preserve_evidential_framing`. review_required rather than blocked, by the
+    owner's decision of 2026-10-30: the loss is pragmatic rather than a flat
+    contradiction, and the comparator cannot tell a careless flattening from a
+    deliberate one. So it shows the reader what moved and lets them judge —
+    the posture EXC-009 takes for a verified negation change.
+  */
+  const sourceFrame = EVIDENTIAL_FRAME.exec(source);
+  if (sourceFrame && !EVIDENTIAL_FRAME.test(candidate)) {
+    add({
+      code: 'FIDELITY_FRAMING_REMOVED',
+      severity: 'review_required',
+      message: 'Candidate removes a frame attributing the statement to someone else; the source reports it and the candidate asserts it directly.',
+      evidence: sourceFrame[0].trim(),
+    });
   }
 
   const inventedMotive = missing(terms(candidate, MOTIVE), terms(authorised, MOTIVE));

@@ -8,7 +8,9 @@ const corpus = JSON.parse(readFileSync(corpusUrl, 'utf8')) as { cases: FidelityM
 describe('adversarial fidelity evaluation', () => {
   it('passes every declared mutation invariant', () => {
     const summary = evaluateFidelityMutationCorpus(corpus.cases);
-    expect(summary.total).toBe(19);
+    // 20 since 2026-10-30: ADV-020 pins `preserve_evidential_framing`, the
+    // case that returned a clean `pass` before the rule existed.
+    expect(summary.total).toBe(20);
     expect(summary.failed, formatFidelityMutationSummary(summary)).toBe(0);
   });
 

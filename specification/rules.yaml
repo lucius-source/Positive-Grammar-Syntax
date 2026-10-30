@@ -19,6 +19,15 @@ invariants:
   never_invent_fact: true
   never_invent_time: true
   never_increase_certainty_without_evidence: true
+  # Accepted 2026-10-30 by the owner, at review_required. A source that frames
+  # a proposition as reported, decided or attributed — "it has been decided
+  # that X" — is not asserting X, and a candidate that asserts X directly has
+  # changed who is claiming it. This is the evidential case that
+  # never_increase_certainty_without_evidence was always about and its
+  # implementation did not reach: FIDELITY_CERTAINTY_UPGRADED fires only on a
+  # HEDGE, which covers modality and mental-state verbs, not evidentiality.
+  # Rationale, measurement and known limits: docs/18-proposal-evidential-framing.md
+  preserve_evidential_framing: true
   natural_language_required: true
 
 rules:
