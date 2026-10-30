@@ -48,7 +48,25 @@ const ACTIONS: Array<[RegExp, string]> = [
   [/\b(?:receive|received)\b/i, 'receive'],
   [/\b(?:serve|served)\b/i, 'serve'],
   [/\bfail(?:ed)?\b/i, 'fail'], [/\b(?:make|made)\b/i, 'make'], [/\b(?:commit|committed)\b/i, 'commit'],
-  [/\b(?:complete|completed|do|done)\b/i, 'complete'],
+  /*
+    `do` is here as the lexical verb — "I will do it", "it is done" — and the
+    lookahead keeps the AUXILIARY out. Auxiliary `do` carries no action of its
+    own: "I do not like it" is about liking, not completing.
+
+    It mattered because this entry is the LAST in the table, so it only wins
+    when nothing else matched — and "like" is not in the table. The result was
+    an asymmetry nobody would guess: "I dont like it" parsed to no action and
+    "I do not like it" parsed to `complete`. Expanding a contraction, one of
+    the plainest clarity edits there is, therefore INVENTED an action and the
+    fidelity comparator blocked the rewrite for it. Found 2026-10-30 from a
+    member's own sentence.
+
+    NARROW ON PURPOSE: this excludes `do not` and nothing else. Question and
+    emphatic auxiliaries — "do you agree", "I do think" — are equally not the
+    verb `do`, and are equally mishandled, but telling them from the lexical
+    verb needs more than a lookahead and is not what today's defect was.
+  */
+  [/\b(?:complete|completed|done|do(?!\s+not\b))\b/i, 'complete'],
 ];
 
 function inferActor(text: string): string | null | undefined {
