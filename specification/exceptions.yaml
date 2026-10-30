@@ -40,6 +40,36 @@ exceptions:
     protects: [PGS-006]
     rule: Do not force a request or action into communication whose purpose is purely descriptive, expressive, historical or creative.
 
+  - id: EXC-008
+    name: instrument_operative_text
+    applies_to: l3_generation
+    accepted: 2026-10-30
+    scope: generation_only
+    detection_bias: withhold_when_uncertain
+    rule: >
+      Do not generate, propose or render replacement wording for the operative
+      text of a legal instrument. Analysis, scoring, explanation and fidelity
+      comparison of such text remain fully available; only generation is
+      withheld, and the withholding is reported with the markers that caused it.
+    rationale: >
+      EXC-104 already requires verified domain fidelity for operative language.
+      This is stronger and narrower: for an instrument, generation is withheld
+      outright rather than permitted subject to verification. A clause does not
+      merely describe a disposition, it effects one, so a wording that survives
+      fidelity comparison may still alter what the instrument does. The costs
+      are asymmetric — withholding costs a drafter their own wording, a wrong
+      generation costs an instrument that does not do what its maker intended —
+      and that asymmetry, not detector confidence, sets the default.
+    examples:
+      - "IN WITNESS WHEREOF the parties have executed this Deed."
+      - "The Settlor hereby declares that the Trustees shall hold the Trust Fund upon trust for the Beneficiaries."
+      - "NOW THEREFORE in consideration of the premises the parties agree as follows."
+    counterexamples:
+      - "I do not consent to this."
+      - "Your notice of 14 November arrived after the deadline it sets."
+      - "I am writing about the agreement we signed last year."
+      - "The trustee has not replied to either of my letters."
+
   - id: EXC-101
     name: clear_pronoun_reference
     domain: PGS-A

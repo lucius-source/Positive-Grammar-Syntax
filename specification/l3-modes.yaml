@@ -12,6 +12,15 @@ L3:
     - prefer_explicit_reference_when_material
     - produce_explainable_rule_trace
 
+  withheld:
+    # Added 2026-10-30 with EXC-008. L3 GENERATION only; analysis, scoring,
+    # explanation and fidelity comparison stay available for this text.
+    instrument_operative_text:
+      exception: EXC-008
+      rule: Withhold generated wording for the operative text of a legal instrument.
+      bias: Withhold when the reading is uncertain, because the costs are asymmetric.
+      report: Name the markers that caused the withholding, so a drafter can see why.
+
   natural:
     name: PGS-L3 Natural
     purpose: Comprehensive PGS transformation in fluent contemporary English.
@@ -74,5 +83,6 @@ selection:
   education: natural
   creative: natural_with_mode_exceptions
   legal: natural_with_domain_fidelity_and_optional_formal_analysis
+  legal_instrument: analysis_only_generation_withheld_per_EXC-008
   source_research: formal
   mathematical_language_research: formal

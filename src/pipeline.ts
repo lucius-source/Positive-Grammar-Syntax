@@ -5,6 +5,7 @@ import { compareFidelity } from './core/fidelity';
 import { isApprovedSemanticProviderKind } from './semantic/policy';
 import type { SemanticContext, SemanticDetermination, SemanticEngine, SemanticResponse } from './semantic/types';
 import { renderRecommendations, type Recommendation } from './render/recommendations';
+import { generateRecommendation } from './render/generated';
 import { buildResolutionLedger, unresolvedFromLedger, type ResolutionEntry } from './resolution/ledger';
 
 export type { Recommendation } from './render/recommendations';
@@ -16,6 +17,12 @@ export interface PipelineResult {
   ruleFindings: RuleFinding[];
   semantic?: SemanticResponse;
   semanticError?: string;
+  /**
+   * Set when the engine's `render` threw. Separate from `semanticError`
+   * because determination and generation fail independently: a wording can be
+   * lost while every determination succeeded.
+   */
+  renderError?: string;
   validation: ValidationResult;
   unresolved: string[];
   resolutionLedger: ResolutionEntry[];
@@ -59,8 +66,25 @@ export async function runPgsPipeline(source: string, engine: SemanticEngine, opt
   const resolutionLedger = buildResolutionLedger(deterministic, semantic, options.context);
   const unresolved = unresolvedFromLedger(resolutionLedger, semantic);
   const recommendations = renderRecommendations(source, unresolved, options.context, deterministic.document.propositions);
+  /**
+   * The generated wording, when the engine can author one. Appended rather
+   * than substituted: L1 and L2 stay deterministic, so a caller can always
+   * tell which wording the engine derived and which a model wrote.
+   *
+   * Its own gates live in `render/generated.ts`. It is then verified again
+   * here alongside L1 and L2, so `fidelity` reports every wording on offer by
+   * the same measure.
+   */
+  const generated = await generateRecommendation({
+    source,
+    engine,
+    propositions: semantic?.propositions ?? deterministic.document.propositions,
+    relations: semantic?.relations ?? deterministic.relations,
+    ...(options.context ? { context: options.context } : {}),
+  });
+  if (generated.recommendation) recommendations.push(generated.recommendation);
   const fidelity = verifyFidelity(source, recommendations, unresolved, options.context);
-  return { source, ...(options.context ? { context: options.context } : {}), deterministic, ruleFindings, ...(semantic ? { semantic } : {}), ...(semanticError ? { semanticError } : {}), validation, unresolved, resolutionLedger, recommendations, fidelity };
+  return { source, ...(options.context ? { context: options.context } : {}), deterministic, ruleFindings, ...(semantic ? { semantic } : {}), ...(semanticError ? { semanticError } : {}), ...(generated.error ? { renderError: generated.error } : {}), validation, unresolved, resolutionLedger, recommendations, fidelity };
 }
 
 function lines(items: string[], empty = 'None'): string { return items.length ? items.map(item => `- ${item}`).join('\n') : empty; }
@@ -91,7 +115,12 @@ export function formatPgsReport(result: PipelineResult): string {
   const semantic = result.semantic
     ? result.semantic.determinations.map(determinationLine)
     : [result.semanticError ? `Semantic review unavailable: ${result.semanticError}` : 'Not required.'];
-  const recommendations = result.recommendations.flatMap(r => [r.level, r.text ?? `Withheld: ${r.withheldReason ?? 'Fidelity could not be established.'}`, `Rules: ${r.ruleIds.length ? r.ruleIds.join(', ') : 'none (source preserved)'}`, `Support: ${r.supportingFields.length ? r.supportingFields.join(', ') : 'none'}`]);
+  const recommendations = [
+    ...result.recommendations.flatMap(r => [r.level, r.text ?? `Withheld: ${r.withheldReason ?? 'Fidelity could not be established.'}`, `Rules: ${r.ruleIds.length ? r.ruleIds.join(', ') : 'none (source preserved)'}`, `Support: ${r.supportingFields.length ? r.supportingFields.join(', ') : 'none'}`, ...(r.fidelityIssues?.length ? [`Read carefully: ${r.fidelityIssues.map(i => i.message).join(' ')}`] : [])]),
+    // A render that threw leaves no recommendation to print, so the reason is
+    // printed in its place rather than the level silently going missing.
+    ...(result.renderError ? ['PGS-L3-natural', `Unavailable: ${result.renderError}`] : []),
+  ];
   const context = result.context
     ? [...(result.context.knownFacts ?? []).map(fact => `Known fact: ${fact}`), ...(result.context.userIntent ? [`User intent: ${result.context.userIntent}`] : []), ...(result.context.referenceBindings ?? []).map(binding => `Reference binding: ${binding.reference} → ${binding.entity}`), ...(result.context.evidence ?? []).map(item => `Evidence (${item.field}; ${item.kind}): ${item.statement}`)]
     : [];

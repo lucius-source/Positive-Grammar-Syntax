@@ -1,12 +1,25 @@
 import type { SemanticContext } from '../semantic/types';
 import type { PgsProposition } from '../core/types';
+import type { FidelityIssue } from '../core/fidelity';
 
+/**
+ * `PGS-L3-natural` was added 2026-10-30 and is the only level a MODEL may
+ * author. L1 and L2 remain deterministic, so a caller can still tell at a
+ * glance which wording the engine derived and which one was generated.
+ */
 export interface Recommendation {
-  level: 'PGS-L1' | 'PGS-L2';
+  level: 'PGS-L1' | 'PGS-L2' | 'PGS-L3-natural';
   text?: string;
   withheldReason?: string;
   ruleIds: string[];
   supportingFields: string[];
+  /**
+   * Set only on a generated recommendation, and only when the fidelity
+   * comparison raised something. A `blocked` comparison withholds the text
+   * outright, so anything here is `review_required`: the wording is offered
+   * and these are the reasons to read it carefully.
+   */
+  fidelityIssues?: FidelityIssue[];
 }
 
 function asSentence(text: string): string {
