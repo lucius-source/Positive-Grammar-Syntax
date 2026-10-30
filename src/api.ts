@@ -166,11 +166,11 @@ export function score(source: string): ScoreOperationResult {
   };
 }
 
-/** Run the recommendation pipeline with an explicit local or approved self-hosted engine when semantic review is needed. */
+/** Run the recommendation pipeline with an explicitly configured approved engine when semantic review is needed. */
 export async function suggest(source: string, options: SuggestOptions = {}): Promise<PipelineResult> {
   const analysis = analyse(source);
   if (options.engine && !isApprovedSemanticProviderKind(options.engine.providerKind)) {
-    throw new Error('PGS suggestions accept local or approved self-hosted semantic engines only; cloud fallback is disabled.');
+    throw new Error('PGS suggestions accept an explicitly configured local, self-hosted or cloud semantic engine; an unclassified provider is refused.');
   }
   if (analysis.deterministic.requiresSemanticReview && !options.engine) {
     throw new Error('A local semantic engine or approved self-hosted semantic engine is required because this source needs semantic review.');

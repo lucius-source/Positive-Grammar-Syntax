@@ -73,9 +73,21 @@ describe('public PGS engine API', () => {
     expect(result.unresolved).toEqual(expect.arrayContaining(['P1: reference', 'P1: motive']));
   });
 
-  it('rejects cloud engines at the public boundary', async () => {
+  /**
+   * Changed on 2026-10-30. `cloud` is an approved provider class for an engine
+   * the DEPLOYMENT configures; what the boundary refuses is a provider nobody
+   * has classified. The rule that nothing falls back to cloud by itself lives
+   * in `registry.test.ts` and did not move.
+   */
+  it('refuses an unclassified provider at the public boundary', async () => {
+    const customEngine = { ...localEngine, id: 'custom:api-test', providerKind: 'custom' as const };
+    await expect(suggest('I sent the document yesterday.', { engine: customEngine })).rejects.toThrow(/unclassified provider is refused/i);
+  });
+
+  it('accepts an explicitly configured cloud engine at the public boundary', async () => {
     const cloudEngine = { ...localEngine, id: 'cloud:api-test', providerKind: 'cloud' as const };
-    await expect(suggest('I sent the document yesterday.', { engine: cloudEngine })).rejects.toThrow(/cloud fallback is disabled/i);
+    const result = await suggest('They deliberately ignored my email.', { engine: cloudEngine });
+    expect(result.semantic).toBeDefined();
   });
 
   it('accepts an explicitly classified self-hosted engine at the public boundary', async () => {

@@ -51,7 +51,7 @@ export async function runPgsPipeline(source: string, engine: SemanticEngine, opt
   let semanticError: string | undefined;
   if (deterministic.requiresSemanticReview && validation.valid) {
     try {
-      if (!isApprovedSemanticProviderKind(engine.providerKind)) throw new Error('PGS permits local or approved self-hosted semantic engines only; cloud fallback is disabled.');
+      if (!isApprovedSemanticProviderKind(engine.providerKind)) throw new Error('PGS permits an explicitly configured local, self-hosted or cloud semantic engine; an unclassified provider is refused.');
       const response = await engine.determine({ source, deterministicDocument: deterministic.document, deterministicRelations: deterministic.relations, ...(options.context ? { context: options.context } : {}) });
       semantic = response;
     } catch (error) { semanticError = error instanceof Error ? error.message : String(error); }

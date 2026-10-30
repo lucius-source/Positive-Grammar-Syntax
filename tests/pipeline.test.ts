@@ -30,13 +30,28 @@ describe('PGS executable pipeline', () => {
     for (const heading of ['SOURCE', 'DETERMINISTIC ANALYSIS', 'SEMANTIC DETERMINATION', 'UNRESOLVED', 'PGS-L1', 'PGS-L2', 'FIDELITY']) expect(report).toContain(heading);
   });
 
-  it('rejects non-local semantic engines without falling back', async () => {
+  /**
+   * Changed on 2026-10-30, when `cloud` became an approved provider class for
+   * an engine a deployment supplies on purpose. What the pipeline refuses is
+   * now an UNCLASSIFIED provider, and `registry.test.ts` still holds the
+   * separate and unchanged rule that nothing falls back to cloud on its own.
+   */
+  it('refuses an unclassified provider without calling it', async () => {
+    let called = false;
+    const customEngine = { ...localEngine, id: 'custom:test', providerKind: 'custom' as const, async determine(request: Parameters<SemanticEngine['determine']>[0]) { called = true; return localEngine.determine(request); } };
+    const result = await runPgsPipeline('They deliberately ignored my email.', customEngine);
+    expect(called).toBe(false);
+    expect(result.semantic).toBeUndefined();
+    expect(result.semanticError).toMatch(/unclassified provider is refused/);
+  });
+
+  it('uses an explicitly configured cloud semantic engine', async () => {
     let called = false;
     const cloudEngine = { ...localEngine, id: 'cloud:test', providerKind: 'cloud' as const, async determine(request: Parameters<SemanticEngine['determine']>[0]) { called = true; return localEngine.determine(request); } };
     const result = await runPgsPipeline('They deliberately ignored my email.', cloudEngine);
-    expect(called).toBe(false);
-    expect(result.semantic).toBeUndefined();
-    expect(result.semanticError).toMatch(/cloud fallback is disabled/);
+    expect(called).toBe(true);
+    expect(result.semantic).toBeDefined();
+    expect(result.semanticError).toBeUndefined();
   });
 
   it('accepts an explicitly classified self-hosted semantic engine', async () => {
