@@ -6,7 +6,40 @@ export type FidelityIssueSeverity = 'review_required' | 'blocked';
 export interface FidelityIssue { code: string; severity: FidelityIssueSeverity; message: string; evidence?: string }
 export interface FidelityComparison { status: 'pass' | 'review_required' | 'blocked'; issues: FidelityIssue[] }
 
-const NEGATION = /\b(?:not|no|never|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|wouldn't|shouldn't|mustn't)\b/gi;
+/**
+ * Negation, including the contractions people actually type.
+ *
+ * ── WHY THIS LIST GREW, 2026-10-30 ───────────────────────────────────────
+ *
+ * It read `don't|can't|won't|…` — apostrophes required — and listed neither
+ * `haven't` nor `couldn't` at all. A negation the comparator cannot see is
+ * one it cannot protect, so **meaning reversals passed as `pass`**:
+ *
+ *   "I dont like government interference."  ->  "I like government interference."
+ *   "I havent signed it."                   ->  "I have signed it."
+ *   "It hasn't arrived."                    ->  "It has arrived."
+ *
+ * Measured over 34 pairs that each reverse the meaning, 22 were not blocked.
+ * That is `preserve_necessary_negation`, invariant two, failing silently on
+ * the single most common typo in informal writing — in a comparator whose
+ * entire input is informal writing.
+ *
+ * `n'?t` is the fix rather than a second list: it matches `n't` and `nt` from
+ * one pattern, so the two spellings cannot drift apart again.
+ *
+ * KNOWN COST, accepted deliberately. `cant` (jargon, or a tilt) and `wont`
+ * (as in "as is his wont") are real words, and this reads them as negations.
+ * The consequence is a legitimate rewrite blocked and read by a person; the
+ * consequence of the omission was a reversed meaning delivered as "your
+ * meaning survived". Those are not comparable.
+ */
+/*
+  The stems are what precedes `n't`, which is NOT always the whole word:
+  `can't` is `ca`, `won't` is `wo`, `shan't` is `sha`, `ain't` is `ai`.
+  Writing `can` here spells `cann't` and silently drops `can't` — which is
+  exactly what the first attempt did, and what the 34-pair probe caught.
+*/
+const NEGATION = /\b(?:not|no|never|cannot|(?:do|does|did|is|are|was|were|wo|would|should|must|ca|could|have|has|had|sha|need|dare|ought|ai)n'?t)\b/gi;
 const HEDGES = /\b(?:may|might|could|maybe|perhaps|possibly|uncertain|believe|think|assume|allege)\b/gi;
 /**
  * Evidential framing — `preserve_evidential_framing`, accepted 2026-10-30.
