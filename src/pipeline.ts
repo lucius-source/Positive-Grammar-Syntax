@@ -81,6 +81,13 @@ export async function runPgsPipeline(source: string, engine: SemanticEngine, opt
     propositions: semantic?.propositions ?? deterministic.document.propositions,
     relations: semantic?.relations ?? deterministic.relations,
     ...(options.context ? { context: options.context } : {}),
+    /*
+      The determinations, for the affirmative path. `desiredState` is returned
+      here and never on a proposition — the determination prompt instructs the
+      model to copy propositions unchanged — and nothing bridges the two, so
+      without this the field the renderer needs is unreachable from it.
+    */
+    ...(semantic?.determinations ? { determinations: semantic.determinations } : {}),
   });
   if (generated.recommendation) recommendations.push(generated.recommendation);
   const fidelity = verifyFidelity(source, recommendations, unresolved, options.context);

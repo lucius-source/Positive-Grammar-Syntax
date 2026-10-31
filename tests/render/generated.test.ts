@@ -46,6 +46,71 @@ function renderingEngine(
 const l3 = (recommendations: Recommendation[]): Recommendation | undefined =>
   recommendations.find(r => r.level === 'PGS-L3-natural');
 
+/** A determine that returns the affirmative restatement step 2 asks for. */
+const determiningDesiredState =
+  (value: string): SemanticEngine['determine'] =>
+  async request => ({
+    propositions: request.deterministicDocument.propositions,
+    relations: request.deterministicRelations,
+    determinations: [
+      {
+        field: 'desiredState',
+        propositionId: 'P1',
+        value,
+        status: 'determined' as const,
+        basis: 'Affirmative restatement preserving the truth conditions.',
+      },
+    ],
+    unresolved: [],
+  });
+
+describe('the affirmative wording composed from a determination', () => {
+  /**
+   * The feature `docs/20` exists for, and the first point a member sees it.
+   *
+   * `compareFidelity` blocks every affirmative restatement with
+   * FIDELITY_NEGATION_REMOVED, because it keys on the negation token being
+   * absent and its authorised exceptions are structural proofs. The owner's
+   * decision of 2026-10-31 is to offer the wording with its issues attached
+   * rather than withhold it: the member wrote the sentence and can judge
+   * whether it still says what they meant.
+   *
+   * `calls` being empty is the other half. The wording is composed from the
+   * determination, so the second model call that free-writes prose does not
+   * happen — cheaper, and bounded by a field a person can read beside it.
+   */
+  it('offers the wording with its fidelity issues, without calling render', async () => {
+    const calls: string[] = [];
+    const engine = renderingEngine({ text: 'unused' }, calls);
+    engine.determine = determiningDesiredState('the second item is absent from the delivery');
+    const result = await runPgsPipeline('The delivery did not include the second item.', engine);
+    const generated = l3(result.recommendations);
+    expect(generated?.text).toBe('The second item is absent from the delivery.');
+    expect(generated?.withheldReason).toBeUndefined();
+    expect(generated?.ruleIds).toContain('PGS-007');
+    expect(generated?.fidelityIssues?.map(i => i.code)).toContain('FIDELITY_NEGATION_REMOVED');
+    expect(calls).toEqual([]);
+  });
+
+  /**
+   * The safety control, and the reason this path is acceptable at all.
+   *
+   * `necessary` is decided deterministically — "I do not consent to this."
+   * carries `necessary: true` from the protected legal domain — so consent
+   * never reaches the affirmative branch and no model judgement stands between
+   * a member and that protection. Render is reached instead, which is the
+   * behaviour this had before.
+   */
+  it('never takes the affirmative path for a necessary negation', async () => {
+    const calls: string[] = [];
+    const engine = renderingEngine({ text: 'I consent to this.' }, calls);
+    engine.determine = determiningDesiredState('consent is given');
+    const result = await runPgsPipeline('I do not consent to this.', engine);
+    expect(l3(result.recommendations)?.text).not.toBe('Consent is given.');
+    expect(calls).toEqual(['I do not consent to this.']);
+  });
+});
+
 describe('generated PGS-L3-natural wording', () => {
   it('offers nothing at all when the engine cannot render', async () => {
     const engine: SemanticEngine = {
