@@ -50,6 +50,46 @@ export function detectDeterministicRules(text: string): RuleFinding[] {
     const protectedDomain = classifyProtectedDomain(text);
     const materialNegation = text.match(/\b(?:not|no|never|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|mustn't)\b/i);
     if (protectedDomain && materialNegation) add({ ruleId: 'PGS-007', patternId: 'PAT-007-PROTECTED', severity: 'info', message: `Material ${protectedDomain} negation detected and protected from polarity-changing transformation.`, evidence: materialNegation[0] });
+    /**
+     * A negative ASSERTION, which until 2026-10-31 raised nothing at all.
+     *
+     * `negativeInstruction` above matches sentence-initial "do not"/"don't",
+     * "must not", "should not" and "I will not" — instructions and
+     * prohibitions. `PAT-007-PROTECTED` matches a negation inside a protected
+     * domain. Between them they miss the ordinary case:
+     *
+     *   "I did not receive the invoice with my order."
+     *
+     * Measured through `npm run pgs` at `fa83d40`: no finding, no protected
+     * marker. So the rule whose own message says "otherwise consider an
+     * affirmative desired state" never ran for the shape the owner named as
+     * PGS's primary purpose — stating what was absent from an order, or
+     * deficient in an experience, on a factual basis. `docs/20` §1a has the
+     * measurement; rule 7 of the charter is what it should have fired for.
+     *
+     * ── WHY THIS IS ADDITIVE AND NOTHING ELSE ───────────────────────────────
+     *
+     * It is the last branch of an if/else chain, so it is reachable only where
+     * BOTH existing paths already declined. No sentence that raises `PAT-007`
+     * or `PAT-007-PROTECTED` today can reach it, which is the property that
+     * makes this safe: it cannot move a negation out of protection, because a
+     * protected negation never arrives here.
+     *
+     * The lexicon is the existing one, matched verbatim above and deliberately
+     * not widened. `142e835` records what widening one costs — an accidental
+     * change took `preserve_necessary_negation` to 22 failures in 34 meaning
+     * reversals — and that trap is in the comparator's lexicon rather than
+     * this one, which is why this change touches neither. `nobody` and
+     * `nothing` are absent from the list and so still raise nothing here; a
+     * known gap, recorded rather than fixed, because fixing it belongs to a
+     * measurement of its own.
+     *
+     * `severity: 'info'`, matching both siblings. This reports; it decides
+     * nothing. `requiresSemanticReview` is computed from the parser's seeds
+     * (`src/analyser/document.ts:163`) and not from findings, so no sentence
+     * becomes a model call because of this.
+     */
+    else if (materialNegation) add({ ruleId: 'PGS-007', patternId: 'PAT-007-ASSERTION', severity: 'info', message: 'Negative assertion detected. Preserve the negation when legally, logically or safety necessary; otherwise consider an affirmative statement of the same fact.', evidence: materialNegation[0] });
   }
 
   const certainty = text.match(unsupportedCertainty);

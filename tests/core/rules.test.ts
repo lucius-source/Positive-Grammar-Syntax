@@ -23,6 +23,41 @@ describe('deterministic PGS rule detection', () => {
     expect(ids("I don't consent to this.")).toContain('PGS-007');
   });
 
+  /**
+   * The owner's primary case for PGS, which raised nothing until 2026-10-31:
+   * stating what was absent from an order on a factual basis. Neither
+   * `negativeInstruction` (an instruction or prohibition) nor
+   * `PAT-007-PROTECTED` (a negation in a protected domain) matched it, so the
+   * rule that says "otherwise consider an affirmative desired state" never
+   * ran for it. `docs/20` §1a has the measurement.
+   */
+  it('detects a negative assertion that is neither instruction nor protected', () => {
+    const finding = detectDeterministicRules('I did not receive the invoice with my order.').find(item => item.ruleId === 'PGS-007');
+    expect(finding?.patternId).toBe('PAT-007-ASSERTION');
+    expect(finding?.severity).toBe('info');
+    expect(finding?.message).toMatch(/Preserve the negation when legally/i);
+  });
+
+  /**
+   * The property that makes the branch above safe, asserted rather than
+   * assumed: it is the last arm of an if/else chain, so a sentence that
+   * already matched an earlier arm cannot reach it. If a refactor ever flattens
+   * the chain, these three are what notice — a protected negation reported as
+   * an ordinary assertion is a protection silently stopping applying, which is
+   * the failure mode `142e835` argues is the worst of its kind.
+   */
+  it('leaves the instruction and protected paths where they were', () => {
+    const pattern = (text: string) => detectDeterministicRules(text).find(item => item.ruleId === 'PGS-007')?.patternId;
+    expect(pattern('Do not park here.')).toBe('PAT-007');
+    expect(pattern('You should not have charged me £420.')).toBe('PAT-007');
+    expect(pattern('I do not consent to this.')).toBe('PAT-007-PROTECTED');
+  });
+
+  /** An already-affirmative sentence has nothing to consider, and says nothing. */
+  it('raises no negation finding for an affirmative sentence', () => {
+    expect(ids('The building stays smoke free.')).not.toContain('PGS-007');
+  });
+
   it('detects absolute generalisation candidates', () => {
     expect(ids('You never listen to me.')).toContain('PGS-002');
   });

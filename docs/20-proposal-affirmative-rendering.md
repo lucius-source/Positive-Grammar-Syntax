@@ -132,11 +132,29 @@ pattern, on a negative assertion in an unprotected domain. The existing
 `materialNegation` regex at line 51 already matches the right tokens; today it
 is reachable only behind `classifyProtectedDomain`.
 
-*Risk, and it is the one this repo has already paid:* `142e835` records that an
-accidental widening of the negation lexicon cost `preserve_necessary_negation`
-**22 of 34 reversals**. This step changes which sentences carry an `info`
-finding and must not change which negations are protected. Gate on
-`eval:fidelity` and `eval:fuzz` unchanged, and on that metric specifically.
+*The gate is `eval:local`, and the first draft of this section named the wrong
+one.* It cited `preserve_necessary_negation` — which is invariant two of the
+**comparator** (`src/core/fidelity.ts`), where `142e835`'s 22-of-34 result was
+measured. Step 1 touches `src/core/rules.ts` and never reaches the comparator,
+so that metric cannot move and is not the check. What can move is
+`eval:local`: `src/evaluation/local.ts:48` builds a `Set` of rule IDs from
+`ruleFindings`, so a case asserting which rules fire is sensitive to this.
+`eval:fidelity` and `eval:fuzz` exercise the comparator and should be
+bit-identical.
+
+The lexicon itself must not widen. `142e835`'s warning still applies to any
+change that does, and the way to keep this step clear of it is to reuse the
+existing `materialNegation` pattern verbatim — which leaves `nobody` and
+`nothing` raising nothing, a gap to measure separately rather than fix in
+passing.
+
+**Done 2026-10-31.** Implemented as a third arm of the existing if/else chain,
+so it is reachable only where both current paths decline — which is what makes
+it unable to move a negation out of protection. Measured after:
+`eval:fidelity` and `eval:fuzz` bit-identical (350/350, same seed), unit tests
+307 → 310 with three added, and `PAT-007` / `PAT-007-PROTECTED` verified
+unchanged on `Do not park here.`, `You should not have charged me £420.` and
+`I do not consent to this.`
 
 **Step 2 — determination (`src/semantic/prompts.ts`).** Ask for
 `negation.necessary` and, when false, `desiredState`/`requestedAction`, framed
