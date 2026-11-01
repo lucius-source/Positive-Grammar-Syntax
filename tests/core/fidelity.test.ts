@@ -31,6 +31,26 @@ describe('deterministic fidelity comparison', () => {
     expect(result.issues.map(item => item.code)).toContain('FIDELITY_ACTION_INVENTED');
   });
 
+  it('lets an elliptical apology restore the subject its ellipsis dropped', () => {
+    // "Sorry if you were offended." is the same speech act as "I am sorry
+    // if…", so PGS-L1's documented fronting is not inventing an actor. Both
+    // actor checks need the authorisation: the surface one keys on `i`, the
+    // PIR one on the parser's `speaker`, which is no word in the source.
+    const result = compareFidelity(
+      'Sorry if you were offended.',
+      'If you were offended, I am sorry.',
+    );
+    expect(result.issues.filter(i => i.code === 'FIDELITY_ACTOR_INVENTED')).toEqual([]);
+    expect(result.issues.some(i => i.severity === 'blocked')).toBe(false);
+  });
+
+  it('still blocks a first-person subject where no apology licenses one', () => {
+    // The authorisation is scoped to the apology construction, not to every
+    // source that happens to omit its subject.
+    const result = compareFidelity('The second item was missing.', 'I lost the second item.');
+    expect(result.issues.map(i => i.code)).toContain('FIDELITY_ACTOR_INVENTED');
+  });
+
   it('does not call a source word promoted to subject an invented actor', () => {
     // The owner's own case. The parser reads `two` and `contents` as actors of
     // the rewrite and neither as an actor of the source, so the PIR check

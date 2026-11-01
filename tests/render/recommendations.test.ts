@@ -157,8 +157,8 @@ describe('conservative natural recommendations', () => {
    * the PGS-001 rule already does for a missing actor.
    */
   it.each([
-    ['The report is bad.', 'The criteria for this evaluation of the report are not stated.'],
-    ['This draft is really bad.', 'The criteria for this evaluation of the draft are not stated.'],
+    ['The report is bad.', 'The criteria for this evaluation of the report remain to be stated.'],
+    ['This draft is really bad.', 'The criteria for this evaluation of the draft remain to be stated.'],
   ])('separates vague evaluation from criteria in %s', (source, expected) => {
     const [l1] = renderFromPir(source);
     expect(l1?.text).toBe(expected);

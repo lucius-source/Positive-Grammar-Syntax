@@ -332,9 +332,32 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
     }
   }
 
+  /** "Sorry if …" with the subject the ellipsis dropped. */
+  const ellipticalApology = /^\s*sorry\b/i.test(source.trim());
+
   const authorisedActors = terms(authorised, ACTOR);
   if (/\b(?:my|me|mine)\b/i.test(source)) for (const actor of ['i', 'me', 'my', 'mine']) authorisedActors.add(actor);
   if (terms(source, HEDGES).size || /\b(?:obviously|going to fail)\b/i.test(source)) authorisedActors.add('i');
+  /*
+    An elliptical apology has a first-person subject by grammar, not by
+    invention. "Sorry if you were offended." is the same speech act as "I am
+    sorry if you were offended." — `conditionalApology` in the L1 renderer
+    treats the "I am" as optional for exactly that reason — so restoring the
+    subject the ellipsis dropped adds no actor the source did not have.
+
+    Without this, PGS-L1's documented rewrite for a conditional apology was
+    blocked by FIDELITY_ACTOR_INVENTED on the word `i`, which is what had
+    LOCAL-037 failing. The line above already does the same for a hedged
+    source, on the same reasoning.
+
+    BOTH actor checks need it, which cost a round of measurement to learn.
+    Authorising `i` here satisfies the surface test, and the PIR test then
+    blocked the same wording on `speaker` — the parser's normalised label for
+    a first-person subject, which is no word in the source, so the
+    source-presence filter cannot reach it. The hedge precedent is applied in
+    both places for that reason, and this is applied in both places too.
+  */
+  if (ellipticalApology) authorisedActors.add('i');
   const newActors = missing(terms(candidate, ACTOR), authorisedActors);
   if (newActors.length) add({ code: 'FIDELITY_ACTOR_INVENTED', severity: 'blocked', message: 'Candidate introduces an actor absent from source and verified context.', evidence: newActors.join(', ') });
 
@@ -354,6 +377,7 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
   const candidatePir = pirFields(candidate);
   const authorisedPir = unionPirFields(authorisedTexts);
   if (terms(source, HEDGES).size || /\b(?:obviously|going to fail)\b/i.test(source)) authorisedPir.actors.add('speaker');
+  if (ellipticalApology) authorisedPir.actors.add('speaker');
   /*
     A parsed actor is only INVENTED if its word is nowhere in the authorised
     text. The parser's `actor` is the leading subject token, not an agent: it

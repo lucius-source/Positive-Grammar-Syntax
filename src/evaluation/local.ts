@@ -67,7 +67,17 @@ export async function evaluateLocalCase(testCase: LocalEvaluationCase, engine: S
   for (const quantity of testCase.expectedQuantities ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.quantities?.includes(quantity)), message: `${quantity} quantity is extracted.` });
   for (const modality of testCase.expectedModalities ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.modality === modality), message: `${modality} modality is classified.` });
   for (const fragment of testCase.expectedConditionFragments ?? []) assertions.push({ pass: pipeline.deterministic.document.propositions.some(proposition => proposition.conditions?.some(condition => condition.includes(fragment))), message: `Condition is preserved: ${fragment}` });
-  for (const fragment of testCase.protectedFragments ?? []) assertions.push({ pass: rendered.includes(fragment), message: `Protected fragment is retained: ${fragment}` });
+  /*
+    Case-insensitive, because a protected fragment is a claim about CONTENT
+    and this compared letters. LOCAL-037 protects "if you were offended" and
+    PGS-L1 fronts the condition — as docs/11 requires for a conditional
+    apology — producing "If you were offended, I am sorry." The fragment is
+    retained in full and the assertion failed on the capital I that fronting
+    necessarily creates. Any rewrite that moves a fragment to the start of a
+    sentence hits this, so the harness was measuring the wrong thing.
+  */
+  const renderedLower = rendered.toLowerCase();
+  for (const fragment of testCase.protectedFragments ?? []) assertions.push({ pass: renderedLower.includes(fragment.toLowerCase()), message: `Protected fragment is retained: ${fragment}` });
   if (testCase.requireL2Withheld) assertions.push({ pass: pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text === undefined, message: 'PGS-L2 is withheld pending resolution.' });
   const l2Text = pipeline.recommendations.find(item => item.level === 'PGS-L2')?.text ?? '';
   const l1Text = pipeline.recommendations.find(item => item.level === 'PGS-L1')?.text ?? '';

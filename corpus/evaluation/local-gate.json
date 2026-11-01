@@ -363,7 +363,7 @@
       "source": "Sorry if you were offended.",
       "expectedRules": ["PGS-001", "PGS-002"],
       "expectedConditionFragments": ["if you were offended"],
-      "expectedL1Fragments": ["Sorry if you were offended."],
+      "expectedL1Fragments": ["If you were offended, I am sorry."],
       "protectedFragments": ["if you were offended"]
     },
     {
@@ -373,7 +373,7 @@
       "source": "This report is bad.",
       "expectedRules": ["PGS-002", "PGS-006"],
       "expectedUnresolved": ["reference"],
-      "expectedL1Fragments": ["This report is bad."],
+      "expectedL1Fragments": ["The criteria for this evaluation of the report remain to be stated."],
       "requireL2Withheld": true
     },
     {

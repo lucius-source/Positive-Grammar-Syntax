@@ -191,12 +191,25 @@ function naturalL1(source: string, hasMotive: boolean, propositions: PgsProposit
    * PGS-006 is not claimed in `ruleIds`, for the reason it is not claimed on
    * impossibility: no criteria were proposed, so reporting the rule would
    * overstate what the engine did.
+   *
+   * PHRASED AFFIRMATIVELY, 2026-11-01. This said "are not stated", which did
+   * two things wrong at once. The comparator blocked the whole PGS-L1 with
+   * FIDELITY_NEGATION_INVENTED — correctly, since the source "This report is
+   * bad." carries no negation and the rewrite introduced one — so LOCAL-038
+   * had been failing its fidelity assertion for that reason. And a library
+   * whose rule 3 is affirmative outcome and rule 7 constructive negation was
+   * telling a member that something "is not stated", which is the shape it
+   * exists to talk people out of.
+   *
+   * "remain to be stated" names the same gap, invents no criteria, and
+   * carries no negation token. The approach the comment above describes is
+   * unchanged; only the words are.
    */
   const vagueEvaluation = clean.match(
     /^(?:the|this|that|my|your)\s+(report|feedback|draft|work)\b[^.!?]*\bbad\b[^.!?]*\.?$/i,
   );
   if (vagueEvaluation?.[1]) {
-    return { text: `The criteria for this evaluation of the ${vagueEvaluation[1].toLowerCase()} are not stated.`, ruleIds: ['PGS-002'], supportingFields: ['P1.objectOrTarget', 'P1.observation', 'P1.sourceSpan'] };
+    return { text: `The criteria for this evaluation of the ${vagueEvaluation[1].toLowerCase()} remain to be stated.`, ruleIds: ['PGS-002'], supportingFields: ['P1.objectOrTarget', 'P1.observation', 'P1.sourceSpan'] };
   }
 
   /**
