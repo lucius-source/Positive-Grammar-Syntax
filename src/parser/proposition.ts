@@ -145,10 +145,11 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   */
   const ATTITUDE_VERB =
     /\b(?:do not|don't|does not|doesn't)\s+(?:really\s+|particularly\s+|especially\s+)?(?:like|dislike|love|hate|enjoy|prefer|mind|appreciate|think|feel|believe|understand)\b/i;
+  const attitudinalNegation = hasNegation && ATTITUDE_VERB.test(text);
   const operativeNegation =
     speechAct === 'refusal' ||
     (speechAct === 'promise' && hasNegation) ||
-    (/\b(?:must not|mustn't|do not|don't)\b/i.test(text) && !ATTITUDE_VERB.test(text));
+    (/\b(?:must not|mustn't|do not|don't)\b/i.test(text) && !attitudinalNegation);
   const protectedNegation = operativeNegation || (hasNegation && (domain === 'legal' || domain === 'medical' || domain === 'safety'));
   const unresolved: string[] = [];
   const actor = inferActor(text);
@@ -173,6 +174,11 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
         present: true,
         text: parsed.negationTokens.join(', '),
         necessary: protectedNegation,
+        // Reported even when the negation is protected, because the domain
+        // backstop and the attitude class are independent: "I do not like the
+        // dosage they prescribed" is both, and a reader deciding how to
+        // restate it needs to know which fact it is.
+        ...(attitudinalNegation ? { attitudinal: true } : {}),
         ...(protectedNegation ? { reason: domain ? `Material negation in the protected ${domain} domain.` : 'Potentially operative refusal, prohibition, or protected negative construction.' } : {}),
       }
     : undefined;

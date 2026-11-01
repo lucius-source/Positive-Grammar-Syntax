@@ -84,7 +84,7 @@ export interface GenerateRequest {
 function affirmativeFromDeterminations(
   propositions: PgsProposition[],
   determinations: SemanticDetermination[] | undefined,
-): string | undefined {
+): { sentence: string; attitudinal: boolean } | undefined {
   if (!determinations?.length) return undefined;
   for (const proposition of propositions) {
     if (!proposition.negation?.present || proposition.negation.necessary === true) continue;
@@ -99,8 +99,11 @@ function affirmativeFromDeterminations(
     if (!determined) continue;
     const value = (determined.value as string).trim();
     // The library composes the sentence; the determination supplies the state.
-    const sentence = `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
-    return /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
+    const composed = `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+    return {
+      sentence: /[.!?]$/.test(composed) ? composed : `${composed}.`,
+      attitudinal: proposition.negation.attitudinal === true,
+    };
   }
   return undefined;
 }
@@ -178,13 +181,51 @@ export async function generateRecommendation({
    * affirmative candidate that also invents something is withheld like any
    * other wording that does.
    */
+  /*
+    AN ATTITUDE IS RESTATED AS AN INTENTION, AND SAID TO BE ONE.
+
+    The rule above is right for a negated FACT and cannot work for a negated
+    ATTITUDE, because no positive sentence is logically equivalent to "I do
+    not like X". Held to truth-preservation the renderer produced, on a real
+    request on 2026-11-01: "The speaker's attitude toward government
+    interference and over reach in privacy falls short of liking it." Third
+    person, stilted, and still a negation wearing a disguise.
+
+    So for this class the comparator's verb tests are tolerated, because
+    changing the verb is the whole move: "I do not like interference" → "I
+    value privacy" goes from Observation to Intention, which is the
+    pentagonal method's own step and what the owner asked this product to do.
+    The owner chose this on 2026-11-01 over keeping truth-preservation and
+    accepting the stilted output.
+
+    WHAT IS STILL BLOCKED, because an intention may be inferred and facts may
+    not: an invented quantity, date, condition, modality, evidential basis,
+    motive, or a removed protected term. The exemption is a closed list of
+    four codes, so anything the comparator learns to detect later blocks by
+    default rather than being waved through.
+
+    AND IT IS LABELLED. `FIDELITY_INTENT_RESTATED` rides along at
+    review_required so the member is told, in the panel that already renders
+    issue messages, that the wording says more than their sentence did. An
+    interpretation offered as an equivalent would be worse than the stilted
+    output it replaces.
+  */
+  const ATTITUDE_TOLERATED = new Set([
+    'FIDELITY_NEGATION_REMOVED',
+    'FIDELITY_ACTION_INVENTED',
+    'FIDELITY_ACTOR_INVENTED',
+    'FIDELITY_PIR_ACTION_OMITTED',
+  ]);
+
   const affirmative = affirmativeFromDeterminations(propositions, determinations);
   if (affirmative) {
-    const comparison = compareFidelity(source, affirmative, context);
-    const beyondNegation = comparison.issues.filter(
-      issue => issue.code !== 'FIDELITY_NEGATION_REMOVED',
+    const comparison = compareFidelity(source, affirmative.sentence, context);
+    const tolerated = affirmative.attitudinal
+      ? ATTITUDE_TOLERATED
+      : new Set(['FIDELITY_NEGATION_REMOVED']);
+    const blocking = comparison.issues.filter(
+      issue => issue.severity === 'blocked' && !tolerated.has(issue.code),
     );
-    const blocking = beyondNegation.filter(issue => issue.severity === 'blocked');
     const base = {
       level: 'PGS-L3-natural' as const,
       ruleIds: ['PGS-007'],
@@ -200,11 +241,24 @@ export async function generateRecommendation({
         },
       };
     }
+    const issues = affirmative.attitudinal
+      ? [
+          {
+            code: 'FIDELITY_INTENT_RESTATED',
+            severity: 'review_required' as const,
+            message:
+              'This states what you appear to want rather than what your sentence asserts, ' +
+              'so it says more than the original did. Read it before you use it.',
+            evidence: source,
+          },
+          ...comparison.issues,
+        ]
+      : comparison.issues;
     return {
       recommendation: {
         ...base,
-        text: affirmative,
-        ...(comparison.issues.length ? { fidelityIssues: comparison.issues } : {}),
+        text: affirmative.sentence,
+        ...(issues.length ? { fidelityIssues: issues } : {}),
       },
     };
   }

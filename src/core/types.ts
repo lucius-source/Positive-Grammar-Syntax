@@ -24,6 +24,26 @@ export interface PgsNegation {
   text?: string;
   necessary?: boolean;
   reason?: string;
+  /**
+   * The negation negates an attitude or opinion — "I do not like", "I do not
+   * think" — rather than a fact or an undertaking.
+   *
+   * The distinction earns a field because the two cannot be restated the same
+   * way. A negated FACT has an affirmative with identical truth conditions:
+   * "I did not receive two of the items" and "two of the items are absent"
+   * are true in exactly the same circumstances. A negated ATTITUDE has none.
+   * Nothing positive is logically equivalent to "I do not like X" — "I value
+   * Y" claims something different, and arguably more — so a renderer held to
+   * truth-preservation can only produce circumlocutions of not-liking. The
+   * measured example, 2026-11-01, was "The speaker's attitude toward
+   * government interference and over reach in privacy falls short of liking
+   * it."
+   *
+   * Set by the deterministic parser, read by the affirmative renderer, which
+   * is allowed to state what the writer wants for this class and must mark
+   * the result as an interpretation rather than an equivalent.
+   */
+  attitudinal?: boolean;
 }
 
 export interface PgsAmbiguity {

@@ -93,6 +93,59 @@ describe('the affirmative wording composed from a determination', () => {
   });
 
   /**
+   * An attitude is restated as an intention, and labelled as one.
+   *
+   * Held to truth-preservation this class produced, on a real request on
+   * 2026-11-01, "The speaker's attitude toward government interference and
+   * over reach in privacy falls short of liking it." — a negation in
+   * disguise. The owner chose latitude plus disclosure over that.
+   */
+  it('offers an intention for an attitudinal negation and says it says more', async () => {
+    const engine = renderingEngine({ text: 'unused' });
+    engine.determine = determiningDesiredState(
+      'I value privacy and freedom from government interference',
+    );
+    const result = await runPgsPipeline('I do not like government interference in privacy.', engine);
+    const generated = l3(result.recommendations);
+
+    expect(generated?.text).toBe('I value privacy and freedom from government interference.');
+    expect(generated?.withheldReason).toBeUndefined();
+    const codes = generated?.fidelityIssues?.map(i => i.code) ?? [];
+    expect(codes).toContain('FIDELITY_INTENT_RESTATED');
+    expect(generated?.fidelityIssues?.[0]?.message).toMatch(/says more than the original/i);
+  });
+
+  /**
+   * The latitude is for the verb, not for inventing specifics. A deadline the
+   * writer never set is still blocked on an attitudinal negation.
+   */
+  it('still withholds when an attitudinal restatement invents a specific', async () => {
+    const engine = renderingEngine({ text: 'unused' });
+    engine.determine = determiningDesiredState(
+      'I require a response within seven days of 14 November',
+    );
+    const result = await runPgsPipeline('I do not like the delay.', engine);
+    const generated = l3(result.recommendations);
+
+    expect(generated?.text).toBeUndefined();
+    expect(generated?.withheldReason).toMatch(/changed more than the negation/i);
+  });
+
+  /**
+   * The exemption is scoped to the attitude class. A negated FACT keeps the
+   * old, narrow tolerance — negation removal only.
+   */
+  it('does not widen the gate for a negated fact', async () => {
+    const engine = renderingEngine({ text: 'unused' });
+    engine.determine = determiningDesiredState('couriers lost the second item');
+    const result = await runPgsPipeline('The delivery did not include the second item.', engine);
+    const generated = l3(result.recommendations);
+
+    expect(generated?.text).toBeUndefined();
+    expect(generated?.withheldReason).toMatch(/changed more than the negation/i);
+  });
+
+  /**
    * The safety control, and the reason this path is acceptable at all.
    *
    * `necessary` is decided deterministically — "I do not consent to this."
