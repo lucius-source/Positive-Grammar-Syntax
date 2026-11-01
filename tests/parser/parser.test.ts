@@ -73,6 +73,39 @@ describe('proposition seed extraction', () => {
     expect(extractPropositionSeed('The file was sent.').proposition.actor).toBeNull();
   });
 
+  it('does not protect the negation of a stated preference', () => {
+    // The owner's own report. "do not" made this an operative refusal, so the
+    // negation was necessary and no affirmative restatement was permitted —
+    // for the exact kind of sentence PGS exists to rephrase.
+    const { proposition } = extractPropositionSeed(
+      'I do not like governement interference and over reach in privacy.',
+    );
+    expect(proposition.negation).toMatchObject({ present: true, necessary: false });
+    expect(proposition.negation?.reason).toBeUndefined();
+  });
+
+  it('still protects an operative refusal', () => {
+    // The safety property. The carve-out is by verb and lists only attitude
+    // and opinion verbs, so anything it does not name stays protected.
+    for (const text of [
+      'I do not consent to this.',
+      'I do not agree to the revised terms.',
+      'I do not want to proceed.',
+      'You must not energise the circuit.',
+    ]) {
+      const { proposition } = extractPropositionSeed(text);
+      expect(proposition.negation, text).toMatchObject({ present: true, necessary: true });
+    }
+  });
+
+  it('protects a preference whose negation sits in a protected domain', () => {
+    // The domain backstop, which the verb carve-out deliberately cannot reach.
+    const { proposition } = extractPropositionSeed(
+      'I do not like the dosage of warfarin they prescribed.',
+    );
+    expect(proposition.negation).toMatchObject({ present: true, necessary: true });
+  });
+
   it('protects material legal negation even when it is not a command', () => {
     const { proposition } = extractPropositionSeed('The claimant did not serve the notice.');
     expect(proposition.domain).toBe('legal');

@@ -122,7 +122,33 @@ export function extractPropositionSeed(text: string, id = 'P1'): PropositionSeed
   const epistemicStatus = inferEpistemic(text);
   const domain = classifyProtectedDomain(text);
   const hasNegation = parsed.negationTokens.length > 0;
-  const operativeNegation = speechAct === 'refusal' || (speechAct === 'promise' && hasNegation) || /\b(?:must not|mustn't|do not|don't)\b/i.test(text);
+  /*
+    "do not" is operative in "I do not consent" and attitudinal in "I do not
+    like". Treating both as operative protected the negation of every ordinary
+    statement of preference, and a protected negation is one PGS may never
+    restate affirmatively — so the sentence this library exists to help with
+    was the one it refused to touch. The owner's own report, "I do not like
+    governement interference and over reach in privacy.", came back as itself
+    with two spellings corrected.
+
+    Carved out by verb, in the safe direction. The exception lists attitude and
+    opinion verbs, so a verb nobody thought of stays protected exactly as
+    before; the alternative — listing the operative verbs — would lose
+    protection for any refusal the list missed, which is the wrong way for this
+    to fail. `want`, `agree`, `accept`, `authorise` and `consent` are
+    deliberately absent: "I do not want to proceed" can carry a refusal.
+
+    The domain backstop is untouched. The line below still protects any
+    negation in the legal, medical or safety domains, so "I do not like the
+    dosage they prescribed" keeps its negation on the domain test even though
+    `like` is exempt from this one.
+  */
+  const ATTITUDE_VERB =
+    /\b(?:do not|don't|does not|doesn't)\s+(?:really\s+|particularly\s+|especially\s+)?(?:like|dislike|love|hate|enjoy|prefer|mind|appreciate|think|feel|believe|understand)\b/i;
+  const operativeNegation =
+    speechAct === 'refusal' ||
+    (speechAct === 'promise' && hasNegation) ||
+    (/\b(?:must not|mustn't|do not|don't)\b/i.test(text) && !ATTITUDE_VERB.test(text));
   const protectedNegation = operativeNegation || (hasNegation && (domain === 'legal' || domain === 'medical' || domain === 'safety'));
   const unresolved: string[] = [];
   const actor = inferActor(text);
