@@ -31,6 +31,28 @@ describe('deterministic fidelity comparison', () => {
     expect(result.issues.map(item => item.code)).toContain('FIDELITY_ACTION_INVENTED');
   });
 
+  it('does not call a source word promoted to subject an invented actor', () => {
+    // The owner's own case. The parser reads `two` and `contents` as actors of
+    // the rewrite and neither as an actor of the source, so the PIR check
+    // reported both as fabricated and withheld the wording. Both words are in
+    // the source, so neither was invented.
+    const result = compareFidelity(
+      'I did not receive two of the items, and the contents were wrong.',
+      'Two of the contents are absent from the delivery.',
+    );
+    const invented = result.issues.filter(item => item.code === 'FIDELITY_ACTOR_INVENTED');
+    expect(invented.map(item => item.evidence)).not.toContain('two, contents');
+    expect(invented).toEqual([]);
+  });
+
+  it('still blocks an actor the source never mentions', () => {
+    // The safety property the filter has to keep: presence in the source is
+    // what excuses a promoted subject, and a role nobody mentioned has none.
+    const result = compareFidelity('Two of the items are absent.', 'Couriers lost two of the items.');
+    expect(result.issues.map(item => item.code)).toContain('FIDELITY_ACTOR_INVENTED');
+    expect(result.status).toBe('blocked');
+  });
+
   it('allows verified context while reviewing an omitted source action', () => {
     const result = compareFidelity('They ignored my email.', 'I sent the email. Please confirm receipt.', {
       knownFacts: ['I sent the email'], userIntent: 'Please confirm receipt',

@@ -354,7 +354,30 @@ export function compareFidelity(source: string, candidate: string, context?: Sem
   const candidatePir = pirFields(candidate);
   const authorisedPir = unionPirFields(authorisedTexts);
   if (terms(source, HEDGES).size || /\b(?:obviously|going to fail)\b/i.test(source)) authorisedPir.actors.add('speaker');
-  const inventedPirActors = conditionalReframe ? [] : missing(candidatePir.actors, authorisedPir.actors);
+  /*
+    A parsed actor is only INVENTED if its word is nowhere in the authorised
+    text. The parser's `actor` is the leading subject token, not an agent: it
+    reads "Two of the contents were absent" as actor `Two`, "Contents were
+    missing" as actor `Contents`, and "The surveyor produced a report" as no
+    actor at all, because a determiner hides one. Comparing those sets across a
+    source and its rewrite therefore fires on the very thing an affirmative
+    restatement must do — move the subject. "I did not receive two of the
+    items" → "two of the items are absent" reported `two, contents` as two
+    fabricated actors, and that withheld the whole wording.
+
+    Requiring absence from the source keeps what the check is for. A name or
+    role the source never mentions still blocks; a word already in the member's
+    own text, promoted to subject by the rewrite, does not. What this gives up
+    is a role swap between two parties the source names — which this check was
+    not catching anyway, since neither "the court" nor "the supplier" survives
+    its determiner to become a parsed actor.
+  */
+  const inAuthorisedText = (token: string): boolean =>
+    authorisedTexts.some(text =>
+      new RegExp(`\\b${token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text));
+  const inventedPirActors = conditionalReframe
+    ? []
+    : missing(candidatePir.actors, authorisedPir.actors).filter(actor => !inAuthorisedText(actor));
   if (inventedPirActors.length && !issues.some(issue => issue.code === 'FIDELITY_ACTOR_INVENTED')) {
     add({ code: 'FIDELITY_ACTOR_INVENTED', severity: 'blocked', message: 'Candidate PIR introduces an actor absent from source and verified context.', evidence: inventedPirActors.join(', ') });
   }
